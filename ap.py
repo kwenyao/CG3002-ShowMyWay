@@ -16,14 +16,12 @@ def determineUsableAp(ap_list, wifi_nodes):
 		if len(selection) >= 3:
 			break
 		mac_addr = ap_list[j]['address']
-		for x in range(1,len(wifi_nodes)):
-			node = wifi_nodes[str(x)]
-			if mac_addr == (node['macaddr']):
-				found = {}
-				found['ap'] = ap_list[j]
-				found['node'] = node
-				selection.append(found)
-				break
+		node = wifi_nodes[mac_addr]
+		if node != None:
+			found = {}
+			found['ap'] = ap_list[j]
+			found['node'] = node
+			selection.append(found)
 
 	return selection # [{ 'ap': AP, 'node': NODE }, {}...]
 
@@ -34,10 +32,7 @@ def getWifiData():
 	return stdout_list
 
 def getAccessPoints(stdout_list):
-	# essid = []
-	# address = []
-	# signal_str = []
-	# frequency = []
+
 	freq1 = 2
 	ap_list = []
 	count = 0

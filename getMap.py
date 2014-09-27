@@ -10,7 +10,6 @@ from beaker.util import parse_cache_config_options
 
 # buildings = [{'name':"DemoBuilding",'level':['1','2','3']}, {'name':"COM1",'level':['1','2','3']} , {'name':"COM2", 'level': ['1','2','3']}]
 
-
 cache_opts = {
     'cache.type': 'file',
     'cache.data_dir': '/tmp/cache/data',
@@ -66,32 +65,22 @@ def determineMapNodes(map_info):
 	map_nodes = {}
 	for node in map_info:
 		node_data = {}
-		nodeName = str(node['nodeName'])
-		nodeID = str(node['nodeId'])
-		x = str(node['x'])
-		y = str(node['y'])
-		linkTo = extractingLinkToNodes(node['linkTo'])
-		node_data['name'] = nodeName
-		node_data['x'] = x
-		node_data['y'] = y
-		node_data['linkTo'] = linkTo
-		map_nodes[nodeID] = node_data
+		node_data['name'] = str(node['nodeName'])
+		node_data['x'] = str(node['x'])
+		node_data['y'] = str(node['y'])
+		node_data['linkTo'] = extractingLinkToNodes(node['linkTo'])
+		map_nodes[str(node['nodeId'])] = node_data
 	return map_nodes
 
 def determineWifiNodes(wifi_info):
 	wifi_nodes = {}
 	for node in wifi_info:
 		node_data = {}
-		nodeName = node['nodeName']
-		nodeID = node['nodeId']
-		x = node['x']
-		y = node['y']
-		mac_addr = node['macAddr']
-		node_data['name'] = str(nodeName)
-		node_data['x'] = x
-		node_data['y'] = y
-		node_data['macaddr'] = str(mac_addr).upper()
-		wifi_nodes[str(nodeID)] = node_data
+		node_data['name'] = str(node['nodeName'])
+		node_data['x'] = str(node['x'])
+		node_data['y'] = str(node['y'])
+		node_data['id'] = node['nodeId']
+		wifi_nodes[str(node['macAddr']).upper()] = node_data
 	return wifi_nodes
 
 
