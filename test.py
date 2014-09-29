@@ -14,14 +14,10 @@
 #address = os.system("iwlist wlan0 scan|awk '"
 #print os.system("iwlist wlan0 scan|awk '"+ string + "'")
 
-import subprocess
-import re
-import time
-import math
 import getMap
 import getCoordinates
 import simplevector
-import ap
+import accessPoints
 import sys
 
 def determineCircles(selection_list):
@@ -29,7 +25,7 @@ def determineCircles(selection_list):
 	for selection in selection_list:
 		x = float(selection['node']['x'])
 		y = float(selection['node']['y'])
-		dist = selection['ap']['distance']
+		dist = selection['accessPoints']['distance']
 		circle = {}
 		circle['x'] = x
 		circle['y'] = y
@@ -55,7 +51,7 @@ def calculateUserLocation(ap_list, wifi_nodes, map_nodes):
 	# print '\n'
 	# print wifi_nodes
 	# print '\n'
-	selection_list = ap.determineUsableAp(ap_list,wifi_nodes)
+	selection_list = accessPoints.determineUsableAp(ap_list,wifi_nodes)
 	# print selection_list
 	# print '\n'
 	circles = determineCircles(selection_list)
@@ -81,9 +77,9 @@ def initAll():
 	return mapObj
 
 def getAP():
-	stdout_list = ap.getWifiData()							#--- Get Wifi data
-	ap_list = ap.getAccessPoints(stdout_list)				#--- Get List of Access Points
-	ap_list = ap.sortAccessPoints(ap_list)					#--- Sort list of Access Points
+	stdout_list = accessPoints.scanWifiData()							#--- Get Wifi data
+	ap_list = accessPoints.getAccessPoints(stdout_list)				#--- Get List of Access Points
+	ap_list = accessPoints.sortAccessPoints(ap_list)					#--- Sort list of Access Points
 	return ap_list
 
 
@@ -111,7 +107,7 @@ except:
 
 # // for testing
 # print wifi_nodes
-pseudo_ap_list = [{'address':"29:11:A1:8B:C2:D0", 'essid':"ap-101", 'frequency':"2.41", 'signal': -87, 'distance': ap.calculateDistanceFromAP(-87,2.41)}, {'address':"9A:22:5B:1C:D4:5E", 'essid':"ap-102", 'frequency':"2.41", 'signal': -95, 'distance': ap.calculateDistanceFromAP(-95,2.41)}, {'address':"F9:33:0A:92:9C:D9", 'essid':"ap-103", 'frequency':"2.41", 'signal': -90, 'distance': ap.calculateDistanceFromAP(-90,2.41)}, {'address':"B1:44:A6:BB:EC:D0", 'essid':"ap-104", 'frequency':"2.41", 'signal': -90, 'distance': ap.calculateDistanceFromAP(-90,2.41)}]
+pseudo_ap_list = [{'address':"29:11:A1:8B:C2:D0", 'essid':"accessPoints-101", 'frequency':"2.41", 'signal': -87, 'distance': accessPoints.calculateDistanceFromAP(-87,2.41)}, {'address':"9A:22:5B:1C:D4:5E", 'essid':"accessPoints-102", 'frequency':"2.41", 'signal': -95, 'distance': accessPoints.calculateDistanceFromAP(-95,2.41)}, {'address':"F9:33:0A:92:9C:D9", 'essid':"accessPoints-103", 'frequency':"2.41", 'signal': -90, 'distance': accessPoints.calculateDistanceFromAP(-90,2.41)}, {'address':"B1:44:A6:BB:EC:D0", 'essid':"accessPoints-104", 'frequency':"2.41", 'signal': -90, 'distance': accessPoints.calculateDistanceFromAP(-90,2.41)}]
 
 while True:
 	user_input = raw_input("Map: ")
