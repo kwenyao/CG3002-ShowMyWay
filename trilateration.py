@@ -84,7 +84,7 @@ class TrilaterationCalculation():
 		for selection in selection_list:
 			x = float(selection['node']['x'])
 			y = float(selection['node']['y'])
-			dist = selection['accessPoints']['distance']
+			dist = selection['ap']['distance']
 			circle = {}
 			circle['x'] = x
 			circle['y'] = y

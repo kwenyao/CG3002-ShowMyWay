@@ -68,7 +68,7 @@ class MapSync(object):
 	
 	def getAPNodes(self):
 		return self.apNodes
-	
+		
 	def __extractingLinkToNodes(self, linkToString):
 		linkToString = str(linkToString)
 		linkToNodes = linkToString.split(",")
@@ -106,6 +106,7 @@ class MapSync(object):
 			nodeData['y'] = str(node['y'])
 			nodeData['id'] = node['nodeId']
 			self.apNodes[str(node['macAddr']).upper()] = nodeData
+		return self.apNodes
 	
 	
 	def determineSource(self, building_name, level_value):
@@ -119,10 +120,10 @@ class MapSync(object):
 		source = json.loads(source)
 		return source
 
-	def determineAllInfos(self, source):
+	def separateAllInfos(self, source):
 		self.info = source['info']
 		self.map_info = source['map']
-		self.wifi_info = source['wifi_test']
+		self.wifi_info = source['wifi']
 		# print "in determineInfos"
 
 	def extractMapNodes(self):
@@ -133,9 +134,6 @@ class MapSync(object):
 	def extractWifiNodes(self):
 		wifi_nodes = self.determineWifiNodes()
 		return wifi_nodes
-
-	def getInfo(self):
-		return self.determineInfos(self.info)
 
 	def getFromCache(self, request):
 		return self.cache_manager.get(request)
@@ -157,13 +155,13 @@ class MapSync(object):
 				building_name = building['name']
 				for lvl in building['level']:
 					source = self.determineSource(building_name, lvl)
-					self.determineAllInfos(source)
+					self.separateAllInfos(source)
 					map_nodes = self.extractMapNodes()  #--- Got the nodes from map
 					wifi_nodes = self.extractWifiNodes()
 					cache = {}
 					cache['map_name'] = building_name + lvl
 					cache['map'] = map_nodes
-					cache['wifi_test'] = wifi_nodes
+					cache['wifi'] = wifi_nodes
 					cache['info'] = self.info
 					array_of_cache.append(cache)
 					self.cache_manager.put(building_name + lvl, cache)  #--- Cache the map
