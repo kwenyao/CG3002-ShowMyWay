@@ -12,7 +12,7 @@ class AccessPoints():
 	
 	def determineUsableAp(self, ap_list, wifi_nodes):
 		selection = []
-		
+		selected_address = {}
 		for j in range(0, len(ap_list)):
 			if len(selection) >= 3:
 				break
@@ -22,7 +22,9 @@ class AccessPoints():
 				found = {}
 				found['ap'] = ap_list[j]
 				found['node'] = node
-				selection.append(found)
+				if selected_address.get(mac_addr) is None:
+					selected_address[mac_addr] = ""
+					selection.append(found)
 	
 		return selection # [{ 'ap': AP, 'node': NODE }, {}...]
 	
