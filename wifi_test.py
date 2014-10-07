@@ -20,7 +20,7 @@ def main():
 	
 	# print packet
 	apNodes = packet['wifi']
-
+	
 	# north = currmap.getNorth()
 	# mapNodes = currmap.getMap()
 	# apNodes = currmap.getAPNodes()

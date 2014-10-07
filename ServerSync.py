@@ -99,7 +99,7 @@ class MapSync(object):
 			nodeData['y'] = str(node['y'])
 			nodeData['id'] = node['nodeId']
 			macAddr = str(node['macAddr']).upper()
-			self.apNodes[macAddr[0:13]] = nodeData
+			self.apNodes[macAddr[0:14]] = nodeData
 	
 	def determineSource(self, building_name, level_value):
 		url = 'http://showmyway.comp.nus.edu.sg/getMapInfo.php?Building=' + building_name + "&Level=" + level_value 

@@ -48,7 +48,7 @@ class AccessPoints():
 			item = item.strip()
 			match = re.search('Address: (\S+)', item)
 			if match:
-				macAddr = match.group(1)[0:13]
+				macAddr = match.group(1)[0:14]
 				isAlreadyFound = self.scannedAPDict.get(match.group(1))
 				if isAlreadyFound is None:
 					ap['address'] = macAddr
