@@ -3,6 +3,10 @@ import re
 import math
 
 class AccessPoints():
+	def __init__(self):
+		self.scannedAPDict = {}
+		
+	
 	def calculateDistanceFromAP(self, signal, freq):
 		FreeSpaceConstant = 27.55
 		freq = float(freq)*1000
@@ -10,20 +14,20 @@ class AccessPoints():
 		distance = math.pow(10,result)
 		return distance 
 	
-	def determineUsableAp(self, ap_list, wifi_nodes):
+	def determineUsableAp(self, apList, wifiNodes):
 		selection = []
 		selected_address = {}
-		for j in range(0, len(ap_list)):
+		for j in range(0, len(apList)):
 			if len(selection) >= 3:
 				break
-			mac_addr = ap_list[j]['address']
-			node = wifi_nodes[mac_addr]
+			macAddr = apList[j].get('address')
+			node = wifiNodes.get(macAddr)
 			if node != None:
 				found = {}
-				found['ap'] = ap_list[j]
+				found['ap'] = apList[j]
 				found['node'] = node
-				if selected_address.get(mac_addr) is None:
-					selected_address[mac_addr] = ""
+				if selected_address.get(macAddr) is None:
+					selected_address[macAddr] = ""
 					selection.append(found)
 	
 		return selection # [{ 'ap': AP, 'node': NODE }, {}...]
@@ -36,43 +40,45 @@ class AccessPoints():
 	
 	def getAccessPoints(self):
 		ap_list = []
-		count = 0
+		elementCount = 0
 		ap = {}
+		self.scannedAPDict.clear()
 		wifiScanList = self.scanWifiData()
 		for item in wifiScanList:
 			item = item.strip()
 			match = re.search('Address: (\S+)', item)
 			if match:
-				ap['address'] = match.group(1)
-				# address.append(match.group(1))
-				count+=1
-	
+				macAddr = match.group(1)[0:13]
+				isAlreadyFound = self.scannedAPDict.get(match.group(1))
+				if isAlreadyFound is None:
+					ap['address'] = macAddr
+					self.scannedAPDict[macAddr] = macAddr
+					elementCount+=1 
+				else:
+					elementCount = 0
+					continue
 			match = re.search('ESSID:"(\S+)"', item)
 			if match:
 				ap['essid'] = match.group(1)
-				# essid.append(match.group(1))
-				count+=1
+				elementCount+=1
 	
 			match = re.search('Frequency:(\S+)', item)
 			if match:
 				ap['freq'] = match.group(1)
 				freq1 = match.group(1)
-				# frequency.append(match.group(1))
-				count+=1
+				elementCount+=1
 	
 			found = re.search('Signal level=(\S+)',item)
 			if found:
 				match = found.group(1).split('/')[0]	
 				sig = (int(match)/2) - 100
 				ap['signal'] = sig
-				# signal_str.append(str(sig) + " dBm")
 				ap['distance'] = self.calculateDistanceFromAP(sig,freq1)
-				count+=1
-			if count == 4:
+				elementCount+=1
+			if elementCount == 4:
 				ap_list.append(ap)
-				count = 0
+				elementCount = 0
 				ap = {}
-			
 			
 		return ap_list
 	

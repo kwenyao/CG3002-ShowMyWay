@@ -42,9 +42,10 @@ class MapSync(object):
 	def __init__(self):
 		self.val = 0
 		self.info = []
-		self.map_info = []
-		self.wifi_info = []
-		self.map_nodes = {}
+		self.mapInfo = []
+		self.wifiInfo = []
+		self.mapNodes = {}
+		self.apNodes = {}
 		self.fileManager = Storage()
 		cache = CacheManager(**parse_cache_config_options(cache_opts))
 		self.cache_manager = cache.get_cache('map.php', expire=3600)  #--- get specific cache from cacheManager
@@ -55,16 +56,11 @@ class MapSync(object):
 		except:
 			return
 
-	# def determineMainSource(self, building_name, level_value):
-	# 	source = determineSource(building_name,level_value)
-	# 	# print "in determineMainSource"
-	# 	return source
-	
 	def getMap(self):
-		return self.map_nodes
+		return self.mapNodes
 	
 	def getNorth(self):
-		return self.map_info
+		return self.mapInfo
 	
 	def getAPNodes(self):
 		return self.apNodes
@@ -86,32 +82,26 @@ class MapSync(object):
 		north = str(info['northAt'])
 		return north
 	
-	def determineMapNodes(self):
-		map_nodes = {}
-		for node in self.map_info:
+	def extractMapNodes(self):
+		for node in self.mapInfo:
 			nodeData = {}
 			nodeData['name'] = str(node['nodeName'])
 			nodeData['x'] = str(node['x'])
 			nodeData['y'] = str(node['y'])
 			nodeData['linkTo'] = self.__extractingLinkToNodes(node['linkTo'])
-			map_nodes[str(node['nodeId'])] = nodeData
-		return map_nodes
+			self.mapNodes[str(node['nodeId'])] = nodeData
 	
-	def determineWifiNodes(self):
-		self.apNodes = {}
-		for node in self.wifi_info:
+	def extractWifiNodes(self):
+		for node in self.wifiInfo:
 			nodeData = {}
 			nodeData['name'] = str(node['nodeName'])
 			nodeData['x'] = str(node['x'])
 			nodeData['y'] = str(node['y'])
 			nodeData['id'] = node['nodeId']
-			self.apNodes[str(node['macAddr']).upper()] = nodeData
-		return self.apNodes
-	
+			macAddr = str(node['macAddr']).upper()
+			self.apNodes[macAddr[0:13]] = nodeData
 	
 	def determineSource(self, building_name, level_value):
-		# print "Hello World"
-		
 		url = 'http://showmyway.comp.nus.edu.sg/getMapInfo.php?Building=' + building_name + "&Level=" + level_value 
 		# req = requests.request('GET', 'http://showmyway.comp.nus.edu.sg/getMapInfo.php?Building=DemoBuilding&Level=1')
 		req = urllib.urlopen(url)
@@ -122,18 +112,9 @@ class MapSync(object):
 
 	def separateAllInfos(self, source):
 		self.info = source['info']
-		self.map_info = source['map']
-		self.wifi_info = source['wifi']
+		self.mapInfo = source['map']
+		self.wifiInfo = source['wifi']
 		# print "in determineInfos"
-
-	def extractMapNodes(self):
-		map_nodes = self.determineMapNodes()
-		# print "in getMapNodes"
-		return map_nodes
-
-	def extractWifiNodes(self):
-		wifi_nodes = self.determineWifiNodes()
-		return wifi_nodes
 
 	def getFromCache(self, request):
 		return self.cache_manager.get(request)
@@ -150,22 +131,16 @@ class MapSync(object):
 	def downloadAllMaps(self):
 		if not self.fileManager.isFileExist("buildings.txt") or self.fileManager.readFromFile("buildings.txt") == "":
 			print "			 downloading map"
-			array_of_cache = []
+			cacheArray = []
 			for building in self.buildings:
-				building_name = building['name']
-				for lvl in building['level']:
-					source = self.determineSource(building_name, lvl)
+				buildingName = building['name']
+				for level in building['level']:
+					source = self.determineSource(buildingName, level)
 					self.separateAllInfos(source)
-					map_nodes = self.extractMapNodes()  #--- Got the nodes from map
-					wifi_nodes = self.extractWifiNodes()
-					cache = {}
-					cache['map_name'] = building_name + lvl
-					cache['map'] = map_nodes
-					cache['wifi'] = wifi_nodes
-					cache['info'] = self.info
-					array_of_cache.append(cache)
-					self.cache_manager.put(building_name + lvl, cache)  #--- Cache the map
-			self.fileManager.appendToFile("buildings.txt", json.dumps(array_of_cache))
+					self.extractMapNodes()  #--- Got the nodes from map
+					self.extractWifiNodes()
+					cacheArray.append(self.cacheData(buildingName, level))
+			self.fileManager.appendToFile("buildings.txt", json.dumps(cacheArray))
 		else:
 			print "			 loading map from storage"
 			array_of_cache = self.fileManager.readFromFile("buildings.txt")
@@ -175,3 +150,11 @@ class MapSync(object):
 
 		print "done caching"
 		
+	def cacheData(self, buildingName, level):
+		cache = {}
+		cache['map_name'] = buildingName + level
+		cache['map'] = self.mapNodes
+		cache['wifi'] = self.apNodes
+		cache['info'] = self.info
+		self.cache_manager.put(buildingName + level, cache)
+		return cache

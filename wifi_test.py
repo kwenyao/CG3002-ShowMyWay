@@ -17,6 +17,7 @@ def main():
 	currmap.downloadAllMaps()
 	currmap.reloadAllMaps()
 	packet = getCache()
+	
 	# print packet
 	apNodes = packet['wifi']
 
