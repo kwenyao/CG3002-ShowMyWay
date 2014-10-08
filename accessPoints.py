@@ -40,33 +40,33 @@ class AccessPoints():
 	
 	def getAccessPoints(self):
 		ap_list = []
-		elementCount = 0
-		ap = {}
 		self.scannedAPDict.clear()
 		wifiScanList = self.scanWifiData()
 		for item in wifiScanList:
+			elementCount = 0
+			ap = {}
+			
 			item = item.strip()
 			match = re.search('Address: (\S+)', item)
 			if match:
 				macAddr = match.group(1)[0:14]
-				isAlreadyFound = self.scannedAPDict.get(match.group(1))
+				isAlreadyFound = self.scannedAPDict.get(macAddr)
 				if isAlreadyFound is None:
 					ap['address'] = macAddr
 					self.scannedAPDict[macAddr] = macAddr
-					elementCount+=1 
+					elementCount += 1 
 				else:
-					elementCount = 0
 					continue
 			match = re.search('ESSID:"(\S+)"', item)
 			if match:
 				ap['essid'] = match.group(1)
-				elementCount+=1
+				elementCount += 1
 	
 			match = re.search('Frequency:(\S+)', item)
 			if match:
 				ap['freq'] = match.group(1)
 				freq1 = match.group(1)
-				elementCount+=1
+				elementCount += 1
 	
 			found = re.search('Signal level=(\S+)',item)
 			if found:
@@ -74,12 +74,10 @@ class AccessPoints():
 				sig = (int(match)/2) - 100
 				ap['signal'] = sig
 				ap['distance'] = self.calculateDistanceFromAP(sig,freq1)
-				elementCount+=1
+				elementCount += 1
 			if elementCount == 4:
 				ap_list.append(ap)
-				elementCount = 0
-				ap = {}
-			
+							
 		return ap_list
 	
 	def sortAccessPoints(self, ap_list):
