@@ -129,27 +129,32 @@ class MapSync(object):
 		self.downloadAllMaps()
 				
 	def downloadAllMaps(self):
-		if not self.fileManager.isFileExist("buildings.txt") or self.fileManager.readFromFile("buildings.txt") == "":
-			print "			 downloading map"
+		isExist = self.fileManager.isFileExist("buildings.txt")
+		isEmpty = self.fileManager.readFromFile("buildings.txt") == ""
+		if not isExist or isEmpty:
+			print "downloading map..."
 			cacheArray = []
 			for building in self.buildings:
 				buildingName = building['name']
 				for level in building['level']:
 					source = self.determineSource(buildingName, level)
-					self.separateAllInfos(source)
-					self.extractMapNodes()  #--- Got the nodes from map
-					self.extractWifiNodes()
+					self.extractData(source)
 					cacheArray.append(self.cacheData(buildingName, level))
 			self.fileManager.appendToFile("buildings.txt", json.dumps(cacheArray))
 		else:
-			print "			 loading map from storage"
+			print "loading map from storage..."
 			array_of_cache = self.fileManager.readFromFile("buildings.txt")
 			array_of_cache = json.loads(array_of_cache)
 			for cache in array_of_cache:
 				self.cache_manager.put(cache['map_name'], cache)
 
 		print "done caching"
-		
+	
+	def extractData(self, source):
+		self.separateAllInfos(source)
+		self.extractMapNodes()
+		self.extractWifiNodes()
+	
 	def cacheData(self, buildingName, level):
 		cache = {}
 		cache['map_name'] = buildingName + level

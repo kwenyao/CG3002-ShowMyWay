@@ -5,8 +5,7 @@ import math
 class AccessPoints():
 	def __init__(self):
 		self.scannedAPDict = {}
-		
-	
+			
 	def calculateDistanceFromAP(self, signal, freq):
 		FreeSpaceConstant = 27.55
 		freq = float(freq)*1000
@@ -70,7 +69,7 @@ class AccessPoints():
 	
 			found = re.search('Signal level=(\S+)',item)
 			if found:
-				match = found.group(1).split('/')[0]	
+				match = found.group(1).split('/')[0]
 				sig = (int(match)/2) - 100
 				ap['signal'] = sig
 				ap['distance'] = self.calculateDistanceFromAP(sig,freq1)
