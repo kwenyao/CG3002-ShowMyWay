@@ -6,19 +6,19 @@ class TrilaterationCalculation():
 	
 		results = []
 		distance = (p2 - p1).magnitude
-	
+		print distance
 		if(distance > (r1 + r2)):
-			#circles are separate
-			results.append("circles are separate")
-			#return results
+			print "circles are separate"
+			# results.append("circles are separate")
+			return results
 		elif(distance < math.fabs(r1 - r2)):
-			#one circle is contained within the other
-			results.append("one circle is contained within the other")
-			#return results
+			print "one circle is contained within the other"
+			# results.append("one circle is contained within the other")
+			return results
 		elif(distance == 0 and (r1 == r2)):
-			#circles are exactly identical in position and radius
-			results.append("circles are exactly identical in position and radius")
-			#return results
+			print "circles are exactly identical in position and radius"
+			# results.append("circles are exactly identical in position and radius")
+			return results
 		else:
 			a = (math.pow(r1,2)-math.pow(r2,2)+math.pow(distance,2))/(2*distance)
 			h = math.sqrt(math.pow(r1,2) - math.pow(a,2))
@@ -49,7 +49,12 @@ class TrilaterationCalculation():
 			for coord in coord_tuple:
 				count = 0
 				for circle in circles:
-					if self.determineWithinCircle(circle['x'],circle['y'],circle['dist'],coord[0],coord[1]):
+					print circle['x']
+					print circle['y']
+					print circle['dist']
+					print coord[0]
+					print coord[1]
+					if self.determineWithinCircle(float(circle['x']),float(circle['y']),float(circle['dist']),float(coord[0]),float(coord[1])):
 						count += 1
 					if count >= len(circles):
 						coordinates.append(coord)
@@ -84,7 +89,7 @@ class TrilaterationCalculation():
 		for selection in selection_list:
 			x = float(selection['node']['x'])
 			y = float(selection['node']['y'])
-			dist = selection['ap']['distance']
+			dist = float(selection['ap']['distance'])
 			circle = {}
 			circle['x'] = x
 			circle['y'] = y
