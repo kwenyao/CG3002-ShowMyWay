@@ -48,13 +48,14 @@ class MapSync(object):
 		self.apNodes = {}
 		self.fileManager = Storage()
 		cache = CacheManager(**parse_cache_config_options(cache_opts))
-		self.cache_manager = cache.get_cache('map.php', expire=3600)  #--- get specific cache from cacheManager
+		self.cacheManager = cache.get_cache('map.php', expire=3600)  #--- get specific cache from cacheManager
 		try:
 			building_json = self.fileManager.readFromFile("buildinglist.txt") 
 			self.buildings = json.loads(building_json)
 			print "building loaded"
 		except:
 			return
+		self.syncAllMaps()
 
 	def getMap(self):
 		return self.mapNodes
@@ -116,10 +117,13 @@ class MapSync(object):
 		self.wifiInfo = source['wifi']
 		# print "in determineInfos"
 
-	def getFromCache(self, request):
-		return self.cache_manager.get(request)
+	def loadLocation(self, location):
+		currentMap = self.cacheManager.get(location)
+		self.apNodes = currentMap.get('wifi')
+		self.mapInfo = currentMap.get('info')
+		self.mapNodes = currentMap.get('map')
 
-	def reloadAllMaps(self):
+	def syncAllMaps(self):
 		self.fileManager.writeToFile("buildings.txt", "")
 		try:
 			building_json = self.fileManager.readFromFile("buildinglist.txt") 
@@ -132,7 +136,7 @@ class MapSync(object):
 		isExist = self.fileManager.isFileExist("buildings.txt")
 		isEmpty = self.fileManager.readFromFile("buildings.txt") == ""
 		if not isExist or isEmpty:
-			print "downloading map..."
+			print "Downloading map..."
 			cacheArray = []
 			for building in self.buildings:
 				buildingName = building['name']
@@ -142,13 +146,13 @@ class MapSync(object):
 					cacheArray.append(self.cacheData(buildingName, level))
 			self.fileManager.appendToFile("buildings.txt", json.dumps(cacheArray))
 		else:
-			print "loading map from storage..."
+			print "Loading map from storage..."
 			array_of_cache = self.fileManager.readFromFile("buildings.txt")
 			array_of_cache = json.loads(array_of_cache)
 			for cache in array_of_cache:
-				self.cache_manager.put(cache['map_name'], cache)
+				self.cacheManager.put(cache['map_name'], cache)
 
-		print "done caching"
+		print "Caching Completed"
 	
 	def extractData(self, source):
 		self.separateAllInfos(source)
@@ -161,5 +165,5 @@ class MapSync(object):
 		cache['map'] = self.mapNodes
 		cache['wifi'] = self.apNodes
 		cache['info'] = self.info
-		self.cache_manager.put(buildingName + level, cache)
+		self.cacheManager.put(buildingName + level, cache)
 		return cache

@@ -114,7 +114,7 @@ while True:
 	user_input2 = raw_input("Level: ")
 	try:
 		loca = str(user_input)+user_input2
-		packet = mapObj.getFromCache(loca)
+		packet = mapObj.loadLocation(loca)
 		map_nodes = packet['map']
 		wifi_nodes = packet['wifi']
 		user_input = raw_input("Map Node: ")

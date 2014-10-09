@@ -3,27 +3,30 @@ from wifi import Wifi
 from ServerSync import MapSync
 
 
-def getCache():
-	currmap = MapSync()
-	user_input = raw_input("Map: ")
-	user_input2 = raw_input("Level: ")
-	location = str(user_input)+str(user_input2)
-	return currmap.getFromCache(location)
+def getLocation():
+# 	inputMap = raw_input("Map: ")
+# 	inputLevel = raw_input("Level: ")
+	
+	#for testing
+	inputMap = "COM1"
+	inputLevel = 2
+	
+	location = str(inputMap)+str(inputLevel)
+	return location
 
 def main():
 	currmap = MapSync()
 	wifi = Wifi()
-
-	currmap.downloadAllMaps()
-	currmap.reloadAllMaps()
-	packet = getCache()
+	
+	location = getLocation()
+	currmap.loadLocation(location)
 	
 	# print packet
-	apNodes = packet['wifi']
+# 	apNodes = packet.get('wifi')
 	
-	# north = currmap.getNorth()
-	# mapNodes = currmap.getMap()
-	# apNodes = currmap.getAPNodes()
+	north = currmap.getNorth()
+	mapNodes = currmap.getMap()
+	apNodes = currmap.getAPNodes()
 
 	coords = wifi.getUserCoordinates(apNodes)
 	print coords
