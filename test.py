@@ -57,7 +57,7 @@ def calculateUserLocation(ap_list, wifi_nodes, map_nodes):
 	circles = determineCircles(selection_list)
 	# print circles
 	# print '\n'
-	list_of_coordinates = getCoordinates.determineIntersectionCoordinates(circles)
+	list_of_coordinates = getCoordinates.determineIntersections(circles)
 	# print list_of_coordinates
 	# print '\n'
 	localization_coordinates = getCoordinates.determineCoordinatesInAllCircles(list_of_coordinates,circles)

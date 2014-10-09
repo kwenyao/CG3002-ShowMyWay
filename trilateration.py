@@ -63,7 +63,7 @@ class TrilaterationCalculation():
 					
 		return coordinates
 	
-	def determineIntersectionCoordinates(self, circles):
+	def determineIntersections(self, circles):
 		found_coordinates = []
 		for j in range(0, len(circles)-1):
 			circleA = circles[j]
@@ -128,7 +128,7 @@ class TrilaterationCalculation():
 		circles = self.determineCircles(selection_list)
 		print "circle: "
 		print circles
-		list_of_coordinates = self.determineIntersectionCoordinates(circles)
+		list_of_coordinates = self.determineIntersections(circles)
 		print "list_of_coordinates: "
 		print list_of_coordinates
 		localization_coordinates = self.determineCoordinatesInAllCircles(list_of_coordinates, circles)

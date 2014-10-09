@@ -19,6 +19,7 @@ class Wifi():
 		selection_list = self.ap.determineUsableAp(ap_list, wifiDict)
 		print "selection: "
 		print selection_list
+		
 		# circles = self.trilateration.determineCircles(selection_list)
 		# print "circle: "
 		# print circles
@@ -29,6 +30,7 @@ class Wifi():
 		# print "localization_coordinates: "
 		# print localization_coordinates
 		# userLocation = self.trilateration.determineLocation(localization_coordinates)
+		
 		return self.trilateration.determineTrilateration(selection_list)
 		
 	
