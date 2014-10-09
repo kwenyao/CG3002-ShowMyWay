@@ -67,6 +67,8 @@ class TrilaterationCalculation():
 		for j in range(0, len(circles)-1):
 			circleA = circles[j]
 			for k in range(j+1, len(circles)):
+				failing = True
+				increase_attempt = 0
 				circleB = circles[k]
 				coordinates = []
 				a_x = circleA['x']
@@ -78,9 +80,18 @@ class TrilaterationCalculation():
 				b_y = circleB['y']
 				dist_b = circleB['dist']
 				pB = simplevector.Vector2d(b_x,b_y)
-	
-				coordinates = self.cc_intersect(pA, dist_a, pB, dist_b)
-				found_coordinates.append(coordinates)
+				
+				while failing and increase_attempt < 10:
+					coordinates = self.cc_intersect(pA, dist_a, pB, dist_b)
+					if coordinates = None:
+						dist_a *= dist_a * 1.01
+						dist_b *= dist_b * 1.01
+						increase_attempt += 1
+						print "increase attempt :" + str(increase_attempt)
+						continue
+					else:
+						found_coordinates.append(coordinates)
+						failing = False
 	
 		return found_coordinates
 	
