@@ -6,21 +6,22 @@ class TrilaterationCalculation():
 	
 		results = []
 		distance = (p2 - p1).magnitude
-		print distance
+		print "distance between 2 points: " + str(distance)
 		if(distance > (r1 + r2)):
 			print "circles are separate"
 			# results.append("circles are separate")
-			return results
+			return None
 		elif(distance < math.fabs(r1 - r2)):
 			print "one circle is contained within the other"
 			# results.append("one circle is contained within the other")
-			return results
+			return None
 		elif(distance == 0 and (r1 == r2)):
 			print "circles are exactly identical in position and radius"
 			# results.append("circles are exactly identical in position and radius")
-			return results
+			return None
 		else:
 			a = (math.pow(r1,2)-math.pow(r2,2)+math.pow(distance,2))/(2*distance)
+			print str(math.pow(r1,2) - math.pow(a,2))
 			h = math.sqrt(math.pow(r1,2) - math.pow(a,2))
 			p3 = p1 + (a*(p2-p1)/distance)
 	
@@ -83,23 +84,26 @@ class TrilaterationCalculation():
 				
 				while failing and increase_attempt < 10:
 					coordinates = self.cc_intersect(pA, dist_a, pB, dist_b)
-					if coordinates = None:
-						dist_a *= dist_a * 1.01
-						dist_b *= dist_b * 1.01
+					if coordinates == None:
+						dist_a *= 1.05
+						print "distance A: " + str(dist_a)
+						dist_b *= 1.05
+						print "distance B: " + str(dist_b)
 						increase_attempt += 1
 						print "increase attempt :" + str(increase_attempt)
 						continue
 					else:
 						found_coordinates.append(coordinates)
 						failing = False
-	
+				if failing == True:
+					print "increase attempt failed!"
 		return found_coordinates
 	
 	def determineCircles(self, selection_list):
 		circles = []
 		for selection in selection_list:
-			x = float(selection['node']['x'])
-			y = float(selection['node']['y'])
+			x = float(selection['node']['x'])/100.0
+			y = float(selection['node']['y'])/100.0
 			dist = float(selection['ap']['distance'])
 			circle = {}
 			circle['x'] = x
@@ -119,3 +123,16 @@ class TrilaterationCalculation():
 		mid_y = sum_y/len(coordinates)
 	
 		return simplevector.Vector2d(mid_x,mid_y)
+
+	def determineTrilateration(self, selection_list):
+		circles = self.determineCircles(selection_list)
+		print "circle: "
+		print circles
+		list_of_coordinates = self.determineIntersectionCoordinates(circles)
+		print "list_of_coordinates: "
+		print list_of_coordinates
+		localization_coordinates = self.determineCoordinatesInAllCircles(list_of_coordinates, circles)
+		print "localization_coordinates: "
+		print localization_coordinates
+		userLocation = self.determineLocation(localization_coordinates)
+		return userLocation

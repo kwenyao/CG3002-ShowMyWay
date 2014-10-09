@@ -19,16 +19,16 @@ class Wifi():
 		selection_list = self.ap.determineUsableAp(ap_list, wifiDict)
 		print "selection: "
 		print selection_list
-		circles = self.trilateration.determineCircles(selection_list)
-		print "circle: "
-		print circles
-		list_of_coordinates = self.trilateration.determineIntersectionCoordinates(circles)
-		print "list_of_coordinates: "
-		print list_of_coordinates
-		localization_coordinates = self.trilateration.determineCoordinatesInAllCircles(list_of_coordinates, circles)
-		print "localization_coordinates: "
-		print localization_coordinates
-		userLocation = self.trilateration.determineLocation(localization_coordinates)
-		return userLocation
+		# circles = self.trilateration.determineCircles(selection_list)
+		# print "circle: "
+		# print circles
+		# list_of_coordinates = self.trilateration.determineIntersectionCoordinates(circles)
+		# print "list_of_coordinates: "
+		# print list_of_coordinates
+		# localization_coordinates = self.trilateration.determineCoordinatesInAllCircles(list_of_coordinates, circles)
+		# print "localization_coordinates: "
+		# print localization_coordinates
+		# userLocation = self.trilateration.determineLocation(localization_coordinates)
+		return self.trilateration.determineTrilateration(selection_list)
 		
 	
