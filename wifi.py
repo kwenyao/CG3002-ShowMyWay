@@ -27,9 +27,6 @@ class Wifi():
 
 		selection_list = self.ap.determineUsableAp(ap_list, wifiDict)
 		
-		print "selection: "
-		print selection_list
-		
 		if not selection_list:
 			print "Selection list is empty"
 			return self.defaultUserCoordinate

@@ -3,8 +3,8 @@ import simplevector
 
 class TrilaterationCalculation():
 	def __init__ (self):
-		self.RADIUS_INCREMENT = 1.005
-		self.DISTANCE_TRESHOLD = 0.1
+		self.RADIUS_INCREMENT = 1.1
+		self.DISTANCE_THRESHOLD = 0.4
 		self.defaultUserCoordinate = {'x': -1, 'y': -1}
 	
 	def determineTrilateration(self, selection_list):
@@ -33,7 +33,7 @@ class TrilaterationCalculation():
 		else:
 			intersection1 = {}
 			intersection1['x'] = intersections[0][0]
-			intersection1['y'] = intersections[0][1]
+			intersection1['y'] = intersections[0][1] 
 			intersection2 = {}
 			intersection2['x'] = intersections[1][0]
 			intersection2['y'] = intersections[1][1]
@@ -63,11 +63,11 @@ class TrilaterationCalculation():
 		vector2 = self.createVector(router2)
 		
 		distBtwRouter = (vector1 - vector2).magnitude
-		heronRoot = ( (distBtwRouter + radius1 + radius2)*
-					(-distBtwRouter + radius1 +radius2)*
-					(distBtwRouter - radius1 + radius2)*
-					(distBtwRouter + radius1 - radius2) )
 		
+		heronRoot = ( (distBtwRouter + radius1 + radius2)*
+					(- distBtwRouter + radius1 + radius2)*
+					(  distBtwRouter - radius1 + radius2)*
+					(  distBtwRouter + radius1 - radius2) )
 		if(heronRoot > 0): # intersection exists
 			heron = 0.25*math.sqrt(heronRoot)
 			xbase = (0.5)*(x1+x2) + (0.5)*(x2-x1)*(radius1*radius1-radius2*radius2)/(distBtwRouter*distBtwRouter)
@@ -97,12 +97,18 @@ class TrilaterationCalculation():
 			distance = distance2
 		
 		distDiff = math.fabs(distance - radius)
-		if distDiff < distance * self.DISTANCE_TRESHOLD: # if intersection lies within accepted threshold
+		if distDiff < distance * self.DISTANCE_THRESHOLD: # if intersection lies within accepted threshold
+			bestPoint = self.rescaleCoordinates(bestPoint)
 			return bestPoint
 		else:
 			print "Both intersections not within accepted threshold"
 			return self.defaultUserCoordinate
-		
+	
+	def rescaleCoordinates(self, point):
+		point['x'] = point.get('x')*100
+		point['y'] = point.get('y')*100
+		return point
+	
 	def createVector(self, point):
 		x = point.get('x')
 		y = point.get('y')
