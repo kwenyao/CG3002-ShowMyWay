@@ -1,7 +1,10 @@
-from trilateration import TrilaterationCalculation
+from trilateration2 import TrilaterationCalculation
 from accessPoints import AccessPoints
 
 class Wifi():
+	def __init__ (self):
+		self.defaultUserCoordinate = {'x': -1, 'y': -1}
+		
 	def getUserCoordinates(self, wifiDict):
 		self.ap = AccessPoints()
 		self.trilateration = TrilaterationCalculation()
@@ -17,20 +20,15 @@ class Wifi():
 		print "matches: " + str(len(ap_list))
 
 		selection_list = self.ap.determineUsableAp(ap_list, wifiDict)
+		
 		print "selection: "
 		print selection_list
 		
-		# circles = self.trilateration.determineCircles(selection_list)
-		# print "circle: "
-		# print circles
-		# list_of_coordinates = self.trilateration.determineIntersectionCoordinates(circles)
-		# print "list_of_coordinates: "
-		# print list_of_coordinates
-		# localization_coordinates = self.trilateration.determineCoordinatesInAllCircles(list_of_coordinates, circles)
-		# print "localization_coordinates: "
-		# print localization_coordinates
-		# userLocation = self.trilateration.determineLocation(localization_coordinates)
-		
-		return self.trilateration.determineTrilateration(selection_list)
-		
+		if not selection_list:
+			print "Selection list is empty"
+			return self.defaultUserCoordinate
+		else:
+			print "selection list:"
+			print selection_list
+			return self.trilateration.determineTrilateration(selection_list)
 	
