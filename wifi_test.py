@@ -19,7 +19,7 @@ def main():
 	wifi = Wifi()
 	
 	location = getLocation()
-	currmap.loadLocation(location)
+	currmap.loadLocation("COM1", "2")
 	
 	# print packet
 # 	apNodes = packet.get('wifi')
