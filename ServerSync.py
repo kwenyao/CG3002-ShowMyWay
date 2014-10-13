@@ -56,6 +56,14 @@ class MapSync(object):
 		except:
 			return
 		self.syncAllMaps()
+	
+	def resetMap(self):
+		self.val = 0
+		self.info = []
+		self.mapInfo = []
+		self.wifiInfo = []
+		self.mapNodes = {}
+		self.apNodes = {}
 
 	def getMap(self):
 		return self.mapNodes
@@ -102,6 +110,22 @@ class MapSync(object):
 			macAddr = str(node['macAddr']).upper()
 			self.apNodes[macAddr[0:14]] = nodeData
 	
+	def addNewMap(self,building_name, level_value):
+		found = False
+		array_of_buildings = self.fileManager.readFromFile("buildinglist.txt")
+		array_of_buildings = json.loads(array_of_buildings)
+		for building in array_of_buildings:
+			if building['name'] is building_name:
+				building['level'].append(level_value)
+				found = True
+		if found is False:
+			newBuilding = {}
+			newBuilding['name'] = building_name
+			newBuilding['level'] = level_value
+			array_of_buildings.append(newBuilding)
+			
+		self.fileManager.writeToFile("buildinglist.txt", array_of_buildings)
+	
 	def determineSource(self, building_name, level_value):
 		url = 'http://showmyway.comp.nus.edu.sg/getMapInfo.php?Building=' + building_name + "&Level=" + level_value 
 		# req = requests.request('GET', 'http://showmyway.comp.nus.edu.sg/getMapInfo.php?Building=DemoBuilding&Level=1')
@@ -117,11 +141,21 @@ class MapSync(object):
 		self.wifiInfo = source['wifi']
 		# print "in determineInfos"
 
-	def loadLocation(self, location):
+	def loadLocation(self, building_name, level):
+		location = building_name+level
 		currentMap = self.cacheManager.get(location)
-		self.apNodes = currentMap.get('wifi')
-		self.mapInfo = currentMap.get('info')
-		self.mapNodes = currentMap.get('map')
+		if currentMap is None:
+			self.apNodes = currentMap.get('wifi')
+			self.mapInfo = currentMap.get('info')
+			self.mapNodes = currentMap.get('map')
+		else:
+			self.addNewMap(building_name,level)
+			self.syncAllMaps()
+			currentMap = self.cacheManager.get(location)
+			self.apNodes = currentMap.get('wifi')
+			self.mapInfo = currentMap.get('info')
+			self.mapNodes = currentMap.get('map')
+			
 
 	def syncAllMaps(self):
 		self.fileManager.writeToFile("buildings.txt", "")
