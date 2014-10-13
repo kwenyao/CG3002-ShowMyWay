@@ -1,4 +1,5 @@
-import getMap
+from wifi import Wifi
+from ServerSync import MapSync
 import visualiseMap
 import getPath
 import math
@@ -30,38 +31,45 @@ user_input = 0 				#set to 1 when user presses the keyboard
 #----------------------------------------------------------------------------------------------------------------------------------------
 
 #download all maps
-Map = getMap.getMap()
-Map.downloadAllMaps()
+currmap = MapSync()
+wifi = Wifi()
+	
+currmap.loadLocation("DemoBuilding" , "1")
 
+# print packet
+#apNodes = packet.get('wifi')
+
+map_north = int (currmap.getNorth()["northAt"])
+
+mapNodes = currmap.getMap()
+print mapNodes
+apNodes = currmap.getAPNodes()
+#coords = wifi.getUserCoordinates(apNodes)
 #set the current map user is in
-packet = Map.getFromCache("toximble5")
-Map_nodes = packet['map']
 
 #initialise visualisation tool
 visual = visualiseMap.visualiseMap(1300,1300)
-visual.setMap(Map_nodes,0)
+visual.setMap(mapNodes,0)
 
 #initialise calculate_path object with the current number of vertex
-calculate_path = getPath.getPath(Map_nodes)
+calculate_path = getPath.getPath(mapNodes)
 
 #initialise the starting and ending vertex
 start_point = '3'
-end_point = '9'
+end_point = '1'
 
 #determine the shortest path to take
-calculate_path.formAdjlist(Map_nodes)
+calculate_path.formAdjlist(mapNodes)
 calculate_path.shortestPath(start_point)
 route = calculate_path.routeToTravel(start_point, end_point)
 
-#get north
-map_north = int(packet['info'].get("northAt"))
 
 #include path to be taken in visualisation tool
-route_nodes = visual.getRouteNodes(Map_nodes, route)
+route_nodes = visual.getRouteNodes(mapNodes, route)
 visual.setMap(route_nodes,1)
 
 #see the map
-#visual.printMap()
+visual.printMap()
 
 #initialise starting coordinate and ending coordinate, next node to travel to.
 current_node = route_nodes.get(start_point) #gets reassign to the next node once i reach the next node
