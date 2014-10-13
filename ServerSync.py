@@ -31,8 +31,9 @@ class Storage():
 		if self.isFileExist(filename):
 			f = open(filename, 'r')
 			data = f.read()
-			f.close
+			f.close()
 			return data
+		
 	def appendToFile(self, filename, content):
 		f = open(filename, 'a')
 		f.write(content)  # to append on the end of the file
@@ -54,7 +55,7 @@ class MapSync(object):
 			self.buildings = json.loads(building_json)
 			print "building loaded"
 		except:
-			return
+			print "buildinglist.txt not found, creating.."
 		self.syncAllMaps()
 	
 	def resetMap(self):
@@ -124,7 +125,7 @@ class MapSync(object):
 			newBuilding['level'] = level_value
 			array_of_buildings.append(newBuilding)
 			
-		self.fileManager.writeToFile("buildinglist.txt", array_of_buildings)
+		self.fileManager.writeToFile("buildinglist.txt", json.dumps(array_of_buildings))
 	
 	def determineSource(self, building_name, level_value):
 		url = 'http://showmyway.comp.nus.edu.sg/getMapInfo.php?Building=' + building_name + "&Level=" + level_value 
