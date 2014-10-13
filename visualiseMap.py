@@ -15,10 +15,8 @@ class visualiseMap :
 	def addPath(self, start_coor, stop_coor):
 		"This method adds the lines for the edges"
 		self.window.create_line(int(start_coor[0])/self.shrink, int(start_coor[1])/self.shrink, int(stop_coor[0])/self.shrink,int(stop_coor[1])/self.shrink, fill="black")
-
 	def printMap(self):
 			"This method prints out the display map to the console"
-			#self.master.after(1000, self.master.quit)
 			mainloop()
 	
 	def addRoutePath(self, start_coor, stop_coor):
