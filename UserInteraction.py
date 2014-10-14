@@ -18,7 +18,7 @@ class Keypad():
 		ser.write("!")
 		yn_response = ''
 		while (not yn_response):
-				yn_response = ser.readline()
+			yn_response = ser.readline()
 		return yn_response
 	
 	#get user input for location. 4 digit number.
@@ -126,18 +126,18 @@ class Messages():
 	# ** user's destination (dest)
 	def updateDictionaryValues(self, new_value, update_field):
 		if (update_field == 'startloc'):
-				for x in range (0, 4):
-						startloc[x] = new_value[x]
-				print startloc
-				del self.phrases[64]
-				del self.messages['confirm_startloc']
-				self.phrases[64] = '|'.join(startloc)
-				self.messages['confirm_startloc'] = (self.phrases[3] + " " + self.phrases[64] + " " + self.phrases[4] + 
-													" " + self.phrases[31] + ". " + self.phrases[5])
+			for x in range (0, 4):
+				startloc[x] = new_value[x]
+			print startloc
+			del self.phrases[64]
+			del self.messages['confirm_startloc']
+			self.phrases[64] = '|'.join(startloc)
+			self.messages['confirm_startloc'] = (self.phrases[3] + " " + self.phrases[64] + " " + self.phrases[4] + 
+												" " + self.phrases[31] + ". " + self.phrases[5])
 		
 		elif (update_field == 'dest'):
 			for x in range(0, 4):
-					dest[x] = new_value[x]
+				dest[x] = new_value[x]
 			print dest
 			del self.phrases[65]
 			del self.messages['confirm_dest']
