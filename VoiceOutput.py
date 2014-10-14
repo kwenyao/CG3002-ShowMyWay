@@ -19,7 +19,7 @@ startloc = ['0', '0', '0', '0']
 dest = ['0', '0', '0', '0']
 yninput = 0
 
-#library of messages
+#dictionary of message chips
 message = {1: 'Welcome', 2: 'Please key in your', \
         3: 'you have keyed in', 4: 'as your', 5: 'shall I proceed?', \
         6: 'please take a step', 7: 'please take another step', \
@@ -41,7 +41,7 @@ message = {1: 'Welcome', 2: 'Please key in your', \
         61: 'in' , 62: step_count, 63: 'steps', \
         64: '|'.join(startloc), 65: '|'.join(dest), 66: yninput}
 
-
+#dictionary of actual message strings to be printed
 message_str = {\
         #startup processes: start location, destination, calibration and path calculations
         'startup':              message[1] + ". " + message[2] + " " + message[31] + ".", \
@@ -87,10 +87,15 @@ message_str = {\
         'thankyou':             message[8] + ".", \
         'goodbye':              message[20] + "."}
 
+#handshaking protocol between Arduino and RPi
 def getAck():
         #to be done by Alvin/Jiayi
         return 1
 
+#determine if user pressed 1 for yes or 2 for no.
+#returns user input
+#arbitrarily using '!' symbol as a command to arduino to get yes/no input
+#i.e. read 1 bit from user
 def getYNInput():
         print message_str['yn_inst']
         voiceOut('yn_inst')
@@ -100,6 +105,8 @@ def getYNInput():
                 yn_response = ser.readline()
         return yn_response
 
+#get user input for location. 4 digit number.
+#returns user input but does NOT update dictionary
 def getLocationInput():
         ser.write(">")
         response = ''
@@ -107,6 +114,10 @@ def getLocationInput():
                 response = ser.readline()
         return response
 
+#updates dictionary values based on field given
+#fields available: 
+# ** user's start location (startloc)
+# ** user's destination (dest)
 def updateDictionaryValues(new_value, update_field):
         if (update_field == 'startloc'):
                 for x in range (0,4):
@@ -133,17 +144,21 @@ def updateDictionaryValues(new_value, update_field):
                 return 0
         return 1
 
+#handles user's yes/no input
 def YNHandler(yn_response):
         if (yn_response[0] == '1'):
                 print message_str['confirm_yes']
                 voiceOut('confirm_yes')
                 return 1
 
+        #all other values aside from '1' interpreted as no
         else:
                 print message_str['confirm_no']
                 voiceOut('confirm_no')
                 return 0
 
+#read out message from message_str
+#message strings are FIXED in message_str dictionary
 def voiceOut(messagetype):
         os.system(syntax_head + volume + variation['female1'] + " '" + \
                 message_str[messagetype] + syntax_tail)
