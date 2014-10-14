@@ -148,7 +148,9 @@ def updateDictionaryValues(new_value, update_field):
 			return 0
 	return 1
 
+#handles user's yes/no input
 def YNHandler(yn_response):
+<<<<<<< HEAD
 	if (yn_response[0] == '1'):
 			print message_str['confirm_yes']
 			voiceOut('confirm_yes')
@@ -158,7 +160,21 @@ def YNHandler(yn_response):
 			print message_str['confirm_no']
 			voiceOut('confirm_no')
 			return 0
+=======
+        if (yn_response[0] == '1'):
+                print message_str['confirm_yes']
+                voiceOut('confirm_yes')
+                return 1
 
+        #all other values aside from '1' interpreted as no
+        else:
+                print message_str['confirm_no']
+                voiceOut('confirm_no')
+                return 0
+>>>>>>> origin/iffyepiphany/comments-added-to-voiceoutputpy-to-clari-1413276794225
+
+#read out message from message_str
+#message strings are FIXED in message_str dictionary
 def voiceOut(messagetype):
 		os.system(syntax_head + volume + variation['female1'] + " '" + \
 				message_str[messagetype] + syntax_tail)
