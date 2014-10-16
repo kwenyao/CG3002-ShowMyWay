@@ -3,6 +3,8 @@ from ServerSync import MapSync
 import visualiseMap
 import getPath
 import math
+import time
+
 #----------------------------------------------------------------------------------------------------------------------------------------
 #GLOBAL VARIABLES
 #----------------------------------------------------------------------------------------------------------------------------------------
@@ -33,10 +35,16 @@ user_input = 0 				#set to 1 when user presses the keyboard
 #download all maps
 currmap = MapSync()
 wifi = Wifi()
-	
-currmap.loadLocation("DemoBuilding" , "1")
+#@@@@@@@@@@@@@@@@@@@@@@@ write a function to acheive handshaking with arduino, arduino should only reply ack after calibrating the sensors.
 
-# print packet
+#@@@@@@@@@@@@@@@@@@@@@@@ call a function from voiceoutput class to ask user for building name , level, starting vetex and ending vertex
+
+
+currmap.loadLocation("DemoBuilding" , "1")
+#initialise the starting and ending vertex
+start_point = '3'
+end_point = '1'
+
 #apNodes = packet.get('wifi')
 
 map_north = int (currmap.getNorth()["northAt"])
@@ -45,18 +53,15 @@ mapNodes = currmap.getMap()
 print mapNodes
 apNodes = currmap.getAPNodes()
 #coords = wifi.getUserCoordinates(apNodes)
-#set the current map user is in
 
 #initialise visualisation tool
 visual = visualiseMap.visualiseMap(1300,1300)
 visual.setMap(mapNodes,0)
 
+visual.printMap()
+
 #initialise calculate_path object with the current number of vertex
 calculate_path = getPath.getPath(mapNodes)
-
-#initialise the starting and ending vertex
-start_point = '3'
-end_point = '1'
 
 #determine the shortest path to take
 calculate_path.formAdjlist(mapNodes)
@@ -82,8 +87,8 @@ next_coor = (int(next_node_to_travel.get('x')), int(next_node_to_travel.get('y')
 #declare variables
 offset = -1 			#the degrees to offset based on the movement to be make 
 bearing_to_face = -1 	#the bearing user should face to walk straight to reach the next point
-time_since_last = 1200 	#the timing that the last instruction for walk straight is issued, initialised to the time pi is started up
-current_time = 1200		#current time 	
+ticks_since_last = time.time()	#the timing that the last instruction for walk straight is issued, initialised to the time pi is started up
+current_tick = time.time()		#current time 	
 dist_to_next_node = -1 	#the distance to the next node
 num_steps_to_next = -1 	#number of steps to the next node
 
@@ -95,7 +100,7 @@ num_steps_to_next = -1 	#number of steps to the next node
 dist_to_next_node = math.sqrt((next_coor[0] - current_coor_read[0])**2 + (next_coor[1] - current_coor_read[1])**2)
 num_steps_to_next = dist_to_next_node/step_length
 print "walk forward " , num_steps_to_next , "steps"
-time_since_last = 1200 # get the current time here.
+tick_since_last = time.time() # get the current time here.
 
 #condition to exit navigation is when user reaches within 30cm of the end coordinate 
 while abs(current_coor_read[0]-final_coor[0]) >radius_of_closeness*100 and abs(current_coor_read[1]-final_coor[1]) > radius_of_closeness*100 :
@@ -106,7 +111,7 @@ while abs(current_coor_read[0]-final_coor[0]) >radius_of_closeness*100 and abs(c
 		next_node_to_travel = route_nodes.get((current_node.get('linkTo'))[0])
 		next_coor = (int(next_node_to_travel.get('x')), int(next_node_to_travel.get('y')))
 		print "you have reached ", current_node["name"]
-		#call wait function for the talking to finish
+		#@@@@@@@@@@@@@@@@@@@@@@@call wait function for the talking to finish
 
 	#This block of code checks the bearing user shld face to move forward
 	if current_coor_read[0] < next_coor[0] : #x-coor increase
@@ -135,10 +140,10 @@ while abs(current_coor_read[0]-final_coor[0]) >radius_of_closeness*100 and abs(c
 			print "turn left", direction_faced - bearing_to_face, "degrees"
 		else:
 			print "turn right" , bearing_to_face - direction_faced, " degrees"
-		#call wait function here, to give user time to rotate	
+		#@@@@@@@@@@@@@@@@@@@@@@@call wait function here, to give user time to rotate	
 	else:
 		#guide user to walk straight
-		if (current_time - time_since_last) >= freq_instructions:
+		if (current_tick - tick_since_last) >= freq_instructions*60:
 			time_since_last = current_time
 			dist_to_next_node = math.sqrt((next_coor[0] - current_coor_read[0])**2 + (next_coor[1] - current_coor_read[1])**2)
 			num_steps_to_next = dist_to_next_node/step_length
