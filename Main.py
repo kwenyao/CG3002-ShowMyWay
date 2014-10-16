@@ -37,8 +37,18 @@ currmap = MapSync()
 wifi = Wifi()
 #@@@@@@@@@@@@@@@@@@@@@@@ write a function to acheive handshaking with arduino, arduino should only reply ack after calibrating the sensors.
 
-#@@@@@@@@@@@@@@@@@@@@@@@ call a function from voiceoutput class to ask user for building name , level, starting vetex and ending vertex
-
+#@@@@@@@@@@@@@@@@@@@@@@@ call a function from voiceoutput class to ask user for building name , level, starting vertex and ending vertex
+##### DISCLAIMER: please follow the order stated below when updating start and end locations #####
+# 1. voice out 'startup'
+# 2. startloc = keypad_obj.getLocationInput
+# 3. voice out 'get_dest'
+# 4. dest = keypad_obj.getLocationInput
+# 5. keypad_obj.updateLocations(startloc, dest)
+#
+# *not tried and tested. changes may have to be made.
+#
+# to speak a certain string: voice_obj.say('say this')
+##################################################################################################
 
 currmap.loadLocation("DemoBuilding" , "1")
 #initialise the starting and ending vertex

@@ -4,21 +4,42 @@ import serial
 class Keypad():
 	def __init__(self):
 		self.voiceOutput = Voice()
-		self.messagesObj = Messages()
-		self.phrases = self.messagesObj.getPhrases()
-		self.messages = self.messagesObj.getMessages()
+		self.setupKeypad()
+		self.step_count = str(5)
+		self.startloc = ['0', '0', '0', '0']
+		self.dest = ['0', '0', '0', '0']
+		self.yninput = 0
+		####self.messagesObj = Messages()
+		####self.phrases = self.messagesObj.getPhrases()
+		####self.messages = self.messagesObj.getMessages()
 	
+	def setupKeypad(self):
+		# initialise serial port with Arduino
+		ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
+		ser.open()
+
+	def updateLocations(self, user_startloc, user_dest):
+		self.startloc = user_startloc
+		self.dest = user_dest
+		self.voiceOutput.messagesObj.updateDictionaryValues(user_startloc, 'startloc')
+		self.voiceOutput.messagesObj.updateDictionaryValues(user_dest, 'dest')
+
 	#determine if user pressed 1 for yes or 2 for no.
 	#returns user input
 	#arbitrarily using '!' symbol as a command to arduino to get yes/no input
 	#i.e. read 1 bit from user
+
 	def getYNInput(self):
-		print self.messages.get('yn_inst')
+		##### CHECK THIS PART #####
+		print self.voiceOutput.messagesObj.get('yn_inst')
+		###########################
+
 		self.voiceOutput.voiceOut('yn_inst')
 		ser.write("!")
 		yn_response = ''
 		while (not yn_response):
 			yn_response = ser.readline()
+		self.yninput = yn_response
 		return yn_response
 	
 	#get user input for location. 4 digit number.
@@ -35,7 +56,19 @@ class Voice():
 		self.messagesObj = Messages()
 		self.phrases = self.messagesObj.getPhrases()
 		self.messages = self.messagesObj.getMessages()
-		
+		self.setupVoice()
+
+		# formatting of syntax and defining speech quality
+		self.variation = {'female1': ' -ven+f3', 'female2': ' -ven+f4',
+				'male1': ' -ven+m2', 'male2': ' -ven+m3'}
+		self.volume = str(100)
+		self.syntax_head = 'espeak -s150 -a'
+		self.syntax_tail = " ' 2>/dev/null"
+
+	def setupVoice(self):
+		# convert audio output to audio jack
+		os.system("amixer cset numid=3 1")
+	
 	#handles user's yes/no input
 	def YNHandler(self, yn_response):
 		if (yn_response[0] == '1'):
@@ -56,8 +89,15 @@ class Voice():
 		os.system(voiceCmd)
 		return
 
+	#output message given
+	def say(self, message):
+		voiceCmd = syntax_head + volume + variation['female1'] + " '" + message + syntax_tail 
+		os.system(voiceCmd)
+		return
+
 class Messages():
 	def __init__(self):
+
 		#dictionary of phrases chips
 		self.phrases = {1: 'Welcome', 2: 'Please key in your', 
 				   3: 'you have keyed in', 4: 'as your', 5: 'shall I proceed?', 
@@ -171,24 +211,6 @@ def getAck():
 	# to be done by Alvin/Jiayi
 	return 1
 
-
-# initialise serial port with Arduino
-ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
-ser.open()
-
-# convert audio output to audio jack
-os.system("amixer cset numid=3 1")
-
-# formatting of syntax and defining speech quality
-variation = {'female1': ' -ven+f3', 'female2': ' -ven+f4',
-		'male1': ' -ven+m2', 'male2': ' -ven+m3'}
-volume = str(100)
-syntax_head = 'espeak -s150 -a'
-syntax_tail = " ' 2>/dev/null"
-step_count = str(5)
-startloc = ['0', '0', '0', '0']
-dest = ['0', '0', '0', '0']
-yninput = 0
 
 
 try:
