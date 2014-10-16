@@ -5,7 +5,7 @@ class visualiseMap :
 		self.master = Tk()
 		self.window = Canvas(self.master, width = win_width, height = win_height)
 		self.window.pack()
-		self.shrink = 1
+		self.shrink = 5
 
 	def addCoor(self,vertex,x,y):
 		"This method adds a coordinate to our display map"
@@ -26,6 +26,8 @@ class visualiseMap :
 	def setMap(self, map_nodes, nature):
 		"This method takes in the JSON format nodes and set the map"
 		for k, v in map_nodes.iteritems():
+			if nature == 1 :
+				print k, v
 			self.addCoor(k, int(v['x']), int(v['y']))
 			start_point = [int(v['x']), int(v['y'])]
 			end_point = []
