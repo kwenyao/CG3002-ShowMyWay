@@ -144,6 +144,7 @@ class MapSync(object):
 
 	def loadLocation(self, building_name, level):
 		location = building_name+level
+		self.resetMap()
 		currentMap = self.cacheManager.get(location)
 		if currentMap is None:
 			self.apNodes = currentMap.get('wifi')

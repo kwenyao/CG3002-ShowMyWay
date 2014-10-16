@@ -4,7 +4,7 @@ import simplevector
 class TrilaterationCalculation():
 	def __init__ (self):
 		self.RADIUS_INCREMENT = 1.1
-		self.DISTANCE_THRESHOLD = 0.4
+		self.DISTANCE_THRESHOLD = 0.6
 		self.defaultUserCoordinate = {'x': -1, 'y': -1}
 	
 	def determineTrilateration(self, selection_list):
