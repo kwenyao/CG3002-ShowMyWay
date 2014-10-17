@@ -27,9 +27,9 @@ def main():
 	north = currmap.getNorth()
 	mapNodes = currmap.getMap()
 	apNodes = currmap.getAPNodes()
-
-	coords = wifi.getUserCoordinates(apNodes)
-	print coords
+	while(1):
+		coords = wifi.getUserCoordinates(apNodes)
+		print coords
 
 if __name__ == "__main__":
 	main()

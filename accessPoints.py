@@ -53,7 +53,7 @@ class AccessPoints():
 				isAlreadyFound = self.scannedAPDict.get(macAddr)
 				if isAlreadyFound is None:
 					ap['address'] = macAddr
-					print "MAC = " + str(ap.get('address'))
+					# print "MAC = " + str(ap.get('address'))
 					self.scannedAPDict[macAddr] = macAddr
 					elementCount += 1 
 				else:

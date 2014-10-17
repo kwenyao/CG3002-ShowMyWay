@@ -1,4 +1,4 @@
-from trilateration2 import TrilaterationCalculation
+from trilateration import TrilaterationCalculation
 from accessPoints import AccessPoints
 
 class Wifi():
@@ -23,7 +23,7 @@ class Wifi():
 
 		ap_list = self.ap.getAccessPoints()
 		ap_list = self.ap.sortAccessPoints(ap_list)
-		print "matches: " + str(len(ap_list))
+		# print "matches: " + str(len(ap_list))
 
 		selection_list = self.ap.determineUsableAp(ap_list, wifiDict)
 		
@@ -31,7 +31,7 @@ class Wifi():
 			print "Selection list is empty"
 			return self.defaultUserCoordinate
 		else:
-			print "selection list:"
-			print selection_list
+			# print "selection list:"
+			# print selection_list
 			return self.trilateration.determineTrilateration(selection_list)
 	
