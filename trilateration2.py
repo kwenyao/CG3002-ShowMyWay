@@ -68,10 +68,10 @@ class TrilaterationCalculation():
 		
 		distBtwRouter = (vector1 - vector2).magnitude
 		
-		heronRoot = ( (distBtwRouter + radius1 + radius2)*
-					(- distBtwRouter + radius1 + radius2)*
-					(  distBtwRouter - radius1 + radius2)*
-					(  distBtwRouter + radius1 - radius2) )
+		heronRoot = (( distBtwRouter + radius1 + radius2 )*
+					( -distBtwRouter + radius1 + radius2 )*
+					(  distBtwRouter - radius1 + radius2 )*
+					(  distBtwRouter + radius1 - radius2 ))
 		if(heronRoot > 0): # intersection exists
 			heron = 0.25*math.sqrt(heronRoot)
 			xbase = (0.5)*(x1+x2) + (0.5)*(x2-x1)*(radius1*radius1-radius2*radius2)/(distBtwRouter*distBtwRouter)
@@ -80,7 +80,6 @@ class TrilaterationCalculation():
 			ydiff = 2*(x2-x1)*heron/(distBtwRouter*distBtwRouter) 
 			return (xbase+xdiff,ybase-ydiff),(xbase-xdiff,ybase+ydiff)
 		else: # no intersection exists
-			# print "No intersection found"
 			return None
 	
 	def determineBestPoint(self, intersection1, intersection2, router3):

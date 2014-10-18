@@ -53,7 +53,7 @@ class MapSync(object):
 		self.parseData(mapData)
 	
 	###################################
-	# Helper Functions
+	# Functions to add/update maps
 	###################################
 	
 	def updateAllMaps(self):
@@ -98,11 +98,6 @@ class MapSync(object):
 		locationArray.append(newLocation)
 		self.fileManager.writeToFile(self.MAP_LIST_PATH, json.dumps(locationArray))
 	
-	def getFilePath(self, buildingName, levelNum):
-		location = self.FILE_NAME_TEMPLATE.format(building = buildingName, level = levelNum)
-		filePath = self.MAP_DIRECTORY + location + self.FILE_EXTENSION
-		return filePath
-	
 	def downloadMap(self, buildingName, levelNum):
 		url = self.URL_TEMPLATE.format(building = buildingName, level = levelNum)
 		response = urllib2.urlopen(url)
@@ -111,7 +106,16 @@ class MapSync(object):
 		else:
 			print "Download Failed: No data available"
 			return None
-
+	
+	def getFilePath(self, buildingName, levelNum):
+		location = self.FILE_NAME_TEMPLATE.format(building = buildingName, level = levelNum)
+		filePath = self.MAP_DIRECTORY + location + self.FILE_EXTENSION
+		return filePath
+	
+	###################################
+	# Functions for parsing data
+	###################################
+	
 	def parseData(self, data):
 		self.separateData(data)
 		self.extractNorth()
