@@ -7,6 +7,7 @@ class MapSync(object):
 	def __init__(self):
 		### CONSTANTS ###
 		self.URL_TEMPLATE = "http://ShowMyWay.comp.nus.edu.sg/getMapInfo.php?Building={building}&Level={level}"
+		self.FILE_NAME_TEMPLATE = "{building}_{level}"
 		self.SCRIPT_DIR = os.path.dirname(__file__)
 		self.STATUS_OK = 200
 		self.FILE_EXTENSION = ".txt"
@@ -98,7 +99,7 @@ class MapSync(object):
 		self.fileManager.writeToFile(self.MAP_LIST_PATH, json.dumps(locationArray))
 	
 	def getFilePath(self, buildingName, levelNum):
-		location = buildingName + levelNum
+		location = self.FILE_NAME_TEMPLATE.format(building = buildingName, level = levelNum)
 		filePath = self.MAP_DIRECTORY + location + self.FILE_EXTENSION
 		return filePath
 	

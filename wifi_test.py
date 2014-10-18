@@ -6,6 +6,7 @@ def main():
 	currmap = MapSync()
 	wifi = Wifi()
 	
+	currmap.loadLocation("DemoBuilding" , "1")
 	currmap.loadLocation("COM1", "2")
 	
 	# print packet
