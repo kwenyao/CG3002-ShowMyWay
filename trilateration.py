@@ -6,6 +6,7 @@ class TrilaterationCalculation():
 		self.RADIUS_INCREMENT = 1.4
 		self.DISTANCE_THRESHOLD = 0.6
 		self.defaultUserCoordinate = {'x': -1, 'y': -1}
+		self.savedCircles = []
 
 	def cc_intersect(self, p1, r1, p2, r2):
 	
@@ -51,6 +52,8 @@ class TrilaterationCalculation():
 	
 	def determineCoordinatesInAllCircles(self, list_of_coordinates,circles):
 		coordinates = []
+		if len(circles) == 0:
+			return coordinates
 		for coord_tuple in list_of_coordinates:
 			for coord in coord_tuple:
 				count = 0
@@ -71,9 +74,12 @@ class TrilaterationCalculation():
 	
 	def determineIntersections(self, circles):
 		found_coordinates = []
+		intersectedCircles = {}
 		for j in range(0, len(circles)-1):
+			circleA = circles[j]
 			for k in range(j+1, len(circles)):
 				failing = True
+				
 				increase_attempt = 0
 				coordinates = []
 				a_x = circles[j]['x']
@@ -99,12 +105,25 @@ class TrilaterationCalculation():
 					else:
 						found_coordinates.append(coordinates)
 						failing = False
-						circles[k]['dist'] = dist_b
-						circles[j]['dist'] = dist_a
+						# circles[k]['dist'] = dist_b
+						# circles[j]['dist'] = dist_a
+						ifExists = intersectedCirles.get(circles[j]['name'])
+						if ifExists == None:
+							intersectedCirles[circles[j]['name']] = circles[j]
+						else if intersectedCirles[circles[j]['name']['dist'] < dist_a:
+							intersectedCirles[circles[j]['name']['dist'] = dist_a
+
+						ifExists = intersectedCirles.get(circles[k]['name'])
+						if ifExists == None:
+							intersectedCirles[circles[k]['name']] = circles[k]
+						else if intersectedCirles[circles[k]['name']['dist'] < dist_b:
+							intersectedCirles[circles[k]['name']['dist'] = dist_b
+
 				if failing == True:
 					print "increase attempt failed!"
 
-		return self.determineCoordinatesInAllCircles(found_coordinates, circles)
+
+		return self.determineCoordinatesInAllCircles(found_coordinates, intersectedCircles)
 	
 	def determineCircles(self, selection_list):
 		circles = []
@@ -112,10 +131,12 @@ class TrilaterationCalculation():
 			x = float(selection['node']['x'])/100.0
 			y = float(selection['node']['y'])/100.0
 			dist = float(selection['ap']['distance'])
+			name = selection['ap']['essid']
 			circle = {}
 			circle['x'] = x
 			circle['y'] = y
 			circle['dist'] = dist
+			circle['essid'] = name
 			circles.append(circle)
 		return circles
 	
