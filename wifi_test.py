@@ -1,24 +1,12 @@
-import sys
 from wifi import Wifi
-from ServerSync import MapSync
+from ServerSync2 import MapSync
 
-
-def getLocation():
-# 	inputMap = raw_input("Map: ")
-# 	inputLevel = raw_input("Level: ")
-	
-	#for testing
-	inputMap = "COM1"
-	inputLevel = 2
-	
-	location = str(inputMap)+str(inputLevel)
-	return location
 
 def main():
 	currmap = MapSync()
 	wifi = Wifi()
 	
-	location = getLocation()
+	currmap.loadLocation("DemoBuilding" , "1")
 	currmap.loadLocation("COM1", "2")
 	
 	# print packet
@@ -27,6 +15,11 @@ def main():
 	north = currmap.getNorth()
 	mapNodes = currmap.getMap()
 	apNodes = currmap.getAPNodes()
+	
+# 	print north
+# 	print mapNodes
+# 	print apNodes
+	
 	while(1):
 		coords = wifi.getUserCoordinates(apNodes)
 		print coords
