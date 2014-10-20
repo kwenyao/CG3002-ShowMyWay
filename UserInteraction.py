@@ -2,27 +2,38 @@ import os, time
 import serial
 
 class Keypad():
+	#################################################################
+	# to update start location and destination,						#
+	# initalise a string and call getLocationInput() first			#
+	# then call updateLocations and pass in the strings				#
+	# 																#
+	# EXAMPLE (under main):											#
+	# startloc = Keypad.getLocationInput()							#
+	# dest = Keypad.getLocationInput()								#
+	# Keypad.updateLocations(startloc, dest)						#
+	#################################################################
+
 	def __init__(self):
 		self.voiceOutput = Voice()
-		self.setupKeypad()
 		self.step_count = str(5)
 		self.startloc = ['0', '0', '0', '0']
 		self.dest = ['0', '0', '0', '0']
 		self.yninput = 0
-		####self.messagesObj = Messages()
-		####self.phrases = self.messagesObj.getPhrases()
-		####self.messages = self.messagesObj.getMessages()
+		#initialise serial port with Arduino
+		self.ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
+		self.ser.open()
 	
-	def setupKeypad(self):
-		# initialise serial port with Arduino
-		ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
-		ser.open()
-
+	#user_startloc is a string that must be attained from getLocationInput()
+	#user_dest is also a string that must be attained from getLocationInput()
 	def updateLocations(self, user_startloc, user_dest):
-		self.startloc = user_startloc
-		self.dest = user_dest
-		self.voiceOutput.messagesObj.updateDictionaryValues(user_startloc, 'startloc')
-		self.voiceOutput.messagesObj.updateDictionaryValues(user_dest, 'dest')
+		for x in range (0, 4):
+				self.startloc[x] = user_startloc[x]
+				self.dest[x] = user_dest[x]
+		print self.startloc
+		print self.dest
+
+		self.voiceOutput.messagesObj.updateDictionaryValues(self.startloc, 'startloc')
+		self.voiceOutput.messagesObj.updateDictionaryValues(self.dest, 'dest')
 
 	#determine if user pressed 1 for yes or 2 for no.
 	#returns user input
@@ -35,20 +46,20 @@ class Keypad():
 		###########################
 
 		self.voiceOutput.voiceOut('yn_inst')
-		ser.write("!")
+		self.ser.write("!")
 		yn_response = ''
 		while (not yn_response):
-			yn_response = ser.readline()
+			yn_response = self.ser.readline()
 		self.yninput = yn_response
 		return yn_response
 	
 	#get user input for location. 4 digit number.
 	#returns user input but does NOT update dictionary
 	def getLocationInput(self):
-		ser.write(">")
+		self.ser.write(">")
 		response = ''
 		while (not response):
-			response = ser.readline()
+			response = self.ser.readline()
 		return response
 
 class Voice():
@@ -85,19 +96,22 @@ class Voice():
 	#read out phrases from messages
 	#phrases strings are FIXED in messages dictionary
 	def voiceOut(self, messagetype):
-		voiceCmd = syntax_head + volume + variation['female1'] + " '" + self.messages.get(messagetype) + syntax_tail 
+		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + self.messages.get(messagetype) + self.syntax_tail 
 		os.system(voiceCmd)
 		return
 
 	#output message given
 	def say(self, message):
-		voiceCmd = syntax_head + volume + variation['female1'] + " '" + message + syntax_tail 
+		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + message + self.syntax_tail 
 		os.system(voiceCmd)
 		return
 
 class Messages():
 	def __init__(self):
-
+		self.step_count = str(5)
+		self.startloc = ['0', '0', '0', '0']
+		self.dest = ['0', '0', '0', '0']
+		self.yninput = 0
 		#dictionary of phrases chips
 		self.phrases = {1: 'Welcome', 2: 'Please key in your', 
 				   3: 'you have keyed in', 4: 'as your', 5: 'shall I proceed?', 
@@ -117,8 +131,8 @@ class Messages():
 				   51: 'left', 52: 'right', 53: 'front', 54: 'start ascending', 55: 'start desecnding',
 				   56: 'stop',
 				   # inputs needed
-				   61: 'in' , 62: step_count, 63: 'steps',
-				   64: '|'.join(startloc), 65: '|'.join(dest), 66: yninput}
+				   61: 'in' , 62: self.step_count, 63: 'steps',
+				   64: '|'.join(self.startloc), 65: '|'.join(self.dest), 66: self.yninput}
 		
 		#dictionary of actual phrases strings to be printed
 		self.messages = {
@@ -153,35 +167,38 @@ class Messages():
 					'caution':			self.phrases[17] + ".",
 					'path_blocked':		self.phrases[18],
 					'path_clear':		self.phrases[19],
-					# miscelleanous self.messages
+					# miscellaneous self.messages
 					'error':		    self.phrases[24],
 					'wait_inst':		self.phrases[22] + ".",
 					'process_done':		self.phrases[10] + ".",
 					'thankyou':			self.phrases[8]  + ".",
 					'goodbye':			self.phrases[20] + "." }
 	
+	def setStartLoc(self, new_value):
+		self.startloc = new_value
+		
+	def setDest(self, new_value):
+		self.dest = new_value
+		
 	#updates dictionary values based on field given
 	#fields available: 
-	# ** user's start location (startloc)
-	# ** user's destination (dest)
+	# ** user's start location (self.startloc)
+	# ** user's destination (self.dest)
+	# new_value is a list passed in from caller
 	def updateDictionaryValues(self, new_value, update_field):
 		if (update_field == 'startloc'):
-			for x in range (0, 4):
-				startloc[x] = new_value[x]
-			print startloc
+			self.setStartLoc(new_value)
 			del self.phrases[64]
 			del self.messages['confirm_startloc']
-			self.phrases[64] = '|'.join(startloc)
+			self.phrases[64] = '|'.join(self.startloc)
 			self.messages['confirm_startloc'] = (self.phrases[3] + " " + self.phrases[64] + " " + self.phrases[4] + 
 												" " + self.phrases[31] + ". " + self.phrases[5])
 		
 		elif (update_field == 'dest'):
-			for x in range(0, 4):
-				dest[x] = new_value[x]
-			print dest
+			self.setDest(new_value)
 			del self.phrases[65]
 			del self.messages['confirm_dest']
-			self.phrases[65] = '|'.join(dest)
+			self.phrases[65] = '|'.join(self.dest)
 			self.messages['confirm_dest'] = (self.phrases[3] + " " + self.phrases[65] + " " + self.phrases[4] + 
 											" " + self.phrases[32] + ". " + self.phrases[5])
 		
