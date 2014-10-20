@@ -125,7 +125,6 @@ class TrilaterationCalculation():
 		passCount = 0
 		index = 0
 		for j in range(0, len(circles)-1):
-			circleA = circles[j]
 			for k in range(j+1, len(circles)):
 				failing = True
 				
@@ -180,10 +179,13 @@ class TrilaterationCalculation():
 	
 				if failing == True:
 					print "increase attempt failed!"
-					
+		
+		print "found coor:"
+		print found_coordinates		
 		if passCount == 1:
 			print "Wen Yao"
-			return self.determineBestPoint(found_coordinates,circles[index])
+			
+			return self.determineBestPoint(found_coordinates[0],circles[index])
 		else:
 			print "John"	
 			return self.determineCoordinatesInAllCircles(found_coordinates, intersectedCircles)
