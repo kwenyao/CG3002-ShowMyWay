@@ -1,4 +1,4 @@
-from trilateration2 import TrilaterationCalculation
+from trilateration import TrilaterationCalculation
 from accessPoints import AccessPoints
 
 class Wifi():
