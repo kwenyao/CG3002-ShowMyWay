@@ -1,5 +1,5 @@
+from ServerSync2 import MapSync
 from wifi import Wifi
-from ServerSync import MapSync
 import visualiseMap
 import getPath
 import math
@@ -17,10 +17,10 @@ ultrasound_data = []		#list of ultrasound data, each element is a tuple. e.g. se
 #----------------------------------------------------------------------------------------------------------------------------------------
 #CONSTANTS
 #----------------------------------------------------------------------------------------------------------------------------------------
-step_length = 0.8 				#length of each step of user, measured in meters
-radius_of_closeness = 0.3 		#this radius determines the level of closeness we need to get to the node to determine that use is actually at that node
-orientation_degree_error= 5 	#the degree of deviant the user can be wrt to the actual bearing he shld be walking straight to reach the node.
-freq_instructions = 5			#the time (in minutes) between consecutive "walk straight" instructions
+STEP_LENGTH = 0.8 				#length of each step of user, measured in meters
+RADIUS_OF_CLOSENESS = 0.3 		#this radius determines the level of closeness we need to get to the node to determine that use is actually at that node
+ORIENTATION_DEGREE_ERROR= 5 	#the degree of deviant the user can be wrt to the actual bearing he shld be walking straight to reach the node.
+FREQ_INSTRUCTIONS = 5			#the time (in minutes) between consecutive "walk straight" instructions
 #----------------------------------------------------------------------------------------------------------------------------------------
 #FLAGS
 #----------------------------------------------------------------------------------------------------------------------------------------
@@ -57,12 +57,10 @@ end_point = '1'
 
 #apNodes = packet.get('wifi')
 
-map_north = int (currmap.getNorth()["northAt"])
-
-mapNodes = currmap.getMap()
+map_north = currmap.north
+mapNodes = currmap.mapNodes
 print mapNodes
-apNodes = currmap.getAPNodes()
-#coords = wifi.getUserCoordinates(apNodes)
+#coords = wifi.getUserCoordinates(currmap.apNodes)
 
 #initialise visualisation tool
 visual = visualiseMap.visualiseMap(1300,1300)
@@ -108,15 +106,15 @@ num_steps_to_next = -1 	#number of steps to the next node
 #---------------------------------------------------------Directing----------------------------------------------------------------------
 #assume user already in the correct orientation
 dist_to_next_node = math.sqrt((next_coor[0] - current_coor_read[0])**2 + (next_coor[1] - current_coor_read[1])**2)
-num_steps_to_next = dist_to_next_node/step_length
+num_steps_to_next = dist_to_next_node/STEP_LENGTH
 print "walk forward " , num_steps_to_next , "steps"
 tick_since_last = time.time() # get the current time here.
 
 #condition to exit navigation is when user reaches within 30cm of the end coordinate 
-while abs(current_coor_read[0]-final_coor[0]) >radius_of_closeness*100 and abs(current_coor_read[1]-final_coor[1]) > radius_of_closeness*100 :
+while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(current_coor_read[1]-final_coor[1]) > RADIUS_OF_CLOSENESS*100 :
 	current_coor_read = current_coor
 	#check if i have reach the next node
-	if (abs(current_coor_read[0]-next_coor[0]) <radius_of_closeness*100 and abs(current_coor_read[1]-next_coor[1]) < radius_of_closeness*100) == True:
+	if (abs(current_coor_read[0]-next_coor[0]) <RADIUS_OF_CLOSENESS*100 and abs(current_coor_read[1]-next_coor[1]) < RADIUS_OF_CLOSENESS*100) == True:
 		current_node = next_node_to_travel
 		next_node_to_travel = route_nodes.get((current_node.get('linkTo'))[0])
 		next_coor = (int(next_node_to_travel.get('x')), int(next_node_to_travel.get('y')))
@@ -145,7 +143,7 @@ while abs(current_coor_read[0]-final_coor[0]) >radius_of_closeness*100 and abs(c
 			offset = 180
 	bearing_to_face = (map_north + offset) % 360		
 	print bearing_to_face
-	if abs(bearing_to_face - direction_faced) > orientation_degree_error:
+	if abs(bearing_to_face - direction_faced) > ORIENTATION_DEGREE_ERROR:
 		if bearing_to_face < direction_faced:
 			print "turn left", direction_faced - bearing_to_face, "degrees"
 		else:
@@ -153,10 +151,10 @@ while abs(current_coor_read[0]-final_coor[0]) >radius_of_closeness*100 and abs(c
 		#@@@@@@@@@@@@@@@@@@@@@@@call wait function here, to give user time to rotate	
 	else:
 		#guide user to walk straight
-		if (current_tick - tick_since_last) >= freq_instructions*60:
+		if (current_tick - tick_since_last) >= FREQ_INSTRUCTIONS*60:
 			time_since_last = current_time
 			dist_to_next_node = math.sqrt((next_coor[0] - current_coor_read[0])**2 + (next_coor[1] - current_coor_read[1])**2)
-			num_steps_to_next = dist_to_next_node/step_length
+			num_steps_to_next = dist_to_next_node/STEP_LENGTH
 			print "walk forward" , num_steps_to_next , "steps"
 
 	break		
