@@ -158,7 +158,7 @@ class MapSync(object):
 		adjNodes = linkTo.split(',')
 		edgeList = []
 		for node in adjNodes:
-			edgeList.append(int(node))
+			edgeList.append(node)
 		return edgeList
 		
 		
