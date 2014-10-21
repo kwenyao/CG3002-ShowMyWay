@@ -57,18 +57,12 @@ end_point = '1'
 
 #apNodes = packet.get('wifi')
 
-<<<<<<< HEAD
-map_north = int (currmap.getNorth()["northAt"])
 
-mapNodes = currmap.getMap()
-apNodes = currmap.getAPNodes()
-#coords = wifi.getUserCoordinates(apNodes)
-=======
 map_north = currmap.north
 mapNodes = currmap.mapNodes
-print mapNodes
+print mapNodes['24']
 #coords = wifi.getUserCoordinates(currmap.apNodes)
->>>>>>> 58407c0b30a6f0e8bee91f9490f391201a4a5127
+
 
 #initialise visualisation tool
 visual = visualiseMap.visualiseMap(1300,1300)
