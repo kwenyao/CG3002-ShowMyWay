@@ -187,7 +187,8 @@ class TrilaterationCalculation():
 		
 		vector1 = found_coordinates[0]
 		vector2 = found_coordinates[1]
-		vector3 =  self.createVector(router3)
+# 		vector3 =  self.createVector(router3)
+		vector3 = router3.get('coords')
 		
 		distance1 = (vector3 - vector1).magnitude
 		distance2 = (vector3 - vector2).magnitude
