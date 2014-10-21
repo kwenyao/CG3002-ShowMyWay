@@ -36,6 +36,34 @@ user_input = 0 				#set to 1 when user presses the keyboard
 currmap = MapSync()
 wifi = Wifi()
 #@@@@@@@@@@@@@@@@@@@@@@@ write a function to acheive handshaking with arduino, arduino should only reply ack after calibrating the sensors.
+#---------------------------------------------------------Handshaking With Arduino-------------------------------------------------------
+handshake = 0;
+
+#handshake with GY87
+while(handshake==0):
+  message = ser.readline()
+  print message
+  if message[0] == 'S':
+    handshake = 1
+    print message
+    ser.write("1")
+handshake = 0
+while(handshake==0):
+  message = ser.readline()
+  print message
+  if message[0] == 'D':
+    handshake =1
+print "Handshake With GY87 Completed."
+handshake = 0
+while handshake == 0 :
+	message = ser.readline()
+	if message[0] == 'G':
+     handshake = 1
+     print message
+     ser.write("1")
+print "GY87 values stabilised"
+
+#---------------------------------------------------------Calibrating User Step Size-----------------------------------------------------
 
 #@@@@@@@@@@@@@@@@@@@@@@@ call a function from voiceoutput class to ask user for building name , level, starting vertex and ending vertex
 ##### DISCLAIMER: please follow the order stated below when updating start and end locations #####
@@ -49,7 +77,7 @@ wifi = Wifi()
 #
 # to speak a certain string: voice_obj.say('say this')
 ##################################################################################################
-
+#---------------------------------------------------------Get Map Location and initial state of User-------------------------------------
 currmap.loadLocation("COM1" , "2")
 #initialise the starting and ending vertex
 start_point = '3'
@@ -58,7 +86,7 @@ end_point = '1'
 #apNodes = packet.get('wifi')
 
 
-map_north = currmap.north
+map_north = currmap.north##############NEED TO CORRECT THIS MAP NORTH TO ACCORDING TO THE NEW MAP NORTH
 mapNodes = currmap.mapNodes
 print mapNodes['24']
 #coords = wifi.getUserCoordinates(currmap.apNodes)
@@ -99,6 +127,10 @@ ticks_since_last = time.time()	#the timing that the last instruction for walk st
 current_tick = time.time()		#current time 	
 dist_to_next_node = -1 	#the distance to the next node
 num_steps_to_next = -1 	#number of steps to the next node
+
+
+
+
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 #GUIDING PHASE
