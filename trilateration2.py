@@ -3,9 +3,10 @@ import simplevector
 
 class TrilaterationCalculation():
 	def __init__ (self):
-		self.RADIUS_INCREMENT = 1.1
+		self.RADIUS_INCREMENT = 1.4
 		self.DISTANCE_THRESHOLD = 0.6
-		self.defaultUserCoordinate = {'x': -1, 'y': -1}
+		self.DEFAULT_COORDINATES = {'x': -1, 'y': -1}
+		self.iterationNum = 0
 	
 	def determineTrilateration(self, selection_list):
 		circles = self.determineCircles(selection_list)
@@ -26,10 +27,11 @@ class TrilaterationCalculation():
 		return circles
 	
 	def calculateUserCoordinates(self, circles):
-		intersections = self.determineIntersections(circles[0], circles[1])
+		intersections = self.findAllIntersections(circles[0], circles[1])
+		print "number of iterations:" + str(self.iterationNum)
 		if intersections is None:
-			print "Bad data: No intersections found after 10 iterations"
-			userCoordinate = self.defaultUserCoordinate
+			print "Bad data: No intersections found after " + str(self.iterationNum) + " iterations"
+			userCoordinate = self.DEFAULT_COORDINATES
 		else:
 			intersection1 = {}
 			intersection1['x'] = intersections[0][0]
@@ -40,9 +42,11 @@ class TrilaterationCalculation():
 			userCoordinate = self.determineBestPoint(intersection1, intersection2, circles[2])
 		return userCoordinate
 	
-	def determineIntersections(self, router1, router2):
-		for x in range(0, 10): # Try 10 times
-			intersections = self.calculateIntersections(router1, router2)
+	def findAllIntersections(self, router1, router2):
+		self.iterationNum = 0
+		for x in range(0, 5): # Try 10 times
+			self.iterationNum = x
+			intersections = self.find2CirclesIntersections(router1, router2)
 			if intersections is None:
 				router1['radius'] = router1.get('radius') * self.RADIUS_INCREMENT
 				router2['radius'] = router2.get('radius') * self.RADIUS_INCREMENT
@@ -50,7 +54,7 @@ class TrilaterationCalculation():
 				return intersections
 		return None
 					
-	def calculateIntersections(self, router1, router2):
+	def find2CirclesIntersections(self, router1, router2):
 		x1 = router1.get('x')
 		y1 = router1.get('y')
 		x2 = router2.get('x')
@@ -64,10 +68,10 @@ class TrilaterationCalculation():
 		
 		distBtwRouter = (vector1 - vector2).magnitude
 		
-		heronRoot = ( (distBtwRouter + radius1 + radius2)*
-					(- distBtwRouter + radius1 + radius2)*
-					(  distBtwRouter - radius1 + radius2)*
-					(  distBtwRouter + radius1 - radius2) )
+		heronRoot = (( distBtwRouter + radius1 + radius2 )*
+					( -distBtwRouter + radius1 + radius2 )*
+					(  distBtwRouter - radius1 + radius2 )*
+					(  distBtwRouter + radius1 - radius2 ))
 		if(heronRoot > 0): # intersection exists
 			heron = 0.25*math.sqrt(heronRoot)
 			xbase = (0.5)*(x1+x2) + (0.5)*(x2-x1)*(radius1*radius1-radius2*radius2)/(distBtwRouter*distBtwRouter)
@@ -76,7 +80,6 @@ class TrilaterationCalculation():
 			ydiff = 2*(x2-x1)*heron/(distBtwRouter*distBtwRouter) 
 			return (xbase+xdiff,ybase-ydiff),(xbase-xdiff,ybase+ydiff)
 		else: # no intersection exists
-			print "No intersection found"
 			return None
 	
 	def determineBestPoint(self, intersection1, intersection2, router3):
@@ -102,7 +105,7 @@ class TrilaterationCalculation():
 			return bestPoint
 		else:
 			print "Both intersections not within accepted threshold"
-			return self.defaultUserCoordinate
+			return self.DEFAULT_COORDINATES
 	
 	def rescaleCoordinates(self, point):
 		point['x'] = point.get('x')*100

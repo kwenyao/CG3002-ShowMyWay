@@ -53,7 +53,6 @@ class AccessPoints():
 				isAlreadyFound = self.scannedAPDict.get(macAddr)
 				if isAlreadyFound is None:
 					ap['address'] = macAddr
-					print "MAC = " + str(ap.get('address'))
 					self.scannedAPDict[macAddr] = macAddr
 					elementCount += 1 
 				else:
@@ -61,33 +60,24 @@ class AccessPoints():
 			match = re.search('ESSID:"(\S+)"', item)
 			if match:
 				ap['essid'] = match.group(1)
-				# print "ESSID = " + str(ap.get('essid'))
 				elementCount += 1
-	
 			match = re.search('Frequency:(\S+)', item)
 			if match:
 				freq1 = match.group(1)
 				ap['freq'] = freq1
-				# print "frequency = " + str(ap.get('freq'))
 				elementCount += 1
-	
 			found = re.search('Signal level=(\S+)',item)
 			if found:
-				# match = found.group(1).split('/')[0]
-				# print match
-				# sig = (int(match)/2) - 100
 				match = found.group(1)
 				sig = int(match)
 				ap['signal'] = sig
 				ap['distance'] = self.calculateDistanceFromAP(sig,freq1)
-				# print "Distance = " + str(ap.get('distance')) 
 				elementCount += 1
-			# print elementCount
 			if elementCount == 4:
 				elementCount = 0
 				ap_list.append(ap)
 				ap = {}
-							
+		ap_list = self.sortAccessPoints(ap_list)
 		return ap_list
 	
 	def sortAccessPoints(self, ap_list):

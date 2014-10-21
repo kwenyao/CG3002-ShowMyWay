@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import sys
-import requests
 import urllib
 import json
 import os.path
@@ -50,13 +49,20 @@ class MapSync(object):
 		self.fileManager = Storage()
 		cache = CacheManager(**parse_cache_config_options(cache_opts))
 		self.cacheManager = cache.get_cache('map.php', expire=3600)  #--- get specific cache from cacheManager
+		self.initMaps()
+	
+	def initMaps(self):
 		try:
 			building_json = self.fileManager.readFromFile("buildinglist.txt") 
 			self.buildings = json.loads(building_json)
 			print "building loaded"
 		except:
-			print "buildinglist.txt not found, creating.."
-		self.syncAllMaps()
+			isEmptyBuildingList = True
+			print "No known maps. Please add maps."
+		if isEmptyBuildingList:
+			return
+		else:
+			self.syncAllMaps()
 	
 	def resetMap(self):
 		self.val = 0
@@ -111,17 +117,17 @@ class MapSync(object):
 			macAddr = str(node['macAddr']).upper()
 			self.apNodes[macAddr[0:14]] = nodeData
 	
-	def addNewMap(self,building_name, level_value):
+	def addNewMap(self,buildingName, level_value):
 		found = False
 		array_of_buildings = self.fileManager.readFromFile("buildinglist.txt")
 		array_of_buildings = json.loads(array_of_buildings)
 		for building in array_of_buildings:
-			if building['name'] is building_name:
+			if building['name'] is buildingName:
 				building['level'].append(level_value)
 				found = True
 		if found is False:
 			newBuilding = {}
-			newBuilding['name'] = building_name
+			newBuilding['name'] = buildingName
 			newBuilding['level'] = level_value
 			array_of_buildings.append(newBuilding)
 			
@@ -129,7 +135,6 @@ class MapSync(object):
 	
 	def determineSource(self, building_name, level_value):
 		url = 'http://showmyway.comp.nus.edu.sg/getMapInfo.php?Building=' + building_name + "&Level=" + level_value 
-		# req = requests.request('GET', 'http://showmyway.comp.nus.edu.sg/getMapInfo.php?Building=DemoBuilding&Level=1')
 		req = urllib.urlopen(url)
 		source = req.read()
 		req.close()
