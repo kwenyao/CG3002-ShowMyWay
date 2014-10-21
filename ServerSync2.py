@@ -155,7 +155,7 @@ class MapSync(object):
 		self.apNodes = apNodeList
 		
 	def extractMapEdges(self, linkTo):
-		adjNodes = linkTo.split(',')
+		adjNodes = linkTo.split(', ')
 		edgeList = []
 		for node in adjNodes:
 			edgeList.append(node)
