@@ -50,23 +50,29 @@ wifi = Wifi()
 # to speak a certain string: voice_obj.say('say this')
 ##################################################################################################
 
-currmap.loadLocation("DemoBuilding" , "1")
+currmap.loadLocation("COM1" , "2")
 #initialise the starting and ending vertex
 start_point = '3'
 end_point = '1'
 
 #apNodes = packet.get('wifi')
 
+<<<<<<< HEAD
+map_north = int (currmap.getNorth()["northAt"])
+
+mapNodes = currmap.getMap()
+apNodes = currmap.getAPNodes()
+#coords = wifi.getUserCoordinates(apNodes)
+=======
 map_north = currmap.north
 mapNodes = currmap.mapNodes
 print mapNodes
 #coords = wifi.getUserCoordinates(currmap.apNodes)
+>>>>>>> 58407c0b30a6f0e8bee91f9490f391201a4a5127
 
 #initialise visualisation tool
 visual = visualiseMap.visualiseMap(1300,1300)
 visual.setMap(mapNodes,0)
-
-visual.printMap()
 
 #initialise calculate_path object with the current number of vertex
 calculate_path = getPath.getPath(mapNodes)
