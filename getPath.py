@@ -61,8 +61,3 @@ class getPath :
 		return route
 		          
 
-def mult(x,y):
-	return x * y
-
-print map(mult,[2,3],[4,6])
-

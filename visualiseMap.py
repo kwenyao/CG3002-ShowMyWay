@@ -26,8 +26,6 @@ class visualiseMap :
 	def setMap(self, map_nodes, nature):
 		"This method takes in the JSON format nodes and set the map"
 		for k, v in map_nodes.iteritems():
-			if nature == 1 :
-				print k, v
 			self.addCoor(k, int(v['x']), int(v['y']))
 			start_point = [int(v['x']), int(v['y'])]
 			end_point = []
