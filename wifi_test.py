@@ -1,5 +1,6 @@
 from wifi import Wifi
 from ServerSync2 import MapSync
+import time
 
 
 def main():
@@ -19,8 +20,10 @@ def main():
 # 	print north
 # 	print mapNodes
 # 	print apNodes
-	
-	while(1):
+	timeout = time.time() + 60*2
+	while True:
+		if time.time() > timeout:
+			break
 		coords = wifi.getUserCoordinates(apNodes)
 		print coords
 
