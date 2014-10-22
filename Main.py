@@ -5,7 +5,56 @@ import getPath
 import math
 import time
 import os
-import UserInteraction import Voice, Keypad
+from UserInteraction import Voice, Keypad
+
+#----------------------------------------------------------------------------------------------------------------------------------------
+#FUNCTIONS IMPLEMENTATION
+#----------------------------------------------------------------------------------------------------------------------------------------
+def handshakeWithArduino(serialPort):
+	handshake = 0;
+	prev_Tick = time.time()
+	current_Tick = time.time()
+	time_limit_exceed_flag = 0
+	time_limit = 1 #time limit for arduino to respond
+
+	#handshake with GY87
+	while(handshake==0 and time_limit_exceed_flag == 0):
+		message = serialPort.readline()
+		print message
+		if message[0] == 'S':
+			handshake = 1
+			print message
+			serialPort.write("1")
+		current_tick = time.time()	
+		if ((current_tick - prev_Tick) > time_limit):
+			time_limit_exceed_flag = 1
+	handshake = 0
+	while(handshake==0 and time_limit_exceed_flag == 0):
+		message = ser.readline()
+		print message
+		if message[0] == 'D':
+			handshake =1
+			print "Handshake With GY87 Completed."
+		current_tick = time.time()	
+		if current_tick - prev_Tick > time_limit:
+			time_limit_exceed_flag = 2
+	handshake = 0
+	#waiting for GY87 values to stabalise.
+	while (handshake == 0 and time_limit_exceed_flag == 0) :
+		message = ser.readline()
+		if message[0] == 'G':
+			handshake = 1
+			print message
+			ser.write("1")
+		current_tick = time.time()	
+		if current_tick - prev_Tick > time_limit:
+			time_limit_exceed_flag = 3
+
+	if time_limit_exceed_flag != 0 :
+		return "Fail with exit code " + str(time_limit_exceed_flag)
+	else:
+		return "Done"
+
 #----------------------------------------------------------------------------------------------------------------------------------------
 #VARIABLES
 #----------------------------------------------------------------------------------------------------------------------------------------
@@ -40,23 +89,23 @@ FREQ_INSTRUCTIONS = 5			#the time (in minutes) between consecutive "walk straigh
 #download all maps
 currmap = MapSync()
 wifi = Wifi()
-ser = serial.Serial('COM13', 115200)
+#ser = serial.Serial('COM13', 115200)
 
 #create Storage for the step size
 file_manager = Storage()
 
 #initialise voice command
-voice_command = Voice()
-keypad_input = Keypad()
+# voice_command = Voice()
+#keypad_input = Keypad()
 
 #handshaking with arduino
-handshake_result = handshakeWithArduino(ser)
-if ( handshake_result != "Done"):
-	print handshake_result
-	voice_command.say("Handshake Failed with exit code" + handshake_result)
-else:
-	pass
-	voice_command.say("Handshake with Arduino Successful")
+# handshake_result = handshakeWithArduino(ser)
+# if ( handshake_result != "Done"):
+# 	print handshake_result
+# 	voice_command.say("Handshake Failed with exit code" + handshake_result)
+# else:
+# 	print "Handshake Successful"
+# 	voice_command.say("Handshake with Arduino Successful")
 
 #---------------------------------------------------------Calibrating User Step Size-----------------------------------------------------
 #Assumption: this device is specialised for ONE user only, current code will only support one user. 
@@ -64,12 +113,15 @@ else:
 
 main_py_directory = os.path.dirname(__file__)
 folder_directory = os.path.join(main_py_directory, "data//")
-
-if (!file_manager.isFileExist(folder_directory)):
+data_directory = folder_directory + 'weijiansucks.txt'
+if not os.path.exists(folder_directory):
+	os.makedirs(folder_directory)	
+data_exist = file_manager.readFromFile(data_directory)
+if data_exist is None:
 	#run calibration phase
-	file_manager.writeToFile(folder_directory, STEP_LENGTH)
+	file_manager.writeToFile(data_directory, str(STEP_LENGTH))
 else:
-	STEP_LENGTH = float(file_manager.readFromFile(folder_directory))
+	STEP_LENGTH = float(file_manager.readFromFile(data_directory))
 
 #---------------------------------------------------------Get Map Location and initial state of User-------------------------------------
 #@@@@@@@@@@@@@@@@@@@@@@@ call a function from voiceoutput class to ask user for building name , level, starting vertex and ending vertex
@@ -199,53 +251,3 @@ while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(c
 #---------------------------------------------------------Receiving Data From Arduino----------------------------------------------------
 
 #---------------------------------------------------------Obstacle handling--------------------------------------------------------------
-
-
-#----------------------------------------------------------------------------------------------------------------------------------------
-#FUNCTIONS IMPLEMENTATION
-#----------------------------------------------------------------------------------------------------------------------------------------
-def handshakeWithArduino(serialPort):
-	handshake = 0;
-	prev_Tick = time.time()
-	current_Tick = time.time()
-	time_limit_exceed_flag = 0
-	time_limit = 1 #time limit for arduino to respond
-
-	#handshake with GY87
-	while(handshake==0 and time_limit_exceed_flag == 0):
-		message = serialPort.readline()
-		print message
-		if message[0] == 'S':
-			handshake = 1
-			print message
-			serialPort.write("1")
-		current_tick = time.time()	
-		if ((current_tick - prev_Tick) > time_limit):
-			time_limit_exceed_flag = 1
-	handshake = 0
-	while(handshake==0 and time_limit_exceed_flag == 0):
-		message = ser.readline()
-		print message
-		if message[0] == 'D':
-			handshake =1
-			print "Handshake With GY87 Completed."
-		current_tick = time.time()	
-		if current_tick - prev_Tick > time_limit:
-			time_limit_exceed_flag = 2
-	handshake = 0
-	#waiting for GY87 values to stabalise.
-	while (handshake == 0 and time_limit_exceed_flag == 0) :
-		message = ser.readline()
-		if message[0] == 'G':
-			handshake = 1
-			print message
-			ser.write("1")
-		current_tick = time.time()	
-		if current_tick - prev_Tick > time_limit:
-			time_limit_exceed_flag = 3
-
-	if time_limit_exceed_flag != 0 :
-		return "Fail with exit code " + str(time_limit_exceed_flag)
-	else:
-		return "Done"
-

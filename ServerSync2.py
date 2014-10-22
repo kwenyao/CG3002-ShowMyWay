@@ -173,7 +173,7 @@ class Storage():
 		if os.path.isfile(filename) and os.access(filename, os.R_OK):
 			return True
 		else:
-			self.writeToFile(filename, content)  # to recreate a new file
+			# self.writeToFile(filename, content)  # to recreate a new file
 			return False
 		
 	def readFromFile(self, filename):
