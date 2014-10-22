@@ -95,8 +95,6 @@ mapNodes = currmap.mapNodes
 print mapNodes['24']
 #coords = wifi.getUserCoordinates(currmap.apNodes)
 
-#testing branching
-
 #initialise visualisation tool
 visual = visualiseMap.visualiseMap(1300,1300)
 visual.setMap(mapNodes,0)
