@@ -5,15 +5,19 @@ import getPath
 import math
 import time
 import os
-
+import UserInteraction import Voice, Keypad
 #----------------------------------------------------------------------------------------------------------------------------------------
 #VARIABLES
 #----------------------------------------------------------------------------------------------------------------------------------------
-current_coor = (400, 125)	#current coordinate of the user
+current_coor = (0, 0)		#current coordinate of the user
 map_north = -1				#bearing of the north given by the map
-direction_faced = 180		#direction that user is facing as determined by the Mega compass, a bearing from north, rotate anti-clockwise
+direction_faced = 0			#direction that user is facing as determined by the Mega compass, a bearing from north, rotate anti-clockwise
 step_direction = []			#queue of directions given by the Mega Accelerometer 
 ultrasound_data = []		#list of ultrasound data, each element is a tuple. e.g. sensor_number:distance
+current_map = ""
+current_floor = ""
+start_point = ""
+end_point = ""
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 #CONSTANTS
@@ -41,14 +45,18 @@ ser = serial.Serial('COM13', 115200)
 #create Storage for the step size
 file_manager = Storage()
 
+#initialise voice command
+voice_command = Voice()
+keypad_input = Keypad()
+
 #handshaking with arduino
 handshake_result = handshakeWithArduino(ser)
 if ( handshake_result != "Done"):
 	print handshake_result
-	#---Voice OutPut---call user to restart arduino.
+	voice_command.say("Handshake Failed with exit code" + handshake_result)
 else:
 	pass
-	#---Voice OutPut--- tell user startup success
+	voice_command.say("Handshake with Arduino Successful")
 
 #---------------------------------------------------------Calibrating User Step Size-----------------------------------------------------
 #Assumption: this device is specialised for ONE user only, current code will only support one user. 
@@ -77,18 +85,17 @@ else:
 ##################################################################################################
 
 currmap.loadLocation("COM1" , "2")
-#initialise the starting and ending vertex
 start_point = '3'
 end_point = '1'
 
 #apNodes = packet.get('wifi')
 
-
-map_north = currmap.north##############NEED TO CORRECT THIS MAP NORTH TO ACCORDING TO THE NEW MAP NORTH
+map_north = abs(currmap.north-360) #previous calculation is based on rotating anti clock, current input is based on clockwise, hence need to offset
 mapNodes = currmap.mapNodes
 print mapNodes['24']
 #coords = wifi.getUserCoordinates(currmap.apNodes)
 
+#testing branching
 
 #initialise visualisation tool
 visual = visualiseMap.visualiseMap(1300,1300)
