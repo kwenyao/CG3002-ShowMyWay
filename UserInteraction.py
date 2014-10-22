@@ -23,6 +23,34 @@ class Keypad():
 		self.ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
 		self.ser.open()
 	
+	# DO THIS FIRST IN MAIN FUNCTION CALL. if(establishHandshake() == 1)
+	# once handshake is established,
+	# ser.write(">") to get 8-bit keypad input
+	# ser.write("!") to get 1-bit input
+	# to read 8-bit input, use getInput_8 function.
+	# to read 1-bit/YN input, use getYNInput function.
+	def establishHandshake(self):
+		try:
+			self.ser.write("ACK")
+			response_RDY = self.ser.readline()
+			print response_RDY
+			while not 'RDY' in response_RDY:
+				response_RDY = self.ser.readline()
+				print response_RDY
+			self.ser.write("RDY")
+			response_ACKACK = self.ser.readline()
+			print response_ACKACK
+			while not 'ACKACK' in response_ACKACK:
+				self.ser.write("ACKRDY")
+				response_ACKACK = self.ser.readline()
+				print response_ACKACK
+			print ("Handshaking protocol complete. Communication line has been established.")
+			return 1
+
+		except KeyboardInterrupt:
+			self.ser.close()
+			return 0
+
 	#user_startloc is a string that must be attained from getLocationInput()
 	#user_dest is also a string that must be attained from getLocationInput()
 	def updateLocations(self, user_startloc, user_dest):
@@ -55,7 +83,9 @@ class Keypad():
 	
 	#get user input for location. 4 digit number.
 	#returns user input but does NOT update dictionary
-	def getLocationInput(self):
+	#returns 8 digit input (string type)
+	# used for building number, level, startloc, dest
+	def getInput_8(self):
 		self.ser.write(">")
 		response = ''
 		while (not response):
@@ -126,7 +156,7 @@ class Messages():
 				   22: 'please wait', 23: 'you have reached the end of the staircase',
 				   24: 'please try again.',
 				   # phrases chips
-				   31: 'starting location', 32: 'destination',
+				   31: 'starting location', 32: 'destination', 33: 'building number', 34: 'building level',
 				   41: 'please press', 42: '1 for yes', 43: '2 for no',
 				   51: 'left', 52: 'right', 53: 'front', 54: 'start ascending', 55: 'start desecnding',
 				   56: 'stop',
@@ -137,8 +167,10 @@ class Messages():
 		#dictionary of actual phrases strings to be printed
 		self.messages = {
 					# startup processes: start location, destination, calibration and path calculations
-					'startup':			self.phrases[1]  + ". " + self.phrases[2]  + " "  + self.phrases[31] + ".",
-					'get_dest':			self.phrases[2]  + " "  + self.phrases[32] + ".",
+					'startup1':			self.phrases[1]  + ". " + self.phrases[2]  + " "  + self.phrases[33] + ".", 	#get building number
+					'startup2':			self.phrases[2]  + " "  + self.phrases[34] + ".",								#get building level
+					'get_startloc':		self.phrases[2]  + " "  + self.phrases[31] + ".",								#get startloc
+					'get_dest':			self.phrases[2]  + " "  + self.phrases[32] + ".",								#get dest
 					'confirm_startloc':	self.phrases[3]  + " "  + self.phrases[64] + " "  + self.phrases[4]  + " " + self.phrases[31] + ". " + self.phrases[5],
 					'confirm_dest':		self.phrases[3]  + " "  + self.phrases[65] + " "  + self.phrases[4]  + " " + self.phrases[32] + ". " + self.phrases[5],
 					'yn_inst':			self.phrases[41] + " "  + self.phrases[42] + ". " + self.phrases[41] + " " + self.phrases[43] + ".",
@@ -216,126 +248,126 @@ class Messages():
 
 
 
-#############################################
+# #############################################
 
-#          Stuff not in classes
+# #          Stuff not in classes
 
-#############################################
-
-
-#handshaking protocol between Arduino and RPi
-def getAck():
-	# to be done by Alvin/Jiayi
-	return 1
+# #############################################
 
 
+# #handshaking protocol between Arduino and RPi
+# def getAck():
+# 	# to be done by Alvin/Jiayi
+# 	return 1
 
-try:
-	if getAck():
-		while 1:
-			# on startup
-			print message_str['startup']
-			voiceOut('startup')
+
+
+# try:
+# 	if getAck():
+# 		while 1:
+# 			# on startup
+# 			print message_str['startup']
+# 			voiceOut('startup')
 	
-			# get starting location and update values in dictionary
-			response = getLocationInput()
-			if (updateDictionaryValues(response, 'startloc')):
-				print message_str['confirm_startloc']
-				voiceOut('confirm_startloc')
-				yn_response = getYNInput()
+# 			# get starting location and update values in dictionary
+# 			response = getLocationInput()
+# 			if (updateDictionaryValues(response, 'startloc')):
+# 				print message_str['confirm_startloc']
+# 				voiceOut('confirm_startloc')
+# 				yn_response = getYNInput()
 	
-				if (YNHandler(yn_response)):
-					break
-		while 1:
-			print message_str['get_dest']
-			voiceOut('get_dest')
-			response = getLocationInput()
+# 				if (YNHandler(yn_response)):
+# 					break
+# 		while 1:
+# 			print message_str['get_dest']
+# 			voiceOut('get_dest')
+# 			response = getLocationInput()
 	
-			if (updateDictionaryValues(response, 'dest')):
-				print message_str['confirm_dest']
-				voiceOut('confirm_dest')
-				yn_response = getYNInput()
+# 			if (updateDictionaryValues(response, 'dest')):
+# 				print message_str['confirm_dest']
+# 				voiceOut('confirm_dest')
+# 				yn_response = getYNInput()
 	
-				if (YNHandler(yn_response)):
-					print message_str['cali_header']
-					voiceOut('cali_header')
-					break
+# 				if (YNHandler(yn_response)):
+# 					print message_str['cali_header']
+# 					voiceOut('cali_header')
+# 					break
 	
-		####### NOT COMPLETED. TO DO: GET DATA FROM SENSORS AND SEND BACK #########
-		print message_str['cali_inst1']
-		voiceOut('cali_inst1')
-		time.sleep(2)  # time delay to simulate sensor calibration
-		print message_str['cali_inst2']
-		voiceOut('cali_inst2')
-		time.sleep(2)
+# 		####### NOT COMPLETED. TO DO: GET DATA FROM SENSORS AND SEND BACK #########
+# 		print message_str['cali_inst1']
+# 		voiceOut('cali_inst1')
+# 		time.sleep(2)  # time delay to simulate sensor calibration
+# 		print message_str['cali_inst2']
+# 		voiceOut('cali_inst2')
+# 		time.sleep(2)
 	
-		print message_str['path_calc']
-		voiceOut('path_calc')
-		print message_str['wait_inst']
-		voiceOut('wait_inst')
-		time.sleep(2)  # time delay to simulate path calculation
-		###########################################################################
+# 		print message_str['path_calc']
+# 		voiceOut('path_calc')
+# 		print message_str['wait_inst']
+# 		voiceOut('wait_inst')
+# 		time.sleep(2)  # time delay to simulate path calculation
+# 		###########################################################################
 	
-		print message_str['process_done']
-		voiceOut('process_done')
+# 		print message_str['process_done']
+# 		voiceOut('process_done')
 	
-		####### USE LIST TO GIVE INSTRUCTIONS   #######
-		# # 0 - turn left							 ##
-		# # 1 - go straight						   ##
-		# # 2 - turn right							##
-		# # 3 - destination arrived				   ##
-		# # 4 - open door on left					 ##
-		# # 5 - open door in front					##
-		# # 6 - open door on right					##
-		# # 7 - climb up stairs					   ##
-		# # 8 - climb down stairs					 ##
-		# # 9 - end of stairs						 ##
-		# # everytime the user changes level,		 ##
-		# # generate a new directions list.		   ##
-		###############################################
-		# # INCOMPLETE: incorporate number of steps before turning left ##
-		directions_list = [0, 1, 2, 3, 4, 5, 6]
-		for x in directions_list:
-			if x == 0:
-					print message_str['left']
-					voiceOut('left')
-			elif x == 1:
-					print message_str['straight']
-					voiceOut('straight')
-			elif x == 2:
-					print message_str['right']
-					voiceOut('right')
-			elif x == 3:
-					print message_str['dest_arrived']
-					voiceOut('dest_arrived')
-			elif x == 4:
-					print message_str['door_left']
-					voiceOut('door_left')
-			elif x == 5:
-					print message_str['door_front']
-					voiceOut('door_front')
-			elif x == 6:
-					print message_str['door_right']
-					voiceOut('door_right')
-			elif x == 7:
-					print message_str['stairs_a']
-					voiceOut('stairs_a')
-			elif x == 8:
-					print message_str['stairs_d']
-					voiceOut('stairs_d')
-			elif x == 9:
-					print message_str['stairs_end']
-					voiceOut('stairs_end')
-		##########################################################################
+# 		####### USE LIST TO GIVE INSTRUCTIONS   #######
+# 		# # 0 - turn left							 ##
+# 		# # 1 - go straight						   ##
+# 		# # 2 - turn right							##
+# 		# # 3 - destination arrived				   ##
+# 		# # 4 - open door on left					 ##
+# 		# # 5 - open door in front					##
+# 		# # 6 - open door on right					##
+# 		# # 7 - climb up stairs					   ##
+# 		# # 8 - climb down stairs					 ##
+# 		# # 9 - end of stairs						 ##
+# 		# # everytime the user changes level,		 ##
+# 		# # generate a new directions list.		   ##
+# 		###############################################
+# 		# # INCOMPLETE: incorporate number of steps before turning left ##
+# 		directions_list = [0, 1, 2, 3, 4, 5, 6]
+# 		for x in directions_list:
+# 			if x == 0:
+# 					print message_str['left']
+# 					voiceOut('left')
+# 			elif x == 1:
+# 					print message_str['straight']
+# 					voiceOut('straight')
+# 			elif x == 2:
+# 					print message_str['right']
+# 					voiceOut('right')
+# 			elif x == 3:
+# 					print message_str['dest_arrived']
+# 					voiceOut('dest_arrived')
+# 			elif x == 4:
+# 					print message_str['door_left']
+# 					voiceOut('door_left')
+# 			elif x == 5:
+# 					print message_str['door_front']
+# 					voiceOut('door_front')
+# 			elif x == 6:
+# 					print message_str['door_right']
+# 					voiceOut('door_right')
+# 			elif x == 7:
+# 					print message_str['stairs_a']
+# 					voiceOut('stairs_a')
+# 			elif x == 8:
+# 					print message_str['stairs_d']
+# 					voiceOut('stairs_d')
+# 			elif x == 9:
+# 					print message_str['stairs_end']
+# 					voiceOut('stairs_end')
+# 		##########################################################################
 	
 	
-		############################## OBJECT DETECTION ##########################
-		# phrases strings have been prepared but waiting on alvin & jiayi for data structure
+# 		############################## OBJECT DETECTION ##########################
+# 		# phrases strings have been prepared but waiting on alvin & jiayi for data structure
 	
-	else:
-		print ('ACK FAILED')
-except KeyboardInterrupt:
-	ser.close()
-	print message_str['error']
-	voiceOut('error')
-	print ('program stop')
+# 	else:
+# 		print ('ACK FAILED')
+# except KeyboardInterrupt:
+# 	ser.close()
+# 	print message_str['error']
+# 	voiceOut('error')
+# 	print ('program stop')

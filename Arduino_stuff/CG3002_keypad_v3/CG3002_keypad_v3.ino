@@ -36,34 +36,19 @@ void setup() {
 void loop() {
 //  unsigned long keypad_input = getKeypad8();
 //  Serial.println(keypad_input);
-  char test = Serial.read();
-  while (getHandshake) {
-    if (Serial.available()) {
-      ACKRDY_count = establish_ACKRDY();
-      while (ACKRDY_count == 0) {
-        Serial.println("RDY");
-        delay(200);
-        ACKRDY_count = establish_ACKRDY();
-      }
-      while (ACKRDY_count == 1) {
-        test = Serial.read();
-        Serial.println("ACKACK");
-        delay(200);
-        if (test == '!' || test == '>') {
-          getHandshake = 0;
-          break;
-        }
-      }
-    }
-  }
-  if (test == '!') {
-    int yn_input = getYN();
-    Serial.println(yn_input);
-  }
+// HANDSHAKE NOT ESTABLISHED.
 
-  else if (test == '>') {
-    unsigned long keypad_input = getKeypad8();
-    Serial.println(keypad_input);
+  if (Serial.available()) {
+    char test = Serial.read();
+    if (test == '!') {
+      int yn_input = getYN();
+      Serial.println(yn_input);
+    }
+  
+    else if (test == '>') {
+      unsigned long keypad_input = getKeypad8();
+      Serial.println(keypad_input);
+    }
   }
 }
 
@@ -111,39 +96,5 @@ unsigned long power10(int pow) {
   else if (pow == 6)  { return 1000000; }
   else if (pow == 7)  { return 10000000; }
   else if (pow == 8)  { return 100000000; }
-//  else if (pow == 9)  { return 1000000000; }
-//  else if (pow == 10) { return 10000000000; }
-//  else if (pow == 11) { return 100000000000; }
-//  else if (pow == 12) { return 1000000000000; }
-//  else if (pow == 13) { return 10000000000000; }
-//  else if (pow == 14) { return 100000000000000; }
-//  else if (pow == 15) { return 1000000000000000; }
-//  else if (pow == 15) { return 10000000000000000; }
 }
 
-int establish_ACKRDY() {
-  int i = 0;
-  if (Serial.available()) {
-    for (i=0; i<6; i++) {
-      handshake_ACKRDY[i] = Serial.read();
-    }
-  }
-  if (compare_ACKRDY()) {
-    return 1;
-  }
-  return 0;
-}
-
-int compare_ACKRDY() {
-  char ackrdy_str[7] = "ACKRDY";
-  int cmp_count = 0;
-  int i = 0;
-  for (i=0; i<6; i++) {
-    if (handshake_ACKRDY[i] == ackrdy_str[i]) { cmp_count++; }
-    else
-      return 0;
-  }
-  
-  if (cmp_count == 6) { return 1; }
-  return 0;
-}

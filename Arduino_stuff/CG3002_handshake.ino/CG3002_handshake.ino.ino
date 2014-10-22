@@ -15,7 +15,6 @@ void setup(){
 
 void loop(){
   if (Serial.available()) {
-    
     ACKRDY_count = establish_ACKRDY();
     //Serial.println(ACKRDY_count);
     if (ACKRDY_count == 0) {
