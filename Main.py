@@ -1,12 +1,13 @@
-from ServerSync2 import MapSync
+from ServerSync2 import MapSync,Storage
 from wifi import Wifi
 import visualiseMap
 import getPath
 import math
 import time
+import os
 
 #----------------------------------------------------------------------------------------------------------------------------------------
-#GLOBAL VARIABLES
+#VARIABLES
 #----------------------------------------------------------------------------------------------------------------------------------------
 current_coor = (400, 125)	#current coordinate of the user
 map_north = -1				#bearing of the north given by the map
@@ -24,8 +25,8 @@ FREQ_INSTRUCTIONS = 5			#the time (in minutes) between consecutive "walk straigh
 #----------------------------------------------------------------------------------------------------------------------------------------
 #FLAGS
 #----------------------------------------------------------------------------------------------------------------------------------------
-object_detection = 0		#set to 1 when object detected
-user_input = 0 				#set to 1 when user presses the keyboard
+#object_detection = 0		#set to 1 when object detected
+#user_input = 0 				#set to 1 when user presses the keyboard
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------
@@ -35,36 +36,34 @@ user_input = 0 				#set to 1 when user presses the keyboard
 #download all maps
 currmap = MapSync()
 wifi = Wifi()
-#@@@@@@@@@@@@@@@@@@@@@@@ write a function to acheive handshaking with arduino, arduino should only reply ack after calibrating the sensors.
-#---------------------------------------------------------Handshaking With Arduino-------------------------------------------------------
-handshake = 0;
+ser = serial.Serial('COM13', 115200)
 
-#handshake with GY87
-while(handshake==0):
-  message = ser.readline()
-  print message
-  if message[0] == 'S':
-    handshake = 1
-    print message
-    ser.write("1")
-handshake = 0
-while(handshake==0):
-  message = ser.readline()
-  print message
-  if message[0] == 'D':
-    handshake =1
-print "Handshake With GY87 Completed."
-handshake = 0
-while handshake == 0 :
-	message = ser.readline()
-	if message[0] == 'G':
-     handshake = 1
-     print message
-     ser.write("1")
-print "GY87 values stabilised"
+#create Storage for the step size
+file_manager = Storage()
+
+#handshaking with arduino
+handshake_result = handshakeWithArduino(ser)
+if ( handshake_result != "Done"):
+	print handshake_result
+	#---Voice OutPut---call user to restart arduino.
+else:
+	pass
+	#---Voice OutPut--- tell user startup success
 
 #---------------------------------------------------------Calibrating User Step Size-----------------------------------------------------
+#Assumption: this device is specialised for ONE user only, current code will only support one user. 
+#Check if calibrated before, if so, read from the text file
 
+main_py_directory = os.path.dirname(__file__)
+folder_directory = os.path.join(main_py_directory, "data//")
+
+if (!file_manager.isFileExist(folder_directory)):
+	#run calibration phase
+	file_manager.writeToFile(folder_directory, STEP_LENGTH)
+else:
+	STEP_LENGTH = float(file_manager.readFromFile(folder_directory))
+
+#---------------------------------------------------------Get Map Location and initial state of User-------------------------------------
 #@@@@@@@@@@@@@@@@@@@@@@@ call a function from voiceoutput class to ask user for building name , level, starting vertex and ending vertex
 ##### DISCLAIMER: please follow the order stated below when updating start and end locations #####
 # 1. voice out 'startup'
@@ -72,12 +71,11 @@ print "GY87 values stabilised"
 # 3. voice out 'get_dest'
 # 4. dest = keypad_obj.getLocationInput
 # 5. keypad_obj.updateLocations(startloc, dest)
-#
 # *not tried and tested. changes may have to be made.
 #
 # to speak a certain string: voice_obj.say('say this')
 ##################################################################################################
-#---------------------------------------------------------Get Map Location and initial state of User-------------------------------------
+
 currmap.loadLocation("COM1" , "2")
 #initialise the starting and ending vertex
 start_point = '3'
@@ -196,3 +194,53 @@ while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(c
 #---------------------------------------------------------Receiving Data From Arduino----------------------------------------------------
 
 #---------------------------------------------------------Obstacle handling--------------------------------------------------------------
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------
+#FUNCTIONS IMPLEMENTATION
+#----------------------------------------------------------------------------------------------------------------------------------------
+def handshakeWithArduino(serialPort):
+	handshake = 0;
+	prev_Tick = time.time()
+	current_Tick = time.time()
+	time_limit_exceed_flag = 0
+	time_limit = 1 #time limit for arduino to respond
+
+	#handshake with GY87
+	while(handshake==0 and time_limit_exceed_flag == 0):
+		message = serialPort.readline()
+		print message
+		if message[0] == 'S':
+			handshake = 1
+			print message
+			serialPort.write("1")
+		current_tick = time.time()	
+		if ((current_tick - prev_Tick) > time_limit):
+			time_limit_exceed_flag = 1
+	handshake = 0
+	while(handshake==0 and time_limit_exceed_flag == 0):
+		message = ser.readline()
+		print message
+		if message[0] == 'D':
+			handshake =1
+			print "Handshake With GY87 Completed."
+		current_tick = time.time()	
+		if current_tick - prev_Tick > time_limit:
+			time_limit_exceed_flag = 2
+	handshake = 0
+	#waiting for GY87 values to stabalise.
+	while (handshake == 0 and time_limit_exceed_flag == 0) :
+		message = ser.readline()
+		if message[0] == 'G':
+			handshake = 1
+			print message
+			ser.write("1")
+		current_tick = time.time()	
+		if current_tick - prev_Tick > time_limit:
+			time_limit_exceed_flag = 3
+
+	if time_limit_exceed_flag != 0 :
+		return "Fail with exit code " + str(time_limit_exceed_flag)
+	else:
+		return "Done"
+
