@@ -169,14 +169,6 @@ class Storage():
 		f.write(content)
 		f.close()
 		
-# 	def isFileExist(self, filename):
-# 		content = ""
-# 		if os.path.isfile(filename) and os.access(filename, os.R_OK):
-# 			return True
-# 		else:
-# 			# self.writeToFile(filename, content)  # to recreate a new file
-# 			return False
-		
 	def readFromFile(self, filename):
 		if os.path.isfile(filename) and os.access(filename, os.R_OK):
 			f = open(filename, 'r')

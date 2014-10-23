@@ -4,13 +4,8 @@ import visualiseMap
 import getPath
 import math
 import time
-import os
-<<<<<<< HEAD
-# from UserInteraction import Voice, Keypad
-=======
-from UserInteraction import Voice, Keypad
 import serial
->>>>>>> origin/master
+from UserInteraction import Voice, Keypad
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 #FUNCTIONS IMPLEMENTATION
@@ -27,32 +22,32 @@ def handshakeWithArduino(serialPort):
 		message = serialPort.readline()
 		print "after seiral read"
 		if (len(message) == 0 ):
-                        time_limit_exceed_flag = 1
-                else:
-                        print message
-                        if message[0] == 'S':
-                                handshake = 1
-                                serialPort.write("1")	
+			time_limit_exceed_flag = 1
+		else:
+			print message
+			if message[0] == 'S':
+				handshake = 1
+				serialPort.write("1")	
 	handshake = 0
 	while(handshake==0 and time_limit_exceed_flag == 0):
 		message = serialPort.readline()
 		if (len(message) == 0 ):
-                        time_limit_exceed_flag = 1
-                else:
-                        print message
-                        if message[0] == 'D':
-                                handshake =1
-                                print "Handshake With GY87 Completed."
+			time_limit_exceed_flag = 1
+		else:
+			print message
+			if message[0] == 'D':
+				handshake =1
+				print "Handshake With GY87 Completed."
 	handshake = 0
 	#waiting for GY87 values to stabalise.
 	while (handshake == 0 and time_limit_exceed_flag == 0) :
 		message = serialPort.readline()
 		if (len(message) == 0 ):
-                        time_limit_exceed_flag = 1
-                else:
-                        print message
-                        if message[0] == 'G':
-                                handshake = 1
+			time_limit_exceed_flag = 1
+		else:
+			print message
+			if message[0] == 'G':
+				handshake = 1
 
 	if time_limit_exceed_flag != 0 :
 		return "Fail with exit code " + str(time_limit_exceed_flag)
@@ -106,13 +101,13 @@ file_manager = Storage()
 
 ser = serial.Serial('COM13', 115200)
 ###handshaking with arduino
-handshake_result = handshakeWithArduino(ser)
-if ( handshake_result != "Done"):
-        print handshake_result
- 	voice_command.say("Handshake Failed with exit code" + handshake_result)
-else:
- 	print "Handshake Successful"
- 	voice_command.say("Handshake with Arduino Successful")
+# handshake_result = handshakeWithArduino(ser)
+# if ( handshake_result != "Done"):
+# 	print handshake_result
+# 	voice_command.say("Handshake Failed with exit code" + handshake_result)
+# else:
+# 	print "Handshake Successful"
+# 	voice_command.say("Handshake with Arduino Successful")
 
 #---------------------------------------------------------Calibrating User Step Size-----------------------------------------------------
 #Assumption: this device is specialised for ONE user only, current code will only support one user. 
@@ -123,7 +118,7 @@ data_exist = file_manager.readFromFile(data_path)
 if data_exist is None:
 	ser.write('2')
 	STEP_LENGTH = ser.readline
-	file_manager.writeToFile(data_directory, str(STEP_LENGTH))
+	file_manager.writeToFile(data_path, str(STEP_LENGTH))
 else:
 	STEP_LENGTH = float(file_manager.readFromFile(data_path))
 
@@ -194,7 +189,7 @@ num_steps_to_next = -1 	#number of steps to the next node
 #GUIDING PHASE
 #----------------------------------------------------------------------------------------------------------------------------------------
 #condition to exit navigation is when user reaches within 30cm of the end coordinate 
-while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(current_coor_read[1]-final_coor[1]) > RADIUS_OF_CLOSENESS*100 :
+while abs(curr_coor[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(curr_coor[1]-final_coor[1]) > RADIUS_OF_CLOSENESS*100 :
 
 #---------------------------------------------------------Receiving Data From Arduino----------------------------------------------------
 	dataReceived = ser.readline()
@@ -217,11 +212,11 @@ while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(c
 
 #---------------------------------------------------------Get Optimal current position---------------------------------------------------
 	time_lapse = time.time() - time_location_last_updated
-	aprrox_x_travelled = time_lapse*APRROX_SPEED*math.math.cos(bearing_faced)
-	approx_y_travelled = time_lapse*APRROX_SPEED*math.math.sin(bearing_faced)
+	approx_x_travelled = time_lapse*APRROX_SPEED*math.cos(bearing_faced)
+	approx_y_travelled = time_lapse*APRROX_SPEED*math.sin(bearing_faced)
 
-	if (aprrox_x_travelled+curr_coor[0] >= wifi_coor[0] ):
-		if (prrox_y_travelled+curr_coor[1] >= wifi_coor[1]):
+	if (approx_x_travelled+curr_coor[0] >= wifi_coor[0] ):
+		if (approx_y_travelled+curr_coor[1] >= wifi_coor[1]):
 			curr_coor[0] = (imu_coor[0] + wifi_coor[0])/2
 			curr_coor[1] = (imu_coor[1] + wifi_coor[1])/2
 	else:
@@ -232,9 +227,9 @@ while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(c
 
 	tick_since_last = time.time() # get the current time here.
 
-	current_coor_read = curr_coor
+	curr_coor = curr_coor
 	#check if i have reach the next node
-	if (abs(current_coor_read[0]-next_coor[0]) <RADIUS_OF_CLOSENESS*100 and abs(current_coor_read[1]-next_coor[1]) < RADIUS_OF_CLOSENESS*100) == True:
+	if (abs(curr_coor[0]-next_coor[0]) <RADIUS_OF_CLOSENESS*100 and abs(curr_coor[1]-next_coor[1]) < RADIUS_OF_CLOSENESS*100) == True:
 		current_node = next_node_to_travel
 		next_node_to_travel = route_nodes.get((current_node.get('linkTo'))[0])
 		next_coor = (int(next_node_to_travel.get('x')), int(next_node_to_travel.get('y')))
@@ -242,22 +237,22 @@ while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(c
 		#@@@@@@@@@@@@@@@@@@@@@@@call wait function for the talking to finish
 
 	#This block of code checks the bearing user shld face to move forward
-	if current_coor_read[0] < next_coor[0] : #x-coor increase
-		if current_coor_read[1] < next_coor[1] : # y-coor increase
-			offset = math.degrees(math.atan2((next_coor[0] - current_coor_read[0]) ,  (next_coor[1]-current_coor_read[1])))
-		elif current_coor_read[1] == next_coor[1] : # y-coor remains constant
+	if curr_coor[0] < next_coor[0] : #x-coor increase
+		if curr_coor[1] < next_coor[1] : # y-coor increase
+			offset = math.degrees(math.atan2((next_coor[0] - curr_coor[0]) ,  (next_coor[1]-curr_coor[1])))
+		elif curr_coor[1] == next_coor[1] : # y-coor remains constant
 			offset = 90
-		elif current_coor_read[1] > next_coor[1] : # y-coor decrease
-			offset =180 -  math.degrees(math.atan2((next_coor[0] - current_coor_read[0]) ,  (current_coor_read[1]-next_coor[1])))
-	elif current_coor_read[0] > next_coor[0] : #x-coor decrease
-		if current_coor_read[1] < next_coor[1] : # y-coor increase
-			offset =360 - math.degrees(math.atan2((current_coor_read[0]-next_coor[0]) ,  (next_coor[1]-current_coor_read[1])))
-		elif current_coor_read[1] == next_coor[1] : # y-coor remains constant
+		elif curr_coor[1] > next_coor[1] : # y-coor decrease
+			offset =180 -  math.degrees(math.atan2((next_coor[0] - curr_coor[0]) ,  (curr_coor[1]-next_coor[1])))
+	elif curr_coor[0] > next_coor[0] : #x-coor decrease
+		if curr_coor[1] < next_coor[1] : # y-coor increase
+			offset =360 - math.degrees(math.atan2((curr_coor[0]-next_coor[0]) ,  (next_coor[1]-curr_coor[1])))
+		elif curr_coor[1] == next_coor[1] : # y-coor remains constant
 			offset = 270
-		elif current_coor_read[1] > next_coor[1] : # y-coor decrease
-			offset =180 + math.degrees(math.atan2((current_coor_read[0]-next_coor[0]) ,  (current_coor_read[1]-next_coor[1])))
+		elif curr_coor[1] > next_coor[1] : # y-coor decrease
+			offset =180 + math.degrees(math.atan2((curr_coor[0]-next_coor[0]) ,  (curr_coor[1]-next_coor[1])))
 	else: #x-coor remains constant
-		if current_coor_read[1] < next_coor[1] :
+		if curr_coor[1] < next_coor[1] :
 			offset = 360
 		else :
 			offset = 180
@@ -272,8 +267,8 @@ while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(c
 	else:
 		#guide user to walk straight
 		if (current_tick - tick_since_last) >= FREQ_INSTRUCTIONS*60:
-			time_since_last = current_time
-			dist_to_next_node = math.sqrt((next_coor[0] - current_coor_read[0])**2 + (next_coor[1] - current_coor_read[1])**2)
+			time_since_last = current_tick
+			dist_to_next_node = math.sqrt((next_coor[0] - curr_coor[0])**2 + (next_coor[1] - curr_coor[1])**2)
 			num_steps_to_next = dist_to_next_node/STEP_LENGTH
 			print "walk forward" , num_steps_to_next , "steps"
 
