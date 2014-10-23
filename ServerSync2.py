@@ -151,21 +151,34 @@ class MapSync(object):
 		return edgeList
 		
 class Storage():
+	def __init__(self):
+		self.SCRIPT_DIR = os.path.dirname(__file__)
+		
+	def getFilePath(self, folderName, fileName):
+		folderPath = self.getFolderPath(folderName)
+		return folderPath + fileName
+			
+	def getFolderPath(self, folderName):
+		folderPath = os.path.join(self.SCRIPT_DIR, folderName + '//')
+		if not os.path.exists(folderPath):
+			os.mkdir(folderPath)
+		return folderPath
+		
 	def writeToFile(self, filename, content):
 		f = open(filename, 'w')
 		f.write(content)
 		f.close()
 		
-	def isFileExist(self, filename):
-		content = ""
-		if os.path.isfile(filename) and os.access(filename, os.R_OK):
-			return True
-		else:
-			# self.writeToFile(filename, content)  # to recreate a new file
-			return False
+# 	def isFileExist(self, filename):
+# 		content = ""
+# 		if os.path.isfile(filename) and os.access(filename, os.R_OK):
+# 			return True
+# 		else:
+# 			# self.writeToFile(filename, content)  # to recreate a new file
+# 			return False
 		
 	def readFromFile(self, filename):
-		if self.isFileExist(filename):
+		if os.path.isfile(filename) and os.access(filename, os.R_OK):
 			f = open(filename, 'r')
 			data = f.read()
 			f.close()

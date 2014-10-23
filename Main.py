@@ -5,7 +5,7 @@ import getPath
 import math
 import time
 import os
-from UserInteraction import Voice, Keypad
+# from UserInteraction import Voice, Keypad
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 #FUNCTIONS IMPLEMENTATION
@@ -111,17 +111,13 @@ file_manager = Storage()
 #Assumption: this device is specialised for ONE user only, current code will only support one user. 
 #Check if calibrated before, if so, read from the text file
 
-main_py_directory = os.path.dirname(__file__)
-folder_directory = os.path.join(main_py_directory, "data//")
-data_directory = folder_directory + 'weijiansucks.txt'
-if not os.path.exists(folder_directory):
-	os.makedirs(folder_directory)	
-data_exist = file_manager.readFromFile(data_directory)
+data_path = file_manager.getFilePath('data', 'step_length.txt')
+data_exist = file_manager.readFromFile(data_path)
 if data_exist is None:
 	#run calibration phase
-	file_manager.writeToFile(data_directory, str(STEP_LENGTH))
+	file_manager.writeToFile(data_path, str(STEP_LENGTH))
 else:
-	STEP_LENGTH = float(file_manager.readFromFile(data_directory))
+	STEP_LENGTH = float(file_manager.readFromFile(data_path))
 
 #---------------------------------------------------------Get Map Location and initial state of User-------------------------------------
 #@@@@@@@@@@@@@@@@@@@@@@@ call a function from voiceoutput class to ask user for building name , level, starting vertex and ending vertex
