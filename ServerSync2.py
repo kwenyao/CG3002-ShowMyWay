@@ -2,6 +2,7 @@
 import urllib2
 import json
 import os.path
+import re
 
 class MapSync(object):
 	def __init__(self):
@@ -32,16 +33,7 @@ class MapSync(object):
 	###################################
 	# Functions used by Navigation
 	###################################
-	
-	def getMap(self):
-		return self.mapNodes
-	
-	def getNorth(self):
-		return self.north
-	
-	def getAPNodes(self):
-		return self.apNodes
-	
+		
 	def loadLocation(self, buildingName, levelNum):
 		path = self.getFilePath(buildingName, levelNum)
 		
@@ -155,12 +147,8 @@ class MapSync(object):
 		self.apNodes = apNodeList
 		
 	def extractMapEdges(self, linkTo):
-		adjNodes = linkTo.split(', ')
-		edgeList = []
-		for node in adjNodes:
-			edgeList.append(node)
+		edgeList = re.findall(r'\d+', linkTo)
 		return edgeList
-		
 		
 class Storage():
 	def writeToFile(self, filename, content):
