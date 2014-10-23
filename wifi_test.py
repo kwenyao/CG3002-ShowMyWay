@@ -13,13 +13,10 @@ def main():
 	# print packet
 # 	apNodes = packet.get('wifi')
 	
-	north = currmap.getNorth()
-	mapNodes = currmap.getMap()
-	apNodes = currmap.getAPNodes()
+	north = currmap.north
+	mapNodes = currmap.mapNodes
+	apNodes = currmap.apNodes
 	
-# 	print north
-# 	print mapNodes
-# 	print apNodes
 	timeout = time.time() + 60*2
 	while True:
 		if time.time() > timeout:
