@@ -69,11 +69,10 @@ class AccessPoints():
 				ap['signal'] = sig
 				ap['distance'] = self.calculateDistanceFromAP(sig,freq1)
 				elementCount += 1
-			if elementCount == 4:
+			if elementCount == 3:
 				elementCount = 0
 				ap_list.append(ap)
 				ap = {}
-				break
 		ap_list = self.sortAccessPoints(ap_list)
 		return ap_list
 	
