@@ -5,7 +5,12 @@ import getPath
 import math
 import time
 import os
+<<<<<<< HEAD
 # from UserInteraction import Voice, Keypad
+=======
+from UserInteraction import Voice, Keypad
+import serial
+>>>>>>> origin/master
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 #FUNCTIONS IMPLEMENTATION
@@ -16,39 +21,38 @@ def handshakeWithArduino(serialPort):
 	current_Tick = time.time()
 	time_limit_exceed_flag = 0
 	time_limit = 1 #time limit for arduino to respond
-
+	print "enter handshake"
 	#handshake with GY87
 	while(handshake==0 and time_limit_exceed_flag == 0):
 		message = serialPort.readline()
-		print message
-		if message[0] == 'S':
-			handshake = 1
-			print message
-			serialPort.write("1")
-		current_tick = time.time()	
-		if ((current_tick - prev_Tick) > time_limit):
-			time_limit_exceed_flag = 1
+		print "after seiral read"
+		if (len(message) == 0 ):
+                        time_limit_exceed_flag = 1
+                else:
+                        print message
+                        if message[0] == 'S':
+                                handshake = 1
+                                serialPort.write("1")	
 	handshake = 0
 	while(handshake==0 and time_limit_exceed_flag == 0):
-		message = ser.readline()
-		print message
-		if message[0] == 'D':
-			handshake =1
-			print "Handshake With GY87 Completed."
-		current_tick = time.time()	
-		if current_tick - prev_Tick > time_limit:
-			time_limit_exceed_flag = 2
+		message = serialPort.readline()
+		if (len(message) == 0 ):
+                        time_limit_exceed_flag = 1
+                else:
+                        print message
+                        if message[0] == 'D':
+                                handshake =1
+                                print "Handshake With GY87 Completed."
 	handshake = 0
 	#waiting for GY87 values to stabalise.
 	while (handshake == 0 and time_limit_exceed_flag == 0) :
-		message = ser.readline()
-		if message[0] == 'G':
-			handshake = 1
-			print message
-			ser.write("1")
-		current_tick = time.time()	
-		if current_tick - prev_Tick > time_limit:
-			time_limit_exceed_flag = 3
+		message = serialPort.readline()
+		if (len(message) == 0 ):
+                        time_limit_exceed_flag = 1
+                else:
+                        print message
+                        if message[0] == 'G':
+                                handshake = 1
 
 	if time_limit_exceed_flag != 0 :
 		return "Fail with exit code " + str(time_limit_exceed_flag)
@@ -59,15 +63,17 @@ def handshakeWithArduino(serialPort):
 #VARIABLES
 #----------------------------------------------------------------------------------------------------------------------------------------
 current_coor = (0, 0)		#current coordinate of the user
+wifi_coor = (0,0)
+imu_coor = (0,0)
 map_north = -1				#bearing of the north given by the map
-direction_faced = 0			#direction that user is facing as determined by the Mega compass, a bearing from north, rotate anti-clockwise
+bearing_faced = 0			#direction that user is facing as determined by the Mega compass, a bearing from north, rotate anti-clockwise
 step_direction = []			#queue of directions given by the Mega Accelerometer 
 ultrasound_data = []		#list of ultrasound data, each element is a tuple. e.g. sensor_number:distance
 current_map = ""
 current_floor = ""
 start_point = ""
 end_point = ""
-
+time_location_last_updated = 0
 #----------------------------------------------------------------------------------------------------------------------------------------
 #CONSTANTS
 #----------------------------------------------------------------------------------------------------------------------------------------
@@ -75,12 +81,13 @@ STEP_LENGTH = 0.8 				#length of each step of user, measured in meters
 RADIUS_OF_CLOSENESS = 0.3 		#this radius determines the level of closeness we need to get to the node to determine that use is actually at that node
 ORIENTATION_DEGREE_ERROR= 5 	#the degree of deviant the user can be wrt to the actual bearing he shld be walking straight to reach the node.
 FREQ_INSTRUCTIONS = 5			#the time (in minutes) between consecutive "walk straight" instructions
+APRROX_SPEED = 0.8 				#approx speed of user in m/s
 #----------------------------------------------------------------------------------------------------------------------------------------
 #FLAGS
 #----------------------------------------------------------------------------------------------------------------------------------------
-#object_detection = 0		#set to 1 when object detected
+ultra_head_obstacle = 0			#set to the dist when object detected
 #user_input = 0 				#set to 1 when user presses the keyboard
-
+IR_stairs = 0
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 #INITIALISATION PHASE
@@ -89,23 +96,23 @@ FREQ_INSTRUCTIONS = 5			#the time (in minutes) between consecutive "walk straigh
 #download all maps
 currmap = MapSync()
 wifi = Wifi()
-#ser = serial.Serial('COM13', 115200)
 
 #create Storage for the step size
 file_manager = Storage()
 
 #initialise voice command
-# voice_command = Voice()
+#voice_command = Voice()
 #keypad_input = Keypad()
 
-#handshaking with arduino
-# handshake_result = handshakeWithArduino(ser)
-# if ( handshake_result != "Done"):
-# 	print handshake_result
-# 	voice_command.say("Handshake Failed with exit code" + handshake_result)
-# else:
-# 	print "Handshake Successful"
-# 	voice_command.say("Handshake with Arduino Successful")
+ser = serial.Serial('COM13', 115200)
+###handshaking with arduino
+handshake_result = handshakeWithArduino(ser)
+if ( handshake_result != "Done"):
+        print handshake_result
+ 	voice_command.say("Handshake Failed with exit code" + handshake_result)
+else:
+ 	print "Handshake Successful"
+ 	voice_command.say("Handshake with Arduino Successful")
 
 #---------------------------------------------------------Calibrating User Step Size-----------------------------------------------------
 #Assumption: this device is specialised for ONE user only, current code will only support one user. 
@@ -114,16 +121,17 @@ file_manager = Storage()
 data_path = file_manager.getFilePath('data', 'step_length.txt')
 data_exist = file_manager.readFromFile(data_path)
 if data_exist is None:
-	#run calibration phase
-	file_manager.writeToFile(data_path, str(STEP_LENGTH))
+	ser.write('2')
+	STEP_LENGTH = ser.readline
+	file_manager.writeToFile(data_directory, str(STEP_LENGTH))
 else:
 	STEP_LENGTH = float(file_manager.readFromFile(data_path))
 
 #---------------------------------------------------------Get Map Location and initial state of User-------------------------------------
 #@@@@@@@@@@@@@@@@@@@@@@@ call a function from voiceoutput class to ask user for building name , level, starting vertex and ending vertex
 ##### DISCLAIMER: please follow the order stated below when updating start and end locations #####
-# 1. voice out 'startup'
-# 2. startloc = keypad_obj.getLocationInput
+# 1. voice out 'startup1/2/3/4'
+# 2. startloc = keypad_obj.getInput_8()
 # 3. voice out 'get_dest'
 # 4. dest = keypad_obj.getLocationInput
 # 5. keypad_obj.updateLocations(startloc, dest)
@@ -140,8 +148,6 @@ end_point = '1'
 
 map_north = abs(currmap.north-360) #previous calculation is based on rotating anti clock, current input is based on clockwise, hence need to offset
 mapNodes = currmap.mapNodes
-print mapNodes['24']
-#coords = wifi.getUserCoordinates(currmap.apNodes)
 
 #initialise visualisation tool
 visual = visualiseMap.visualiseMap(1300,1300)
@@ -161,11 +167,12 @@ route_nodes = visual.getRouteNodes(mapNodes, route)
 visual.setMap(route_nodes,1)
 
 #see the map
-visual.printMap()
+#visual.printMap()
 
 #initialise starting coordinate and ending coordinate, next node to travel to.
 current_node = route_nodes.get(start_point) #gets reassign to the next node once i reach the next node
-current_coor_read = (int(current_node.get('x')), int(current_node.get('y'))) #current coordinate of user that is read from the global variables
+curr_coor = (int(current_node.get('x')), int(current_node.get('y'))) #current coordinate of user 
+time_location_last_updated = time.time()
 final_node = route_nodes.get(end_point)
 final_coor = (int(final_node.get('x')), int(final_node.get('y')))
 next_node_to_travel = route_nodes.get((current_node.get('linkTo'))[0])
@@ -186,16 +193,46 @@ num_steps_to_next = -1 	#number of steps to the next node
 #----------------------------------------------------------------------------------------------------------------------------------------
 #GUIDING PHASE
 #----------------------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------Directing----------------------------------------------------------------------
-#assume user already in the correct orientation
-dist_to_next_node = math.sqrt((next_coor[0] - current_coor_read[0])**2 + (next_coor[1] - current_coor_read[1])**2)
-num_steps_to_next = dist_to_next_node/STEP_LENGTH
-print "walk forward " , num_steps_to_next , "steps"
-tick_since_last = time.time() # get the current time here.
-
 #condition to exit navigation is when user reaches within 30cm of the end coordinate 
 while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(current_coor_read[1]-final_coor[1]) > RADIUS_OF_CLOSENESS*100 :
-	current_coor_read = current_coor
+
+#---------------------------------------------------------Receiving Data From Arduino----------------------------------------------------
+	dataReceived = ser.readline()
+	dataSplited = dataReceived.split(' ')
+	dataSplited.pop(0)
+	ultra_head_obstacle = dataSplited[0]
+	IR_stairs = dataSplited[1]
+	bearing_faced = dataSplited[2]
+
+
+#---------------------------------------------------------Calculate current position from IMU---------------------------------------------
+	if (bearing_faced != -1) :
+		imu_new_x = curr_coor[0] + STEP_LENGTH * math.cos(bearing_faced)
+		imu_new_y = curr_coor[1] + STEP_LENGTH * math.cos(bearing_faced)
+		imu_coor = (imu_new_x, imu_new_y)
+
+#---------------------------------------------------------Calculate current position from Wifi-trilateration-----------------------------
+	wifi_coor = wifi.getUserCoordinates(currmap.apNodes)
+
+
+#---------------------------------------------------------Get Optimal current position---------------------------------------------------
+	time_lapse = time.time() - time_location_last_updated
+	aprrox_x_travelled = time_lapse*APRROX_SPEED*math.math.cos(bearing_faced)
+	approx_y_travelled = time_lapse*APRROX_SPEED*math.math.sin(bearing_faced)
+
+	if (aprrox_x_travelled+curr_coor[0] >= wifi_coor[0] ):
+		if (prrox_y_travelled+curr_coor[1] >= wifi_coor[1]):
+			curr_coor[0] = (imu_coor[0] + wifi_coor[0])/2
+			curr_coor[1] = (imu_coor[1] + wifi_coor[1])/2
+	else:
+		curr_coor = imu_coor
+	time_location_last_updated = time.time()
+
+#---------------------------------------------------------Directing----------------------------------------------------------------------
+
+	tick_since_last = time.time() # get the current time here.
+
+	current_coor_read = curr_coor
 	#check if i have reach the next node
 	if (abs(current_coor_read[0]-next_coor[0]) <RADIUS_OF_CLOSENESS*100 and abs(current_coor_read[1]-next_coor[1]) < RADIUS_OF_CLOSENESS*100) == True:
 		current_node = next_node_to_travel
@@ -226,11 +263,11 @@ while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(c
 			offset = 180
 	bearing_to_face = (map_north + offset) % 360		
 	print bearing_to_face
-	if abs(bearing_to_face - direction_faced) > ORIENTATION_DEGREE_ERROR:
-		if bearing_to_face < direction_faced:
-			print "turn left", direction_faced - bearing_to_face, "degrees"
+	if abs(bearing_to_face - bearing_faced) > ORIENTATION_DEGREE_ERROR:
+		if bearing_to_face < bearing_faced:
+			print "turn left", bearing_faced - bearing_to_face, "degrees"
 		else:
-			print "turn right" , bearing_to_face - direction_faced, " degrees"
+			print "turn right" , bearing_to_face - bearing_faced, " degrees"
 		#@@@@@@@@@@@@@@@@@@@@@@@call wait function here, to give user time to rotate	
 	else:
 		#guide user to walk straight
@@ -241,9 +278,8 @@ while abs(current_coor_read[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 and abs(c
 			print "walk forward" , num_steps_to_next , "steps"
 
 	break		
-#---------------------------------------------------------Wifi-trilateration-------------------------------------------------------------
+
 
 		
-#---------------------------------------------------------Receiving Data From Arduino----------------------------------------------------
 
 #---------------------------------------------------------Obstacle handling--------------------------------------------------------------

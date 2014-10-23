@@ -20,7 +20,7 @@ class Keypad():
 		self.dest = ['0', '0', '0', '0']
 		self.yninput = 0
 		#initialise serial port with Arduino
-		self.ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
+		self.ser = serial.Serial('/dev/ttyAMA0', 115200, timeout = 1)
 		self.ser.open()
 	
 	# DO THIS FIRST IN MAIN FUNCTION CALL. if(establishHandshake() == 1)
@@ -50,6 +50,8 @@ class Keypad():
 		except KeyboardInterrupt:
 			self.ser.close()
 			return 0
+        def returnSerial(self):
+                return self.ser
 
 	#user_startloc is a string that must be attained from getLocationInput()
 	#user_dest is also a string that must be attained from getLocationInput()
@@ -132,7 +134,7 @@ class Voice():
 
 	#output message given
 	def say(self, message):
-		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + message + self.syntax_tail 
+		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + str(message) + self.syntax_tail 
 		os.system(voiceCmd)
 		return
 
