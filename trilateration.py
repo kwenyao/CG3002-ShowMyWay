@@ -85,7 +85,7 @@ class TrilaterationCalculation():
 		for x in range(0, self.NUMBER_OF_ITERATIONS):
 			intersectionPair = self.computeIntersection(vector1, radius1, vector2, radius2)
 			if intersectionPair == self.STOP_ITERATION:
-				print "Iteration stopped: Circles engulfing one another"
+				# print "Iteration stopped: Circles engulfing one another"
 				break
 			elif intersectionPair is None:
 				radius1 *= self.RADIUS_INCREMENT
@@ -164,7 +164,7 @@ class TrilaterationCalculation():
 		sum_x = 0
 		sum_y = 0
 		if len(coordinates) == 0:
-			print "Unable to determine user coordinate"
+			# print "Unable to determine user coordinate"
 			return self.DEFAULT_COORDINATES
 
 		for coordinate in coordinates:
@@ -208,7 +208,7 @@ class TrilaterationCalculation():
 			bestPoint[1] *= 100
 			return bestPoint
 		else:
-			print "Both intersections not within accepted threshold"
+			# print "Both intersections not within accepted threshold"
 			return self.DEFAULT_COORDINATES
 
 	def createVector(self, point):

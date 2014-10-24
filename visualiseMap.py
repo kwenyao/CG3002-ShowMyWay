@@ -5,7 +5,7 @@ class visualiseMap :
 		self.master = Tk()
 		self.window = Canvas(self.master, width = win_width, height = win_height)
 		self.window.pack()
-		self.shrink = 5
+		self.shrink = 10
 
 	def addCoor(self,vertex,x,y):
 		"This method adds a coordinate to our display map"
