@@ -145,8 +145,8 @@ class TrilaterationCalculation():
 	
 	def determineCoordinatesInAllCircles(self, intersectionPairList):
 		coordinates = []
-		for coord_tuple in intersectionPairList:
-			for coord in coord_tuple:
+		for coordTuple in intersectionPairList:
+			for coord in coordTuple:
 				count = 0
 				for key in self.intersectedCircles:
 					circle = self.intersectedCircles.get(key)

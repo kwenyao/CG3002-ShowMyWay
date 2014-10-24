@@ -1,4 +1,4 @@
-import os, time
+import os
 import serial
 
 class Keypad():
@@ -50,8 +50,9 @@ class Keypad():
 		except KeyboardInterrupt:
 			self.ser.close()
 			return 0
-        def returnSerial(self):
-                return self.ser
+		
+	def returnSerial(self):
+		return self.ser
 
 	#user_startloc is a string that must be attained from getLocationInput()
 	#user_dest is also a string that must be attained from getLocationInput()
@@ -186,7 +187,7 @@ class Messages():
 					'left':				self.phrases[11] + " " + self.phrases[51] + ".",
 					'right':			self.phrases[11] + " " + self.phrases[52] + ".",
 					'left_st':			self.phrases[11] + " " + self.phrases[51] + " " + self.phrases[61] + " " +	self.phrases[62] + " " + self.phrases[63] + ".",
-					'right_st':			self.phrases[11] + " " + self.phrases[52] + " " + self.phrases[61] + " " + self.phrases[62] + " " + self.phrases[63] + ".",
+					'right_st':			self.phrases[11] + " " + self.phrases[52] + " " + self.phrases[61] + " " +  self.phrases[62] + " " + self.phrases[63] + ".",
 					'straight':			self.phrases[12] + ".", 
 					'stairs_a':			self.phrases[13] + " " + self.phrases[54] + ".",
 					'stairs_d':			self.phrases[13] + " " + self.phrases[55] + ".",

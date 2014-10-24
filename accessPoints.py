@@ -5,11 +5,11 @@ import math
 class AccessPoints():
 	def __init__(self):
 		self.scannedAPDict = {}
+		self.FREE_SPACE_CONSTANT = 27.55
 			
 	def calculateDistanceFromAP(self, signal, freq):
-		FreeSpaceConstant = 27.55
 		freq = float(freq)*1000
-		result = (float(FreeSpaceConstant) - 20*math.log10(float(freq)) - float(signal))/20
+		result = (float(self.FREE_SPACE_CONSTANT) - 20*math.log10(float(freq)) - float(signal))/20
 		distance = math.pow(10,result)
 		return distance 
 	
@@ -57,10 +57,6 @@ class AccessPoints():
 					elementCount += 1 
 				else:
 					continue
-			match = re.search('ESSID:"(\S+)"', item)
-			if match:
-				ap['essid'] = match.group(1)
-				elementCount += 1
 			match = re.search('Frequency:(\S+)', item)
 			if match:
 				freq1 = match.group(1)
@@ -73,7 +69,7 @@ class AccessPoints():
 				ap['signal'] = sig
 				ap['distance'] = self.calculateDistanceFromAP(sig,freq1)
 				elementCount += 1
-			if elementCount == 4:
+			if elementCount == 3:
 				elementCount = 0
 				ap_list.append(ap)
 				ap = {}

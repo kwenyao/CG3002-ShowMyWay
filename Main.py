@@ -12,10 +12,6 @@ from UserInteraction import Voice, Keypad
 #----------------------------------------------------------------------------------------------------------------------------------------
 def handshakeWithArduino(serialPort):
 	handshake = 0;
-	prev_Tick = time.time()
-	current_Tick = time.time()
-	time_limit_exceed_flag = 0
-	time_limit = 1 #time limit for arduino to respond
 	print "enter handshake"
 	#handshake with GY87
 	while(handshake==0 and time_limit_exceed_flag == 0):
@@ -96,10 +92,10 @@ keypad_input = Keypad()
 handshake_result = handshakeWithArduino(keypad_input.returnSerial())
 if ( handshake_result != "Done"):
 	print handshake_result
-	#voice_command.say("Handshake Failed with exit code" + handshake_result", please restart the system")
+	voice_command.say("Handshake Failed with exit code" + handshake_result", please restart the system")
 else:
 	print "Handshake Successful"
-	#voice_command.say("Handshake with Arduino Successful")
+	voice_command.say("Handshake with Arduino Successful")
 
 #---------------------------------------------------------Calibrating User Step Size-----------------------------------------------------
 #Assumption: this device is specialised for ONE user only, current code will only support one user. 
@@ -125,26 +121,28 @@ else:
 #---------------------------------------------------------Get Map Location and initial state of User-------------------------------------
 
 comfirmation = 0 
-# while comfirmation != 1:
-# 	voice_command.voiceOut("startup1")
-# 	current_map = keypad_obj.getInput_8()
-# 	voice_command.voiceOut("startup2")
-# 	current_floor = keypad_obj.getInput_8()
-# 	voice_command.voiceOut("get_startloc")
-# 	start_point = keypad_obj.getInput_8()
-# 	voice_command.voiceOut("get_dest")
-# 	end_point = keypad_obj.getInput_8()
-# 	voice_command.say( "Your building name is " + current_map + " ,level " + current_floor + " , starting location is " + start_point + " ,ending location is " + end_point)
-# 	voice_command.say("press 1 to comfirm, 2 to re-enter again.")
-# 	comfirmation = voice_command.getYNInput()
+while comfirmation != 1:
+	voice_command.voiceOut("startup1")
+	current_map = keypad_obj.getInput_8()
+	voice_command.voiceOut("startup2")
+	current_floor = keypad_obj.getInput_8()
+	voice_command.voiceOut("get_startloc")
+	start_point = keypad_obj.getInput_8()
+	voice_command.voiceOut("get_dest")
+	end_point = keypad_obj.getInput_8()
+	voice_command.say( "Your building name is " + current_map + " ,level " + current_floor + " , starting location is " + start_point + " ,ending location is " + end_point)
+	voice_command.say("press 1 to comfirm, 2 to re-enter again.")
+	comfirmation = voice_command.getYNInput()
 
 ##################################################################################################
 
-currmap.loadLocation("COM1" , "2")
-start_point = '1' #comment out later 
-end_point = '3' #comment out later 
+#currmap.loadLocation("COM1" , "2")
+#start_point = '1' 
+#end_point = '3' 
 
-#apNodes = packet.get('wifi')
+currmap.loadLocation(current_map, current_floor)
+
+apNodes = packet.get('wifi')
 #map north stored as anti clockwise
 map_north = abs(currmap.north-360) #previous calculation is based on rotating anti clock, current input is based on clockwise, hence need to offset
 mapNodes = currmap.mapNodes
