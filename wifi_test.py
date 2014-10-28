@@ -17,12 +17,14 @@ def main():
 	mapNodes = currmap.mapNodes
 	apNodes = currmap.apNodes
 	
-	timeout = time.time() + 60*2
-	while True:
-		if time.time() > timeout:
-			break
-		coords = wifi.getUserCoordinates(apNodes)
-		print coords
+	
+	coords = wifi.getUserCoordinates(apNodes)
+# 	timeout = time.time() + 60*2
+# 	while True:
+# 		if time.time() > timeout:
+# 			break
+# 		coords = wifi.getUserCoordinates(apNodes)
+# 		print coords
 
 if __name__ == "__main__":
 	main()

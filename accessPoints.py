@@ -9,7 +9,7 @@ class AccessPoints():
 			
 	def calculateDistanceFromAP(self, signal, freq):
 		freq = float(freq)*1000
-		result = (float(self.FREE_SPACE_CONSTANT) - 20*math.log10(float(freq)) - float(signal))/20
+		result = (self.FREE_SPACE_CONSTANT - 20*math.log10(float(freq)) - float(signal))/20
 		distance = math.pow(10,result)
 		return distance 
 	
@@ -40,45 +40,75 @@ class AccessPoints():
 	def getAccessPoints(self):
 		ap = {}
 		ap_list = []
-		freq1 = 0
+		frequency = 0
 		self.scannedAPDict.clear()
 		wifiScanList = self.scanWifiData()
 		elementCount = 0
 		# print wifiScanList
 		for item in wifiScanList:
 			item = item.strip()
-			match = re.search('Address: (\S+)', item)
-			if match:
-				macAddr = match.group(1)[0:14]
-				isAlreadyFound = self.scannedAPDict.get(macAddr)
-				if isAlreadyFound is None:
-					ap['address'] = macAddr
-					self.scannedAPDict[macAddr] = macAddr
-					elementCount += 1 
-				else:
-					continue
-			match = re.search('Frequency:(\S+)', item)
-			if match:
-				freq1 = match.group(1)
-				ap['freq'] = freq1
+			print item
+			macAddr = self.extractMACAddr(item)
+			if macAddr is not None:
+				ap['address'] = macAddr
 				elementCount += 1
-			found = re.search('Signal level=(\S+)',item)
-			if found:
-				match = found.group(1)
-				sig = int(match)
-				ap['signal'] = sig
-				ap['distance'] = self.calculateDistanceFromAP(sig,freq1)
+				
+			isFrequency = self.extractFrequency(item)
+			if isFrequency is not None:
+				frequency = isFrequency
+				ap['freq'] = frequency
 				elementCount += 1
+			
+			signal = self.extractSignal(item)
+			if signal is not None:
+				print signal
+				ap['signal'] = signal
+				ap['distance'] = self.calculateDistanceFromAP(signal,frequency)
+				elementCount += 1
+				
 			if elementCount == 3:
 				elementCount = 0
 				ap_list.append(ap)
 				ap = {}
 		ap_list = self.sortAccessPoints(ap_list)
+		print ap_list
 		return ap_list
 	
+	def extractMACAddr(self, item):
+		isMatch = re.search('Address: (\S+)', item)
+		if isMatch:
+			macAddr = isMatch.group(1)[0:14]
+			isAlreadyFound = self.scannedAPDict.get(macAddr)
+			if isAlreadyFound is None:
+				self.scannedAPDict[macAddr] = macAddr
+				return macAddr
+			else:
+				return None
+		else:
+			return None
+	
+	def extractFrequency(self, item):
+		isMatch = re.search('Frequency:(\S+)', item)
+		if isMatch:
+			return isMatch.group(1)
+		else:
+			return None
+			
+	def extractSignal(self, item):
+		found = re.search('Signal level=(\S+)',item)
+		if found:
+			return int(found.group(1))
+		else:
+			return None
+
 	def sortAccessPoints(self, ap_list):
 		# Sort by signal strength
 		return sorted(ap_list, key = self.getKey )
 	
 	def getKey(self, item):
-		return math.fabs(float(item['signal']))
+		signal = item.get('signal')
+		if signal is None:
+			return None
+		else:
+			return math.fabs(float(item.get('signal')))
+	

@@ -28,13 +28,14 @@ class Wifi():
 
 
 		ap_list = self.ap.getAccessPoints()
-		selection_list = self.ap.determineUsableAp(ap_list, wifiDict)
-		
-		if not selection_list:
-			print "Selection list is empty"
-			return self.DEFAULT_COORDINATES
-		else:
-			# print "selection list:"
-			# print selection_list
-			return self.trilateration.determineTrilateration(selection_list)
+		return -1,-1
+# 		selection_list = self.ap.determineUsableAp(ap_list, wifiDict)
+# 		
+# 		if not selection_list:
+# 			print "Selection list is empty"
+# 			return self.DEFAULT_COORDINATES
+# 		else:
+# 			# print "selection list:"
+# 			# print selection_list
+# 			return self.trilateration.determineTrilateration(selection_list)
 	
