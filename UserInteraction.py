@@ -1,7 +1,7 @@
 import os
 import serial
 
-class Keypad():
+class KeypadMich():
 	#################################################################
 	# to update start location and destination,						#
 	# initalise a string and call getLocationInput() first			#
@@ -20,7 +20,7 @@ class Keypad():
 		self.dest = ['0', '0', '0', '0']
 		self.yninput = 0
 		#initialise serial port with Arduino
-		self.ser = serial.Serial('/dev/ttyAMA0', 115200, timeout = 1)
+		self.ser = serial.Serial('/dev/ttyAMA0', 115200)
 		self.ser.open()
 	
 	# DO THIS FIRST IN MAIN FUNCTION CALL. if(establishHandshake() == 1)
@@ -89,10 +89,12 @@ class Keypad():
 	#returns 8 digit input (string type)
 	# used for building number, level, startloc, dest
 	def getInput_8(self):
-		self.ser.write(">")
+		#self.ser.write(">")
 		response = ''
 		while (not response):
+	#		self.ser.write(">")
 			response = self.ser.readline()
+			print "response is " + response
 		return response
 
 class Voice():
@@ -131,7 +133,7 @@ class Voice():
 	def voiceOut(self, messagetype):
 		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + self.messages.get(messagetype) + self.syntax_tail 
 		os.system(voiceCmd)
-		return
+
 
 	#output message given
 	def say(self, message):

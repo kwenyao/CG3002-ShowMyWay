@@ -21,17 +21,16 @@ class Wifi():
 # 				   {'address':"B1:44:A6:BB:EC", 'essid':"accessPoints-104", 'frequency':"2.41", 'signal': -68, 'distance': self.ap.calculateDistanceFromAP(-68,2.41)}]
 
 		### FOR COM1 LEVEL 2 ###
-<<<<<<< HEAD
  		ap_list = [{'address':"28:93:FE:D3:8B", 'essid':"arc-0241-a", 'frequency':"2.412", 'signal': -35, 'distance': self.ap.calculateDistanceFromAP(-35,2.412)},
  				   {'address':"E8:BA:70:52:3B", 'essid':"arc-0205-a", 'frequency':"2.437", 'signal': -61, 'distance': self.ap.calculateDistanceFromAP(-61,2.437)}, 
  				   {'address':"E8:BA:70:52:BF", 'essid':"arc-0205-b", 'frequency':"2.462", 'signal': -57, 'distance': self.ap.calculateDistanceFromAP(-57,2.462)}, 
  				   {'address':"E8:BA:70:52:1E", 'essid':"arc-0231", 'frequency':"2.41", 'signal': -80, 'distance': self.ap.calculateDistanceFromAP(-80,2.41)}]
-=======
+
 # 		ap_list = [{'address':"28:93:FE:D3:8B", 'essid':"arc-0241-a", 'frequency':"2.412", 'signal': -35, 'distance': self.ap.calculateDistanceFromAP(-35,2.412)},
 # 				   {'address':"E8:BA:70:52:3B", 'essid':"arc-0205-a", 'frequency':"2.437", 'signal': -61, 'distance': self.ap.calculateDistanceFromAP(-61,2.437)}, 
 # 				   {'address':"E8:BA:70:52:BF", 'essid':"arc-0205-b", 'frequency':"2.462", 'signal': -57, 'distance': self.ap.calculateDistanceFromAP(-57,2.462)}, 
 # 				   {'address':"E8:BA:70:52:1E", 'essid':"arc-0231",   'frequency':"2.41",  'signal': -80, 'distance': self.ap.calculateDistanceFromAP(-80,2.41)}]
->>>>>>> 6a2ac0a0794b312998ed3da9a343e3500dd1e6a6
+
 
 
 #		ap_list = self.ap.getAccessPoints()

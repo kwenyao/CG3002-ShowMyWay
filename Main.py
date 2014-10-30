@@ -5,20 +5,22 @@ import getPath
 import math
 import time
 import serial
-from UserInteraction import Voice, Keypad
-
+from UserInteraction import Voice, KeypadMich
+import Keypad
 #----------------------------------------------------------------------------------------------------------------------------------------
 #FUNCTIONS IMPLEMENTATION
 #----------------------------------------------------------------------------------------------------------------------------------------
 def handshakeWithArduino(serialPort):
-	handshake = 0;
+	handshake = 0
+	time_limit_exceed_flag = 0
 	print "enter handshake"
 	#handshake with GY87
 	while(handshake==0 and time_limit_exceed_flag == 0):
 		message = serialPort.readline()
-		print "after seiral read"
+		print "after serial read 1"
 		if (len(message) == 0 ):
-			time_limit_exceed_flag = 1
+		#	time_limit_exceed_flag = 1
+			print "nth receive at 1"
 		else:
 			print message
 			if message[0] == 'S':
@@ -28,7 +30,8 @@ def handshakeWithArduino(serialPort):
 	while (handshake == 0 and time_limit_exceed_flag == 0) :
 		message = serialPort.readline()
 		if (len(message) == 0 ):
-			time_limit_exceed_flag = 1
+		#	time_limit_exceed_flag = 1
+			print "nth receive at 2"
 		else:
 			print message
 			if message[0] == 'G':
@@ -39,6 +42,15 @@ def handshakeWithArduino(serialPort):
 	else:
 		return "Done"
 
+def getRouteNodes(map_nodes, route):
+	route_nodes = {}
+	for i in range(len(route)):
+		route_nodes[route[i]] = map_nodes[route[i]]
+		if i != len(route)-1:
+			route_nodes[route[i]]['linkTo'] = [route[i+1]]
+		else:
+			del route_nodes[route[i]]['linkTo']
+	return route_nodes
 #----------------------------------------------------------------------------------------------------------------------------------------
 #VARIABLES
 #----------------------------------------------------------------------------------------------------------------------------------------
@@ -58,13 +70,13 @@ IR_stairs = 1
 #----------------------------------------------------------------------------------------------------------------------------------------
 #CONSTANTS
 #----------------------------------------------------------------------------------------------------------------------------------------
-STEP_LENGTH = 1 				#length of each step of user, measured in meters
+STEP_LENGTH = 0.4 				#length of each step of user, measured in meters
 RADIUS_OF_CLOSENESS = 0.3 		#this radius determines the level of closeness we need to get to the node to determine that use is actually at that node
-ORIENTATION_DEGREE_ERROR= 10 	#the degree of deviant the user can be wrt to the actual bearing he shld be walking straight to reach the node.
+ORIENTATION_DEGREE_ERROR= 20 	#the degree of deviant the user can be wrt to the actual bearing he shld be walking straight to reach the node.
 FREQ_INSTRUCTIONS = 1			#the time (in minutes) between consecutive "walk straight" instructions
-APRROX_SPEED = 0.5 				#approx speed of user in m/s
+APRROX_SPEED = 0.4 				#approx speed of user in m/s
 PI = math.pi
-IR_limit = 0.2
+IR_limit = 25
 #----------------------------------------------------------------------------------------------------------------------------------------
 #FLAGS
 #----------------------------------------------------------------------------------------------------------------------------------------
@@ -86,13 +98,14 @@ file_manager = Storage()
 
 #initialise voice command
 voice_command = Voice()
-keypad_input = Keypad()
+keypad_input = Keypad. keypad()
+keypad_mich = KeypadMich()
 
 #handshaking with arduino
-handshake_result = handshakeWithArduino(keypad_input.returnSerial())
+handshake_result = handshakeWithArduino(keypad_mich.returnSerial())
 if ( handshake_result != "Done"):
 	print handshake_result
-	voice_command.say("Handshake Failed with exit code" + handshake_result", please restart the system")
+	voice_command.say("Handshake Failed with exit code" + handshake_result + ", please restart the system")
 else:
 	print "Handshake Successful"
 	voice_command.say("Handshake with Arduino Successful")
@@ -114,8 +127,8 @@ if data_exist is None:
 	voice_command.say("Calibration completed. You many start navigating now.")
 	file_manager.writeToFile(data_path, str(STEP_LENGTH))
 else:
-	ser.write('2') #remove after inte with mega
-	ser.readline() #remove after inte with mega
+	#ser.write('2') #remove after inte with mega
+	#ser.readline() #remove after inte with mega
 	STEP_LENGTH = float(file_manager.readFromFile(data_path))
 
 #---------------------------------------------------------Get Map Location and initial state of User-------------------------------------
@@ -123,33 +136,29 @@ else:
 comfirmation = 0 
 while comfirmation != 1:
 	voice_command.voiceOut("startup1")
-	current_map = keypad_obj.getInput_8()
+	current_map = keypad_input.getKeysInput()
 	voice_command.voiceOut("startup2")
-	current_floor = keypad_obj.getInput_8()
+	current_floor = keypad_input.getKeysInput()
 	voice_command.voiceOut("get_startloc")
-	start_point = keypad_obj.getInput_8()
+	start_point = keypad_input.getKeysInput()
 	voice_command.voiceOut("get_dest")
-	end_point = keypad_obj.getInput_8()
+	end_point = keypad_input.getKeysInput()
 	voice_command.say( "Your building name is " + current_map + " ,level " + current_floor + " , starting location is " + start_point + " ,ending location is " + end_point)
 	voice_command.say("press 1 to comfirm, 2 to re-enter again.")
-	comfirmation = voice_command.getYNInput()
-
+	comfirmation = int(keypad_input.getKeysInput())
+voice_command.say("Welcome to Cloud nine navigation system")
 ##################################################################################################
-
-#currmap.loadLocation("COM1" , "2")
-#start_point = '1' 
-#end_point = '3' 
 
 currmap.loadLocation(current_map, current_floor)
 
-apNodes = packet.get('wifi')
+apNodes = currmap.apNodes
 #map north stored as anti clockwise
 map_north = abs(currmap.north-360) #previous calculation is based on rotating anti clock, current input is based on clockwise, hence need to offset
 mapNodes = currmap.mapNodes
 
 #initialise visualisation tool
-visual = visualiseMap.visualiseMap(1300,1300)
-visual.setMap(mapNodes,0)
+#visual = visualiseMap.visualiseMap(1300,1300)
+#visual.setMap(mapNodes,0)
 
 #initialise calculate_path object with the current number of vertex
 calculate_path = getPath.getPath(mapNodes)
@@ -161,8 +170,8 @@ route = calculate_path.routeToTravel(start_point, end_point)
 
 
 #include path to be taken in visualisation tool
-route_nodes = visual.getRouteNodes(mapNodes, route)
-visual.setMap(route_nodes,1)
+route_nodes = getRouteNodes(mapNodes, route)
+#visual.setMap(route_nodes,1)
 
 #see the map
 #visual.printMap()
@@ -218,7 +227,7 @@ while (abs(curr_coor[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 or abs(curr_coor
 	print bearing_to_face
 
 #---------------------------------------------------------Receiving Data From Arduino----------------------------------------------------
-	dataReceived = ser.readline()
+	dataReceived = (keypad_mich.returnSerial()).readline()
 	dataSplited = dataReceived.split(' ')
 	dataFiltered = []
 	for i in range(len(dataSplited)):
@@ -232,6 +241,10 @@ while (abs(curr_coor[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 or abs(curr_coor
 	print "bearing faced now: " + str(bearing_faced)
 	print "previous coordinate is ", 
 	print curr_coor
+	print "current IR at belt detecting :",
+	print IR_stairs
+	print "current head ultrasound is :",
+	print ultra_head_obstacle
 #---------------------------------------------------------Calculate current position from IMU---------------------------------------------
 	# angle_off = abs(bearing_to_face - bearing_faced)
 	# if (step_detected == 1 and abs(bearing_faced - prev_bearing) < 20 and stairs_detected == False) :
@@ -271,8 +284,8 @@ while (abs(curr_coor[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 or abs(curr_coor
 		print "imu coordinate is ",
 		print imu_coor
 #---------------------------------------------------------Calculate current position from Wifi-trilateration-----------------------------
-	#wifi_coor = wifi.getUserCoordinates(currmap.apNodes)
-	wifi_coor = [0,0]
+	wifi_coor = wifi.getUserCoordinates(currmap.apNodes)
+#	wifi_coor = [0,0]
 
 #---------------------------------------------------------Get Optimal current position---------------------------------------------------
 	time_lapse = time.time() - time_location_last_updated
@@ -294,6 +307,8 @@ while (abs(curr_coor[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 or abs(curr_coor
 		print "                                               obstacle at head level at ",
 		print ultra_head_obstacle,
 		print "meters"
+		voice_command.say("obstacle at head level at " + str(ultra_head_obstacle) + "meters ahead")
+
 
 	if IR_stairs - prev_IR > IR_limit:
 		if up_stairs:
@@ -306,6 +321,7 @@ while (abs(curr_coor[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 or abs(curr_coor
 		print IR_stairs, 
 		print " , "
 		print prev_IR
+		voice_command.say(" downwards stairs detected")
 	elif IR_stairs - prev_IR < -IR_limit:
 		if down_stairs:
 			stairs_detected ^= True
@@ -314,6 +330,7 @@ while (abs(curr_coor[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 or abs(curr_coor
 			stairs_detected ^= True
 			up_stairs ^= True
 		print "                                                up_stairs_detected"
+		voice_command.say("Upwards stairs detected")
 	prev_IR = IR_stairs
 
 
@@ -328,26 +345,29 @@ while (abs(curr_coor[0]-final_coor[0]) >RADIUS_OF_CLOSENESS*100 or abs(curr_coor
 		next_node_to_travel = route_nodes.get((current_node.get('linkTo'))[0])
 		next_coor = (int(next_node_to_travel.get('x')), int(next_node_to_travel.get('y')))
 		print "                                              you have reached ", current_node["name"]
-		#@@@@@@@@@@@@@@@@@@@@@@@call wait function for the talking to finish
+		voice_command.say("you have reached node " + str(current_node["name"]))
 
 	if abs(bearing_to_face - bearing_faced) > ORIENTATION_DEGREE_ERROR:
 		if bearing_to_face < bearing_faced:
 			print "                                           turn left", bearing_faced - bearing_to_face, "degrees"
+			voice_command.say("turn left " + str(abs(bearing_faced - bearing_to_face)) + " degrees")
 		else:
 			print "                                           turn right" , bearing_to_face - bearing_faced, " degrees"
-		#@@@@@@@@@@@@@@@@@@@@@@@call wait function here, to give user time to rotate	
+			voice_command.say("turn Right " + str(abs(bearing_faced - bearing_to_face)) + " degrees")
 	else:
 		#guide user to walk straight
 		if (time.time() - tick_since_last) >= FREQ_INSTRUCTIONS*60:
 			dist_to_next_node = math.sqrt((next_coor[0] - curr_coor[0])**2 + (next_coor[1] - curr_coor[1])**2)
 			num_steps_to_next = dist_to_next_node/(STEP_LENGTH*100)
 			print "                                           walk forward" , int(num_steps_to_next) , "steps"
+			voice_command.say("walk forward " + str(int(num_steps_to_next)) + " steps")
 			tick_since_last = time.time()
 
 	prev_bearing = bearing_faced
 	print "final coordinate is ", 
 	print final_coor
 print "You have reach your desitnation"
+voice_command.say("Congratulations! you have reached your destination. Please go home and sleep.")
 
 
 		
