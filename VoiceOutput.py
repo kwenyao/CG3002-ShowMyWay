@@ -1,5 +1,6 @@
 import os, time
 import serial
+import subprocess
 
 #initialise serial port with Arduino
 ser = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
@@ -145,8 +146,12 @@ def YNHandler(yn_response):
                 return 0
 
 def voiceOut(messagetype):
-        os.system(syntax_head + volume + variation['female1'] + " '" + \
-                message_str[messagetype] + syntax_tail)
+        p = subprocess.Popen(syntax_head + volume + variation['female1'] + " '" + \
+                message_str[messagetype] + syntax_tail,
+                shell=True, stdout=subprocess.PIPE, ) # This runs the process on a separte process from the main. DO NOT call this too many times.
+
+        # os.system(syntax_head + volume + variation['female1'] + " '" + \
+        #         message_str[messagetype] + syntax_tail)
         return
 
 try:
