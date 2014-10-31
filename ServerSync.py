@@ -1,33 +1,176 @@
 #!/usr/bin/python
-import sys
-import urllib
+import urllib2
 import json
 import os.path
-from beaker.cache import CacheManager
-from beaker.util import parse_cache_config_options
+import re
 
-# buildings = [{'name':"DemoBuilding",'level':['1','2','3']}, {'name':"COM1",'level':['1','2','3']} , {'name':"COM2", 'level': ['1','2','3']}]
-
-cache_opts = {
-	'cache.type': 'file',
-	'cache.data_dir': '/tmp/cache/data',
-	'cache.lock_dir': '/tmp/cache/lock'
-}
-
+class MapSync(object):
+	def __init__(self):
+		### CONSTANTS ###
+		self.URL_TEMPLATE = "http://ShowMyWay.comp.nus.edu.sg/getMapInfo.php?Building={building}&Level={level}"
+		self.FILE_NAME_TEMPLATE = "{building}_{level}"
+		self.SCRIPT_DIR = os.path.dirname(__file__)
+		self.STATUS_OK = 200
+		self.FILE_EXTENSION = ".txt"
+		self.MAP_DIRECTORY = os.path.join(self.SCRIPT_DIR, "maps//")
+		self.MAP_LIST_PATH = os.path.join(self.SCRIPT_DIR, "maps/maplist.txt")
+		
+		### ATTRIBUTES ###
+		self.fileManager = Storage()
+		self.apNodes = {}
+		self.mapNodes = {}
+		self.north = 0
+		
+		self.info = {}
+		self.map = {}
+		self.wifi = {}
+		
+		### FUNCTION CALLS ###	
+		if not os.path.exists(self.MAP_DIRECTORY):
+			os.makedirs(self.MAP_DIRECTORY)			
+		self.updateAllMaps()
+	
+	###################################
+	# Functions used by Navigation
+	###################################
+		
+	def loadLocation(self, buildingName, levelNum):
+		path = self.getFilePath(buildingName, levelNum)
+		
+		if not os.path.isfile(path):
+			self.addNewMap(buildingName, levelNum)
+			
+		currentMapJSON = self.fileManager.readFromFile(path)
+		mapData = json.loads(currentMapJSON)
+		self.parseData(mapData)
+	
+	###################################
+	# Functions to add/update maps
+	###################################
+	
+	def updateAllMaps(self):
+		buildingJSON = self.fileManager.readFromFile(self.MAP_LIST_PATH)
+		if buildingJSON is None:
+			return
+		else:
+			buildings = json.loads(buildingJSON)
+			self.refreshMaps(buildings)
+	
+	def refreshMaps(self, buildings):
+		for building in buildings:
+			buildingName = building.get('name')
+			levelNum = building.get('level')
+			data = self.downloadMap(buildingName, levelNum)
+			if data is None: # nothing downloaded
+				continue
+			else:
+				filePath = self.getFilePath(buildingName, levelNum) 
+				self.fileManager.writeToFile(filePath, json.dumps(data))
+					
+	def addNewMap(self, buildingName, levelNum):
+		# Add building into list
+		self.addToMapList(buildingName, levelNum)
+		
+		# Create new map file
+		filePath = self.getFilePath(buildingName, levelNum) 
+		data = self.downloadMap(buildingName, levelNum)
+		if data is not None:
+			self.fileManager.writeToFile(filePath, json.dumps(data))
+	
+	def addToMapList(self, buildingName, levelNum):
+		locationArray = []
+		locationJSON = self.fileManager.readFromFile(self.MAP_LIST_PATH)
+		if locationJSON == '':
+			locationArray = []
+		else:
+			locationArray = json.loads(locationJSON)
+		newLocation = {}
+		newLocation['name'] = buildingName
+		newLocation['level'] = levelNum
+		locationArray.append(newLocation)
+		self.fileManager.writeToFile(self.MAP_LIST_PATH, json.dumps(locationArray))
+	
+	def downloadMap(self, buildingName, levelNum):
+		url = self.URL_TEMPLATE.format(building = buildingName, level = levelNum)
+		response = urllib2.urlopen(url)
+		if response.getcode() == self.STATUS_OK:
+			return json.load(response)
+		else:
+			print "Download Failed: No data available"
+			return None
+	
+	def getFilePath(self, buildingName, levelNum):
+		location = self.FILE_NAME_TEMPLATE.format(building = buildingName, level = levelNum)
+		filePath = self.MAP_DIRECTORY + location + self.FILE_EXTENSION
+		return filePath
+	
+	###################################
+	# Functions for parsing data
+	###################################
+	
+	def parseData(self, data):
+		self.separateData(data)
+		self.extractNorth()
+		self.extractMapNodes()
+		self.extractAPNodes()
+	
+	def separateData(self, data):
+		self.info = data.get('info')
+		self.map = data.get('map')
+		self.wifi = data.get('wifi')
+	
+	def extractNorth(self):
+		self.north = int(self.info.get('northAt'))
+	
+	def extractMapNodes(self):
+		nodeList = {}
+		for node in self.map:
+			nodeData = {}
+			nodeData['name'] = node.get('nodeName')
+			nodeData['x'] = node.get('x')
+			nodeData['y'] = node.get('y')
+			nodeData['linkTo'] = self.extractMapEdges(node.get('linkTo'))
+			nodeList[node.get('nodeId')] = nodeData
+		self.mapNodes = nodeList
+	
+	def extractAPNodes(self):
+		apNodeList = {}
+		for node in self.wifi:
+			nodeData = {}
+			nodeData['name'] = node.get('nodeName')
+			nodeData['x'] = node.get('x')
+			nodeData['y'] = node.get('y')
+			nodeData['id'] = node.get('nodeId')
+			macAddr = node.get('macAddr').upper()
+			macAddr = macAddr[0:14]
+			apNodeList[macAddr] = nodeData
+		self.apNodes = apNodeList
+		
+	def extractMapEdges(self, linkTo):
+		edgeList = re.findall(r'\d+', linkTo)
+		return edgeList
+		
 class Storage():
+	def __init__(self):
+		self.SCRIPT_DIR = os.path.dirname(__file__)
+		
+	def getFilePath(self, folderName, fileName):
+		folderPath = self.getFolderPath(folderName)
+		return folderPath + fileName
+			
+	def getFolderPath(self, folderName):
+		folderPath = os.path.join(self.SCRIPT_DIR, folderName + '//')
+		if not os.path.exists(folderPath):
+			os.mkdir(folderPath)
+		return folderPath
+		
 	def writeToFile(self, filename, content):
 		f = open(filename, 'w')
 		f.write(content)
 		f.close()
-	def isFileExist(self, filename):
-		content = ""
-		if os.path.isfile(filename) and os.access(filename, os.R_OK):
-			return True
-		else:
-			self.writeToFile(filename, content)  # to recreate a new file
-			return False
+		
 	def readFromFile(self, filename):
-		if self.isFileExist(filename):
+		if os.path.isfile(filename) and os.access(filename, os.R_OK):
 			f = open(filename, 'r')
 			data = f.read()
 			f.close()
@@ -37,174 +180,4 @@ class Storage():
 		f = open(filename, 'a')
 		f.write(content)  # to append on the end of the file
 		f.close()
-
-class MapSync(object):
-	def __init__(self):
-		self.val = 0
-		self.info = []
-		self.mapInfo = []
-		self.wifiInfo = []
-		self.mapNodes = {}
-		self.apNodes = {}
-		self.fileManager = Storage()
-		cache = CacheManager(**parse_cache_config_options(cache_opts))
-		self.cacheManager = cache.get_cache('map.php', expire=3600)  #--- get specific cache from cacheManager
-		self.initMaps()
-	
-	def initMaps(self):
-		try:
-			building_json = self.fileManager.readFromFile("buildinglist.txt") 
-			self.buildings = json.loads(building_json)
-			print "building loaded"
-		except:
-			isEmptyBuildingList = True
-			print "No known maps. Please add maps."
-		if isEmptyBuildingList:
-			return
-		else:
-			self.syncAllMaps()
-	
-	def resetMap(self):
-		self.val = 0
-		self.info = []
-		self.mapInfo = []
-		self.wifiInfo = []
-		self.mapNodes = {}
-		self.apNodes = {}
-
-	def getMap(self):
-		return self.mapNodes
-	
-	def getNorth(self):
-		return self.mapInfo
-	
-	def getAPNodes(self):
-		return self.apNodes
 		
-	def __extractingLinkToNodes(self, linkToString):
-		linkToString = str(linkToString)
-		linkToNodes = linkToString.split(",")
-		linkToNodes2 = []
-		for x in linkToNodes:
-			node = ""
-			for i in x:
-				if i.isdigit():
-					node += i
-			linkToNodes2.append(node)
-	
-		return linkToNodes2
-		
-	def determineNorth(self, info):
-		north = str(info['northAt'])
-		return north
-	
-	def extractMapNodes(self):
-		for node in self.mapInfo:
-			nodeData = {}
-			nodeData['name'] = str(node['nodeName'])
-			nodeData['x'] = str(node['x'])
-			nodeData['y'] = str(node['y'])
-			nodeData['linkTo'] = self.__extractingLinkToNodes(node['linkTo'])
-			self.mapNodes[str(node['nodeId'])] = nodeData
-	
-	def extractWifiNodes(self):
-		for node in self.wifiInfo:
-			nodeData = {}
-			nodeData['name'] = str(node['nodeName'])
-			nodeData['x'] = str(node['x'])
-			nodeData['y'] = str(node['y'])
-			nodeData['id'] = node['nodeId']
-			macAddr = str(node['macAddr']).upper()
-			self.apNodes[macAddr[0:14]] = nodeData
-	
-	def addNewMap(self,buildingName, level_value):
-		found = False
-		array_of_buildings = self.fileManager.readFromFile("buildinglist.txt")
-		array_of_buildings = json.loads(array_of_buildings)
-		for building in array_of_buildings:
-			if building['name'] is buildingName:
-				building['level'].append(level_value)
-				found = True
-		if found is False:
-			newBuilding = {}
-			newBuilding['name'] = buildingName
-			newBuilding['level'] = level_value
-			array_of_buildings.append(newBuilding)
-			
-		self.fileManager.writeToFile("buildinglist.txt", json.dumps(array_of_buildings))
-	
-	def determineSource(self, building_name, level_value):
-		url = 'http://showmyway.comp.nus.edu.sg/getMapInfo.php?Building=' + building_name + "&Level=" + level_value 
-		req = urllib.urlopen(url)
-		source = req.read()
-		req.close()
-		source = json.loads(source)
-		return source
-
-	def separateAllInfos(self, source):
-		self.info = source['info']
-		self.mapInfo = source['map']
-		self.wifiInfo = source['wifi']
-		# print "in determineInfos"
-
-	def loadLocation(self, building_name, level):
-		location = building_name+level
-		self.resetMap()
-		currentMap = self.cacheManager.get(location)
-		if currentMap is not None:
-			self.apNodes = currentMap.get('wifi')
-			self.mapInfo = currentMap.get('info')
-			self.mapNodes = currentMap.get('map')
-		else:
-			self.addNewMap(building_name,level)
-			self.syncAllMaps()
-			currentMap = self.cacheManager.get(location)
-			self.apNodes = currentMap.get('wifi')
-			self.mapInfo = currentMap.get('info')
-			self.mapNodes = currentMap.get('map')
-			
-
-	def syncAllMaps(self):
-		self.fileManager.writeToFile("buildings.txt", "")
-		try:
-			building_json = self.fileManager.readFromFile("buildinglist.txt") 
-			self.buildings = json.loads(building_json)
-		except:
-			print sys.exc_info()[0]
-		self.downloadAllMaps()
-				
-	def downloadAllMaps(self):
-		isExist = self.fileManager.isFileExist("buildings.txt")
-		isEmpty = self.fileManager.readFromFile("buildings.txt") == ""
-		if not isExist or isEmpty:
-			print "Downloading map..."
-			cacheArray = []
-			for building in self.buildings:
-				buildingName = building['name']
-				for level in building['level']:
-					source = self.determineSource(buildingName, level)
-					self.extractData(source)
-					cacheArray.append(self.cacheData(buildingName, level))
-			self.fileManager.appendToFile("buildings.txt", json.dumps(cacheArray))
-		else:
-			print "Loading map from storage..."
-			array_of_cache = self.fileManager.readFromFile("buildings.txt")
-			array_of_cache = json.loads(array_of_cache)
-			for cache in array_of_cache:
-				self.cacheManager.put(cache['map_name'], cache)
-
-		print "Caching Completed"
-	
-	def extractData(self, source):
-		self.separateAllInfos(source)
-		self.extractMapNodes()
-		self.extractWifiNodes()
-	
-	def cacheData(self, buildingName, level):
-		cache = {}
-		cache['map_name'] = buildingName + level
-		cache['map'] = self.mapNodes
-		cache['wifi'] = self.apNodes
-		cache['info'] = self.info
-		self.cacheManager.put(buildingName + level, cache)
-		return cache

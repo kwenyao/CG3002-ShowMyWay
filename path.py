@@ -1,8 +1,9 @@
 from heapq import *
 import math
 
-class getPath :
+class Path :
 	def __init__(self, Map_nodes):
+		### CLASS ATTRIBUTES ###
 		self.graph_adjlist = []
 		self.parent = {}
 		self.dist = {}
@@ -11,14 +12,17 @@ class getPath :
 			self.graph_adjlist.append([])
 			self.parent[i] = -1
 			self.dist[i] = 1000000000000
+		
+		### FUNCTION CALLS ###
+		self.buildAdjlist(Map_nodes)
 
-	def formAdjlist(self, Map_nodes):
+	def buildAdjlist(self, Map_nodes):
 		for vertex, details in Map_nodes.iteritems():
-		   # print vertex, details['x'], details['y'], details['linkTo']
-		    neighbour_list = details['linkTo']
-		    for neighbour in neighbour_list:
-		    	weight = math.sqrt(((int(Map_nodes[neighbour]['y']) - int(details['y']))**2) + (int(Map_nodes[neighbour]['x']) - int(details['x']))**2)
-		    	self.graph_adjlist[int(vertex)-1].append([weight, neighbour])
+			# print vertex, details['x'], details['y'], details['linkTo']
+			neighbour_list = details['linkTo']
+			for neighbour in neighbour_list:
+				weight = math.sqrt(((int(Map_nodes[neighbour]['y']) - int(details['y']))**2) + (int(Map_nodes[neighbour]['x']) - int(details['x']))**2)
+				self.graph_adjlist[int(vertex)-1].append([weight, neighbour])
 
 	def printAdjlist(self):
 		for i in self.graph_adjlist:
@@ -59,5 +63,4 @@ class getPath :
 		route.append(start_point)
 		route.reverse()
 		return route
-		          
 

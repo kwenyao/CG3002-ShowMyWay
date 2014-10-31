@@ -20,19 +20,16 @@
 # #####################################################
 
 import RPi.GPIO as GPIO
-import time
 
 class keypad():
     # CONSTANTS   
-    KEYPAD = [
-    ['1','2','3'],
-    ['4','5','6'],
-    ['7','8','9'],
-    ['*','0','#']
-    ]
+    KEYPAD = [['1','2','3'],
+    		  ['4','5','6'],
+    	   	  ['7','8','9'],
+    		  ['*','0','#']]
     
-    ROW         = [7,8,25,24]
-    COLUMN      = [11,9,10]
+    ROW = [7,8,25,24]
+    COLUMN = [11,9,10]
     
     def __init__(self):
         GPIO.setmode(GPIO.BCM)
@@ -91,7 +88,6 @@ class keypad():
         for i in range(len(self.ROW)):
                 GPIO.setup(self.ROW[i], GPIO.IN, pull_up_down=GPIO.PUD_UP) 
         for j in range(len(self.COLUMN)):
-		
                 GPIO.setup(self.COLUMN[j], GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     def getKeysInput(self):
@@ -114,7 +110,7 @@ class keypad():
                     next_state = 0
                 else:
                     next_state = 1
-					
+                    
 #if __name__ == '__main__':
     # Initialize the keypad class
    # kp = keypad()

@@ -1,5 +1,5 @@
 from wifi import Wifi
-from ServerSync2 import MapSync
+from ServerSync import MapSync
 import time
 
 
