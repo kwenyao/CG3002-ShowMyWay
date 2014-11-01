@@ -35,6 +35,7 @@ class Guide():
 		self.isUpStairs = False
 		self.isDownStairs = False
 		
+		
 	##########################################
 	# Functions called by Navigation
 	##########################################

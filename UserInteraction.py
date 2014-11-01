@@ -1,5 +1,6 @@
 import os
 import serial
+import subprocess
 
 class KeypadMich():
 	#################################################################
@@ -138,7 +139,7 @@ class Voice():
 	#output message given
 	def say(self, message):
 		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + str(message) + self.syntax_tail 
-		os.system(voiceCmd)
+		process = subprocess.Popen(voiceCmd, shell=True, stdout=subprocess.PIPE, preexec_fn=os.setsid) 
 		return
 
 class Messages():

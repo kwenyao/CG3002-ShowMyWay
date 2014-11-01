@@ -20,7 +20,7 @@ class MapSync(object):
 		self.apNodes = {}
 		self.mapNodes = {}
 		self.north = 0
-		
+		self.isDownloadSuccess = True
 		self.info = {}
 		self.map = {}
 		self.wifi = {}
@@ -43,14 +43,15 @@ class MapSync(object):
 		currentMapJSON = self.fileManager.readFromFile(path)
 		mapData = json.loads(currentMapJSON)
 		self.parseData(mapData)
-	
+		return self.isDownloadSuccess
+		
 	###################################
 	# Functions to add/update maps
 	###################################
 	
 	def updateAllMaps(self):
 		buildingJSON = self.fileManager.readFromFile(self.MAP_LIST_PATH)
-		if buildingJSON is None:
+		if buildingJSON == '' or buildingJSON is None:
 			return
 		else:
 			buildings = json.loads(buildingJSON)
@@ -94,9 +95,11 @@ class MapSync(object):
 		url = self.URL_TEMPLATE.format(building = buildingName, level = levelNum)
 		response = urllib2.urlopen(url)
 		if response.getcode() == self.STATUS_OK:
+			self.isDownloadSuccess = True
 			return json.load(response)
 		else:
 			print "Download Failed: No data available"
+			self.isDownloadSuccess = False
 			return None
 	
 	def getFilePath(self, buildingName, levelNum):
@@ -169,8 +172,16 @@ class Storage():
 		f.write(content)
 		f.close()
 		
-	def readFromFile(self, filename):
+	def isFileExist(self, filename):
+		content = ""
 		if os.path.isfile(filename) and os.access(filename, os.R_OK):
+			return True
+		else:
+			self.writeToFile(filename, content)  # to recreate a new file
+			return False
+		
+	def readFromFile(self, filename):
+		if self.isFileExist(filename):
 			f = open(filename, 'r')
 			data = f.read()
 			f.close()

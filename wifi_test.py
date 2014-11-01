@@ -1,14 +1,14 @@
-from wifi import Wifi
+# from wifi import Wifi
 from ServerSync import MapSync
 import time
 
 
 def main():
 	currmap = MapSync()
-	wifi = Wifi()
+# 	wifi = Wifi()
 	
 	currmap.loadLocation("DemoBuilding" , "1")
-	currmap.loadLocation("COM1", "2")
+# 	currmap.loadLocation("COM1", "2")
 	
 	# print packet
 # 	apNodes = packet.get('wifi')
@@ -17,12 +17,12 @@ def main():
 	mapNodes = currmap.mapNodes
 	apNodes = currmap.apNodes
 	
-	timeout = time.time() + 60*2
-	while True:
-		if time.time() > timeout:
-			break
-		coords = wifi.getUserCoordinates(apNodes)
-		print coords
+# 	timeout = time.time() + 60*2
+# 	while True:
+# 		if time.time() > timeout:
+# 			break
+# 		coords = wifi.getUserCoordinates(apNodes)
+# 		print coords
 
 if __name__ == "__main__":
 	main()
