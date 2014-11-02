@@ -1,22 +1,12 @@
-'''
-Created on 31 Oct, 2014
-
-@author: Wen Yao
-'''
-
 from guide import Guide
-from initialise import start_point, end_point
 from path import Path
 from visualiseMap import visualiseMap
+import constants
 import math
 import time
 
 class Navigation():
-	def __init__(self, mapNodes, north):
-		### CONSTANTS ###
-		self.VISUALISATION = False
-		self.PROXIMITY_RADIUS = 30 # in centimeters
-		
+	def __init__(self, mapNodes, north):		
 		### OBJECTS ###
 		self.visual = visualiseMap(1300,1300)
 		self.path = Path(mapNodes)
@@ -32,6 +22,7 @@ class Navigation():
 		self.lastUpdatedTime
 		self.destinationNode
 		self.destinationCoor
+		self.routeNodes
 		
 		### FUNCTION CALLS ###
 		self.visual.setMap(mapNodes,0)
@@ -43,19 +34,24 @@ class Navigation():
 	def getRoute(self, start_point, end_point):
 		self.path.shortestPath(start_point)
 		route = self.path.routeToTravel(start_point, end_point)
-		route_nodes =  self.getRouteNodes(route)
-		if(self.VISUALISATION):
-			self.visual.setMap(route_nodes,1)
+		self.routeNodes =  self.getRouteNodes(route)
+		self.setAttributes(start_point, end_point)
+		if(constants.VISUALISATION):
+			self.visual.setMap(self.routeNodes,1)
 			self.visual.printMap()
-		return route_nodes
+		return self.routeNodes
 	
 	def beginNavigation(self, apNodes):
-		while(abs(self.currCoor[0] - self.destinationCoor[0]) > self.PROXIMITY_RADIUS or 
-			  abs(self.currCoor[1] - self.destinationCoor[1]) > self.PROXIMITY_RADIUS):
+		while(abs(self.currCoor[0] - self.destinationCoor[0]) > constants.PROXIMITY_RADIUS or 
+			  abs(self.currCoor[1] - self.destinationCoor[1]) > constants.PROXIMITY_RADIUS):
 			offset = self.calculateOffset()
 			bearingToFace = (self.mapNorth + offset) % 360
-			self.guide.guideUser(self.currCoor, self.mapNorth, apNodes)
-			
+			self.currCoor = self.guide.updateCoordinates(self.currCoor, self.north, apNodes)
+			self.guide.warnUser()
+			if(self.checkLocation()):
+				break
+			self.guide.checkBearing(bearingToFace, self.currCoor, self.nextCoor)
+		self.guide.destinationReached()
 			
 	##########################################
 	# Helper Functions
@@ -71,12 +67,12 @@ class Navigation():
 				del route_nodes[route[i]]['linkTo']
 		return route_nodes
 	
-	def setAttributes(self, route_nodes):
-		self.currNode = route_nodes.get(start_point) 
+	def setAttributes(self, start_point, end_point):
+		self.currNode = self.route_nodes.get(start_point) 
 		self.currCoor = [int(self.currNode.get('x')), int(self.currNode.get('y'))]
-		self.destinationNode = route_nodes.get(end_point)
+		self.destinationNode = self.route_nodes.get(end_point)
 		self.destinationCoor = [int(self.destinationNode.get('x')), int(self.destinationNode.get('y'))]
-		self.nextNode = route_nodes.get((self.currNode.get('linkTo'))[0])
+		self.nextNode = self.route_nodes.get((self.currNode.get('linkTo'))[0])
 		self.nextCoor = [int(self.nextNode.get('x')), int(self.nextNode.get('y'))]
 		self.guide.lastUpdatedTime = time.time()
 		
@@ -104,3 +100,15 @@ class Navigation():
 				return 360
 			else:
 				return 180
+			
+	def checkLocation(self, bearingToFace):
+		if (abs(self.currCoor[0] - self.nextCoor[0]) < constants.PROXIMITY_RADIUS and 
+			abs(self.currCoor[1] - self.nextCoor[1]) < constants.PROXIMITY_RADIUS):
+			self.currNode = self.nextNode
+			if self.currNode == self.destinationNode: # why?!?!
+				return True
+			self.nextNode = self.routeNodes.get((self.currNodee.get('linkTo'))[0])
+			self.nextCoor = (int(self.nextNode.get('x')), int(self.nextNode.get('y')))
+			self.guide.userReachedNode(self.currNode)
+		self.guide.checkBearing(bearingToFace)
+		return False

@@ -95,7 +95,7 @@ class Voice():
 	def say(self, message):
 		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + str(message) + self.syntax_tail 
 		process = subprocess.Popen(voiceCmd, shell=True, stdout=subprocess.PIPE, preexec_fn=os.setsid) 
-		return
+		return process
 
 class Messages():
 	def __init__(self):

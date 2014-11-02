@@ -1,11 +1,14 @@
-# from wifi import Wifi
+from wifi_trilateration.wifi import Wifi
 from ServerSync import MapSync
 import time
-
+import constants
 
 def main():
+	print constants.STEP_LENGTH
+	constants.STEP_LENGTH = 1
+	print constants.STEP_LENGTH
 	currmap = MapSync()
-# 	wifi = Wifi()
+	wifi = Wifi()
 	
 	currmap.loadLocation("DemoBuilding" , "1")
 # 	currmap.loadLocation("COM1", "2")
@@ -16,6 +19,7 @@ def main():
 	north = currmap.north
 	mapNodes = currmap.mapNodes
 	apNodes = currmap.apNodes
+	
 	
 # 	timeout = time.time() + 60*2
 # 	while True:
