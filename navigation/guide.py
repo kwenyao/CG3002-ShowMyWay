@@ -27,7 +27,10 @@ class Guide():
 		self.isStairsDetected = False
 		self.isUpStairs = False
 		self.isDownStairs = False
-		
+		self.onPlatform = False
+
+		### COUNTERS ###
+		self.stepsOnPlatform = 0
 		
 	##########################################
 	# Functions called by Navigation
@@ -42,6 +45,7 @@ class Guide():
 	def warnUser(self):
 		self.warnHeadObstacle()
 		self.warnStairs()
+		self.guideAlongStairs()
 		
 	def userReachedNode(self, node):
 		message = messages.NODE_REACHED_TEMPLATE.format(node = node['name'])
@@ -134,6 +138,7 @@ class Guide():
 			if self.isUpStairs:
 				self.isStairsDetected ^= True
 				self.isUpStairs ^= True
+				self.onPlatform = True #set to check if user is on platform
 			else:
 				self.isStairsDetected ^= True
 				self.isDownStairs ^= True
@@ -142,10 +147,34 @@ class Guide():
 			if self.isDownStairs:
 				self.isStairsDetected ^= True
 				self.isDownStairs ^= True
+				self.onPlatform = True #set to check if user is on platform
 			else:
 				self.isStairsDetected ^= True
 				self.isUpStairs ^= True
 			self.voiceOutput.say(messages.UP_STAIRS)
 		self.prevStairSensor = self.stairSensor
 	
-	
+	def guideAlongStairs(self):
+		if self.stepDetected == 0:
+			if (self.isStairsDetected is False) and not (self.isUpStairs and self.isDownStairs):
+				#not on stairs
+				return
+			elif (self.isStairsDetected is True) and self.isUpStairs:
+				message = messages.TAKE_ONE_STEP_TEMPLATE.format(direction = "up")
+				print "                                           take one step up carefully"
+				voice_command.say(message)
+			elif (self.isStairsDetected is True) and self.isDownStairs:
+				message = messages.TAKE_ONE_STEP_TEMPLATE.format(direction = "down")
+				print "                                           take one step down carefully"
+				voice_command.say(message)
+			return
+		else:
+			#user taking a step
+			if stepsOnPlatform:
+				self.stepsOnPlatform += 1
+			if self.stepsOnPlatform >= constants.MAX_ON_PLATFORM_STEPS: #user is not on platform
+				self.onPlatform  = False
+				self.stepsOnPlatform = 0
+			return
+
+		
