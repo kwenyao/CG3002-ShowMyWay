@@ -1,1 +1,0 @@
-[{"name": "DemoBuilding", "level": ["1", "2", "3"]}, {"name": "COM1", "level": ["1", "2", "3"]}, {"name": "COM2", "level": ["1", "2", "3"]}]
