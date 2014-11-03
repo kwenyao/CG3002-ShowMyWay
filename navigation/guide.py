@@ -1,9 +1,9 @@
 from wifi_trilateration.wifi import Wifi
-from UserInteraction import Voice, SerialCommunicator
+from UserInteraction import Voice
+from arduino_communication import SerialCommunicator
 import constants
 import math
 import messages
-import serial
 import time
 
 class Guide():
@@ -83,7 +83,7 @@ class Guide():
 	##########################################
 	
 	def receiveDataFromArduino(self):
-		dataReceived = self.serial.ser.readline()
+		dataReceived = self.serial.serialRead()
 		dataSplited = dataReceived.split(' ')
 		dataFiltered = []
 		for i in range(len(dataSplited)):
@@ -162,15 +162,15 @@ class Guide():
 			elif (self.isStairsDetected is True) and self.isUpStairs:
 				message = messages.TAKE_ONE_STEP_TEMPLATE.format(direction = "up")
 				print "                                           take one step up carefully"
-				voice_command.say(message)
+				self.voiceOutput.say(message)
 			elif (self.isStairsDetected is True) and self.isDownStairs:
 				message = messages.TAKE_ONE_STEP_TEMPLATE.format(direction = "down")
 				print "                                           take one step down carefully"
-				voice_command.say(message)
+				self.voiceOutput.say(message)
 			return
 		else:
 			#user taking a step
-			if stepsOnPlatform:
+			if self.stepsOnPlatform:
 				self.stepsOnPlatform += 1
 			if self.stepsOnPlatform >= constants.MAX_ON_PLATFORM_STEPS: #user is not on platform
 				self.onPlatform  = False

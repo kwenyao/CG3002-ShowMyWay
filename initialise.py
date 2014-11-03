@@ -1,10 +1,8 @@
-from arduino_communication import Arduino
-from Keypad import keypad
+from arduino_communication import Arduino, SerialCommunicator
 from ServerSync import Storage
-from UserInteraction import Voice
+from UserInteraction import Voice, Keypad
 import constants
 import messages
-
 
 def arduinoHandshake():
 	voiceOutput = Voice()
@@ -20,6 +18,7 @@ def arduinoHandshake():
 def calibrateStep():
 	voiceOutput = Voice()
 	fileManager = Storage()
+	serial = SerialCommunicator()
 	data_path = fileManager.getFilePath('data', 'step_length.txt')
 	data_exist = fileManager.readFromFile(data_path)
 	if data_exist is None:
@@ -27,8 +26,8 @@ def calibrateStep():
 		#ser.write('2')
 		#IR_stairs= ser.readline()
 		voiceOutput.say(messages.CALIBRATION_START)
-		ser.write('2')
-		constants.STEP_LENGTH = ser.readline()
+		serial.serialWrite('2')
+		constants.STEP_LENGTH = serial.serialRead()
 		print "step size is " + constants.STEP_LENGTH + "cm"
 		voiceOutput.say(messages.CALIBRATION_END)
 		fileManager.writeToFile(data_path, str(constants.STEP_LENGTH))
@@ -39,7 +38,7 @@ def calibrateStep():
 
 def getInitialInput():
 	voiceOutput = Voice()
-	keyInput = keypad()
+	keyInput = Keypad()
 	userInput = {}
 	comfirmation = 0 
 	while comfirmation != 1:
