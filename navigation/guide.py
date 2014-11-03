@@ -7,21 +7,21 @@ import messages
 import time
 
 class Guide():
-	def __init__(self, PROX_RAD):		
+	def __init__(self):		
 		### OBJECTS ###
 		self.wifi = Wifi()
 		self.voiceOutput = Voice()
 		self.serial = SerialCommunicator()
 		
 		### CLASS ATTRIBUTES ###
-		self.prevBearing
+		self.prevBearing = 0
 		self.prevStairSensor = 1
-		self.stairSensor
-		self.headSensor
-		self.bearingFaced
-		self.stepDetected
-		self.lastUpdatedTime
-		self.lastInstructionTime
+		self.stairSensor = 0
+		self.headSensor = 0
+		self.bearingFaced = 0
+		self.stepDetected = 0
+		self.lastUpdatedTime = 0
+		self.lastInstructionTime = 0
 		
 		### FLAGS ###
 		self.isStairsDetected = False
@@ -38,9 +38,10 @@ class Guide():
 	def updateCoordinates(self, currCoor, north, apNodes):
 		self.receiveDataFromArduino()
 		imuCoor = self.updateIMUCoor(currCoor, north)
-		wifiCoor = self.wifi.getUserCoordinates(apNodes)
-		newCoor = self.estimateCurrentPosition(imuCoor, wifiCoor, north)
-		return newCoor
+		# wifiCoor = self.wifi.getUserCoordinates(apNodes)
+		# newCoor = self.estimateCurrentPosition(imuCoor, wifiCoor, north)
+		# return newCoor
+		return imuCoor
 		
 	def warnUser(self):
 		self.warnHeadObstacle()

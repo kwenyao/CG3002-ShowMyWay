@@ -7,9 +7,8 @@ def main():
 
 	initialise.arduinoHandshake()
 	initialise.calibrateStep()
-	userInput = initialise.getInitialInput()
-	
-	
+	# userInput = initialise.getInitialInput()
+	userInput = {'building': '1', 'level': '2', 'start': '1', 'end': '2'}
 	currmap.loadLocation(userInput.get('building'), userInput.get('level'))
 	apNodes = currmap.apNodes
 	
@@ -18,7 +17,7 @@ def main():
 	# current input is based on clockwise, hence need to offset
 	map_north = abs(currmap.north-360)
 	mapNodes = currmap.mapNodes
-	
+	print map_north
 	navigate = Navigation(mapNodes, map_north)
 	navigate.getRoute(userInput.get('start'), userInput.get('end'))
 	navigate.beginNavigation(apNodes)

@@ -133,6 +133,7 @@ class Voice():
 
 	#output message given
 	def say(self, message):
+		print message
 		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + str(message) + self.syntax_tail 
 		process = subprocess.Popen(voiceCmd, shell=True, stdout=subprocess.PIPE, preexec_fn=os.setsid) 
 		return process
