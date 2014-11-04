@@ -3,6 +3,7 @@ from ServerSync import Storage
 from UserInteraction import Voice, Keypad
 import constants
 import messages
+import time
 
 def arduinoHandshake():
 	voiceOutput = Voice()
@@ -13,7 +14,7 @@ def arduinoHandshake():
 	else:
 		message = "Handshake successful"
 	print message
-	voiceOutput.say(message)
+	# voiceOutput.say(message)
 
 def calibrateStep():
 	voiceOutput = Voice()
@@ -47,6 +48,7 @@ def getInitialInput():
 		voiceOutput.say(messages.INPUT_START_BUILDING_LEVEL)
 		userInput['levelstart'] = keyInput.getKeysInput()
 		voiceOutput.say(messages.INPUT_START_NODE)
+		time.sleep(1)
 		userInput['start'] = keyInput.getKeysInput()
 		voiceOutput.say(messages.INPUT_START_CONFIRMATION_TEMPLATE.format(building = userInput.get('buildingstart'),
 																		  level = userInput.get('levelstart'),
@@ -65,3 +67,4 @@ def getInitialInput():
 																		  end = userInput.get('end')))
 		confirmation = int(keyInput.getKeysInput())
 	voiceOutput.say(messages.INPUT_CONFIRMATION_SUCCESS)
+	return userInput

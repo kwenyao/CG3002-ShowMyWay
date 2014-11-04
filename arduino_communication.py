@@ -1,17 +1,14 @@
 import serial
 
-class Arduino():
-	def __init__(self, serialPort):
-		### CLASS ATTRIBUTES ###
-		self.serialPort = serialPort
-		
+class Arduino():		
 	def handshakeWithArduino(self):
+		serial = SerialCommunicator()
 		handshake = 0
 		isTimeOut = 0
 		print "enter handshake"
 		#handshake with GY87
 		while(handshake == 0 and isTimeOut == 0):
-			message = self.serialPort.readline()
+			message = serial.serialRead()
 			print "after serial read 1"
 			if (len(message) == 0 ):
 			#	isTimeOut = 1
@@ -20,10 +17,10 @@ class Arduino():
 				print message
 				if message[0] == 'S':
 					handshake = 1
-					self.serialPort.write("1")
+					serial.serialWrite('1')
 		handshake = 0
 		while (handshake == 0 and isTimeOut == 0):
-			message = self.serialPort.readline()
+			message = serial.serialRead()
 			if (len(message) == 0 ):
 			#	isTimeOut = 1
 				print "nth receive at 2"

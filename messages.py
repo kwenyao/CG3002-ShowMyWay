@@ -8,7 +8,6 @@ WALK_FORWARD_TEMPLATE = "Walk forward {steps} steps."
 HEAD_OBSTACLE_TEMPLATE = "Obstacle at head level {distance} meters away."
 
 VOICE_CMD_TEMPLATE = "espeak -s150 -a{volume} {voice} '{msg}' 2>/dev/null"
-
 ### INITIALISATION MESSAGES ###
 CALIBRATION_START = "Running calibration phase. Start walking 10 meters."
 CALIBRATION_END = "Calibration completed."
@@ -19,6 +18,7 @@ INPUT_END_BUILDING_LEVEL = "Please enter your ending building level."
 INPUT_START_NODE = "Please enter your start node."
 INPUT_END_NODE = "Please enter your end node."
 INPUT_CONFIRMATION_SUCCESS = "Confirmation successful."
+MAP_DOWNLOAD_FAILED = "Map download failed. Please enter a new map"
 
 ### GUIDE MESSAGES ###
 DESTINATION_REACHED = "You have reached your destination."
