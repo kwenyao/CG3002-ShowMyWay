@@ -135,7 +135,8 @@ class Voice():
 		os.system(voiceCmd)
 		
 	#output message given
-	def say(self, message, importanceLevel):
+	def say(self, message, importanceLevel = 0):
+		print message
 		if(importanceLevel > self.lastImportance):
 			os.killpg(self.lastProcess.pid, signal.SIGTERM)
 		else:
