@@ -1,19 +1,23 @@
 ### MESSAGE TEMPLATES ###
 HANDSHAKE_FAIL_TEMPLATE = "Handshake failed with exit code {code}"
-INPUT_CONFIRMATION_TEMPLATE = "Your building name is {building}, level {level}, start location is {start}, destination is {end}. Press 1 to confirm, 2 to re-enter."
+INPUT_START_CONFIRMATION_TEMPLATE = "Your starting building name is {building}, level {level}, start location is {start}. Press 1 to confirm, 2 to re-enter."
+INPUT_END_CONFIRMATION_TEMPLATE = "Your ending building name is {building}, level {level}, destination is {end}. Press 1 to confirm, 2 to re-enter."
 NODE_REACHED_TEMPLATE = "You have reached {node}."
 TURN_TEMPLATE = "Turn {direction} {angle} degrees."
 WALK_FORWARD_TEMPLATE = "Walk forward {steps} steps."
 HEAD_OBSTACLE_TEMPLATE = "Obstacle at head level {distance} meters away."
 
+VOICE_CMD_TEMPLATE = "espeak -s150 -a{volume} {voice} '{msg}' 2>/dev/null"
 
 ### INITIALISATION MESSAGES ###
 CALIBRATION_START = "Running calibration phase. Start walking 10 meters."
 CALIBRATION_END = "Calibration completed."
-INPUT_BUILDING_NUMBER = "Please enter your building number."
-INPUT_BUILDING_LEVEL = "Please enter your building level."
-INPUT_START_LOCATION = "Please enter your start location."
-INPUT_END_LOCATION = "Please enter your destination."
+INPUT_START_BUILDING_NUMBER = "Please enter your starting building number."
+INPUT_START_BUILDING_LEVEL = "Please enter your starting building level."
+INPUT_END_BUILDING_NUMBER = "Please enter your ending building number."
+INPUT_END_BUILDING_LEVEL = "Please enter your ending building level."
+INPUT_START_NODE = "Please enter your start node."
+INPUT_END_NODE = "Please enter your end node."
 INPUT_CONFIRMATION_SUCCESS = "Confirmation successful."
 
 ### GUIDE MESSAGES ###

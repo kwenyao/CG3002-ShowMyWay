@@ -40,19 +40,28 @@ def getInitialInput():
 	voiceOutput = Voice()
 	keyInput = Keypad()
 	userInput = {}
-	comfirmation = 0 
-	while comfirmation != 1:
-		voiceOutput.say(messages.INPUT_BUILDING_NUMBER)
-		userInput['building'] = keyInput.getKeysInput()
-		voiceOutput.say(messages.INPUT_BUILDING_LEVEL)
-		userInput['level'] = keyInput.getKeysInput()
-		voiceOutput.say(messages.INPUT_START_LOCATION)
+	confirmation = 0 
+	while confirmation != 1:
+		voiceOutput.say(messages.INPUT_START_BUILDING_NUMBER)
+		userInput['buildingstart'] = keyInput.getKeysInput()
+		voiceOutput.say(messages.INPUT_START_BUILDING_LEVEL)
+		userInput['levelstart'] = keyInput.getKeysInput()
+		voiceOutput.say(messages.INPUT_START_NODE)
 		userInput['start'] = keyInput.getKeysInput()
-		voiceOutput.say(messages.INPUT_END_LOCATION)
+		voiceOutput.say(messages.INPUT_START_CONFIRMATION_TEMPLATE.format(building = userInput.get('buildingstart'),
+																		  level = userInput.get('levelstart'),
+																		  start = userInput.get('start')))
+		confirmation = int(keyInput.getKeysInput())
+	confirmation = 0
+	while confirmation != 1:
+		voiceOutput.say(messages.INPUT_END_BUILDING_NUMBER)
+		userInput['buildingend'] = keyInput.getKeysInput()
+		voiceOutput.say(messages.INPUT_END_BUILDING_LEVEL)
+		userInput['levelend'] = keyInput.getKeysInput()
+		voiceOutput.say(messages.INPUT_END_NODE)
 		userInput['end'] = keyInput.getKeysInput()
-		voiceOutput.say(messages.INPUT_CONFIRMATION_TEMPLATE.format(building = userInput.get('building'),
-																	level = userInput.get('level'),
-																	start = userInput.get('start'),
-																	end = userInput.get('end')))
-		comfirmation = int(keyInput.getKeysInput())
+		voiceOutput.say(messages.INPUT_END_CONFIRMATION_TEMPLATE.format(building = userInput.get('buildingend'),
+																		  level = userInput.get('levelend'),
+																		  end = userInput.get('end')))
+		confirmation = int(keyInput.getKeysInput())
 	voiceOutput.say(messages.INPUT_CONFIRMATION_SUCCESS)
