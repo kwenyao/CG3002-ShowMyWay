@@ -6,7 +6,6 @@ TURN_TEMPLATE = "Turn {direction} {angle} degrees."
 WALK_FORWARD_TEMPLATE = "Walk forward {steps} steps."
 HEAD_OBSTACLE_TEMPLATE = "Obstacle at head level {distance} meters away."
 
-
 ### INITIALISATION MESSAGES ###
 CALIBRATION_START = "Running calibration phase. Start walking 10 meters."
 CALIBRATION_END = "Calibration completed."
@@ -15,6 +14,7 @@ INPUT_BUILDING_LEVEL = "Please enter your building level."
 INPUT_START_LOCATION = "Please enter your start location."
 INPUT_END_LOCATION = "Please enter your destination."
 INPUT_CONFIRMATION_SUCCESS = "Confirmation successful."
+MAP_DOWNLOAD_FAILED = "Map download failed. Please enter a new map"
 
 ### GUIDE MESSAGES ###
 DESTINATION_REACHED = "You have reached your destination."

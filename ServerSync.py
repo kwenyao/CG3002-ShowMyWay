@@ -36,6 +36,7 @@ class MapSync(object):
 	###################################
 		
 	def loadLocation(self, buildingName, levelNum):
+		self.isDownloadSuccess = True
 		path = self.getFilePath(buildingName, levelNum)
 		
 		if not os.path.isfile(path):
