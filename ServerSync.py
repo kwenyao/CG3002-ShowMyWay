@@ -19,12 +19,13 @@ class MapSync(object):
 		self.fileManager = Storage()
 		self.apNodes = {}
 		self.mapNodes = {}
+		self.mapConnection = {}
 		self.north = 0
 		self.isDownloadSuccess = True
 		self.info = {}
 		self.map = {}
 		self.wifi = {}
-		
+
 		### FUNCTION CALLS ###	
 		if not os.path.exists(self.MAP_DIRECTORY):
 			os.makedirs(self.MAP_DIRECTORY)			
@@ -133,7 +134,15 @@ class MapSync(object):
 			nodeData['x'] = node.get('x')
 			nodeData['y'] = node.get('y')
 			nodeData['linkTo'] = self.extractMapEdges(node.get('linkTo'))
+			mapConnection = nodeData['name'].find("TO")
+			if mapConnection != -1:
+				connection = self.extractConnectionInfo(nodeData.['name'])
+				if connection != None:
+					connectionList[node.get('nodeId')] = connection
+
 			nodeList[node.get('nodeId')] = nodeData
+
+		self.mapConnection = connectionList	
 		self.mapNodes = nodeList
 	
 	def extractAPNodes(self):
@@ -153,6 +162,16 @@ class MapSync(object):
 		edgeList = re.findall(r'\d+', linkTo)
 		return edgeList
 		
+	def extractConnectionInfo(self, name):
+		words = re.split(r'\W+', name)
+		if len(words) == 4 and words[0] == "TO":
+			connection = {	'building': words[1],
+							'level' : words[2],
+							'node' : words[3]	
+							}
+			return connection
+		return None
+
 class Storage():
 	def __init__(self):
 		self.SCRIPT_DIR = os.path.dirname(__file__)
