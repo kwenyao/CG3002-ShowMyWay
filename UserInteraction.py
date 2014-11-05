@@ -139,6 +139,9 @@ class Voice():
 		print message
 		if(importanceLevel > self.lastImportance):
 			os.killpg(self.lastProcess.pid, signal.SIGTERM)
+		elif self.lastProcess == None:
+			#skip
+			print ""
 		else:
 			response = self.lastProcess.poll()
 			if response is None: # Voice output not finished

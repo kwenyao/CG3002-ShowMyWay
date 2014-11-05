@@ -129,21 +129,21 @@ class MapSync(object):
 	
 	def extractMapNodes(self):
 		nodeList = {}
+		self.mapConnection = {}
 		for node in self.map:
-			nodeData = {}
+			nodeData = {} 
 			nodeData['name'] = node.get('nodeName')
 			nodeData['x'] = node.get('x')
 			nodeData['y'] = node.get('y')
 			nodeData['linkTo'] = self.extractMapEdges(node.get('linkTo'))
-			mapConnection = nodeData['name'].find("TO")
-			if mapConnection != -1:
-				connection = self.extractConnectionInfo(nodeData.['name'])
+			determineMapConnection = nodeData['name'].find("TO")
+			if determineMapConnection != -1:
+				connection = self.extractConnectionInfo(nodeData['name'])
 				if connection != None:
-					connectionList[node.get('nodeId')] = connection
+					self.mapConnection[node.get('nodeId')] = connection
 
 			nodeList[node.get('nodeId')] = nodeData
-
-		self.mapConnection = connectionList	
+	
 		self.mapNodes = nodeList
 	
 	def extractAPNodes(self):
