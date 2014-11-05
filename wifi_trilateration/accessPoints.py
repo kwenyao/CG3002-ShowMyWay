@@ -32,7 +32,7 @@ class AccessPoints():
 		return selection # [{ 'ap': AP, 'node': NODE }, {}...]
 	
 	def scanWifiData(self):
-		proc = subprocess.Popen('sudo iwlist scan 2>/dev/null', shell=True, stdout=subprocess.PIPE, )
+		proc = subprocess.Popen('sudo iwlist scan 2>/dev/null', shell=True, stdout = subprocess.PIPE, )
 		stdout_str = proc.communicate()[0]
 		stdout_list = stdout_str.split('\n')
 		return stdout_list
