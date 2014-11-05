@@ -2,6 +2,7 @@ import os
 import RPi.GPIO as GPIO
 import serial
 import subprocess
+import messages
 
 class Keypad():
 	# CONSTANTS   
@@ -17,7 +18,6 @@ class Keypad():
 		GPIO.setmode(GPIO.BCM)
 	
 	def getKey(self):
-		
 		# Set all columns as output low
 		for j in range(len(self.COLUMN)):
 			GPIO.setup(self.COLUMN[j], GPIO.OUT)
@@ -99,7 +99,11 @@ class Voice():
 		self.phrases = self.messagesObj.getPhrases()
 		self.messages = self.messagesObj.getMessages()
 		self.setupVoice()
-
+		
+		### CLASS ATTRIBUTES ###
+		self.lastProcess = None
+		self.lastImportance = 0 # 0 least important 2 most important
+		
 		# formatting of syntax and defining speech quality
 		self.variation = {'female1': ' -ven+f3', 'female2': ' -ven+f4',
 				'male1': ' -ven+m2', 'male2': ' -ven+m3'}
@@ -129,14 +133,26 @@ class Voice():
 	def voiceOut(self, messagetype):
 		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + self.messages.get(messagetype) + self.syntax_tail 
 		os.system(voiceCmd)
-
-
+		
 	#output message given
-	def say(self, message):
+	def say(self, message, importanceLevel = 0):
 		print message
-		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + str(message) + self.syntax_tail 
-		process = subprocess.Popen(voiceCmd, shell=True, stdout=subprocess.PIPE, preexec_fn=os.setsid) 
-		return process
+		if(importanceLevel > self.lastImportance):
+			os.killpg(self.lastProcess.pid, signal.SIGTERM)
+		else:
+			response = self.lastProcess.poll()
+			if response is None: # Voice output not finished
+				return
+		voiceCmd = messages.VOICE_CMD_TEMPLATE.format(volume = 100, 
+													  voice = self.variation.get('female1'), 
+													  msg = message)
+# 		voiceCmd = self.syntax_head + self.volume + self.variation['female1'] + " '" + str(message) + self.syntax_tail
+		self.lastProcess = subprocess.Popen(voiceCmd, 
+											shell=True, 
+											stdout=subprocess.PIPE, 
+											preexec_fn=os.setsid)
+		self.lastImportance = importanceLevel
+		return
 
 class Messages():
 	def __init__(self):

@@ -41,25 +41,37 @@ def getInitialInput():
 	voiceOutput = Voice()
 	keyInput = Keypad()
 	userInput = {}
-	comfirmation = 0 
-	while comfirmation != 1:
-		voiceOutput.say(messages.INPUT_BUILDING_NUMBER)
+	confirmation = 0 
+	while confirmation != 1:
+		voiceOutput.say(messages.INPUT_START_BUILDING_NUMBER)
 		time.sleep(1)
-		userInput['building'] = keyInput.getKeysInput()
-		voiceOutput.say(messages.INPUT_BUILDING_LEVEL)
+		userInput['buildingstart'] = keyInput.getKeysInput()
+		voiceOutput.say(messages.INPUT_START_BUILDING_LEVEL)
 		time.sleep(1)
-		userInput['level'] = keyInput.getKeysInput()
-		voiceOutput.say(messages.INPUT_START_LOCATION)
+		userInput['levelstart'] = keyInput.getKeysInput()
+		voiceOutput.say(messages.INPUT_START_NODE)
 		time.sleep(1)
 		userInput['start'] = keyInput.getKeysInput()
-		voiceOutput.say(messages.INPUT_END_LOCATION)
+		voiceOutput.say(messages.INPUT_START_CONFIRMATION_TEMPLATE.format(building = userInput.get('buildingstart'),
+																		  level = userInput.get('levelstart'),
+																		  start = userInput.get('start')))
+		time.sleep(1)
+		confirmation = int(keyInput.getKeysInput())
+	confirmation = 0
+	while confirmation != 1:
+		voiceOutput.say(messages.INPUT_END_BUILDING_NUMBER)
+		time.sleep(1)
+		userInput['buildingend'] = keyInput.getKeysInput()
+		voiceOutput.say(messages.INPUT_END_BUILDING_LEVEL)
+		time.sleep(1)
+		userInput['levelend'] = keyInput.getKeysInput()
+		voiceOutput.say(messages.INPUT_END_NODE)
 		time.sleep(1)
 		userInput['end'] = keyInput.getKeysInput()
-		voiceOutput.say(messages.INPUT_CONFIRMATION_TEMPLATE.format(building = userInput.get('building'),
-																	level = userInput.get('level'),
-																	start = userInput.get('start'),
-																	end = userInput.get('end')))
+		voiceOutput.say(messages.INPUT_END_CONFIRMATION_TEMPLATE.format(building = userInput.get('buildingend'),
+																		  level = userInput.get('levelend'),
+																		  end = userInput.get('end')))
 		time.sleep(1)
-		comfirmation = int(keyInput.getKeysInput())
+		confirmation = int(keyInput.getKeysInput())
 	voiceOutput.say(messages.INPUT_CONFIRMATION_SUCCESS)
 	return userInput
