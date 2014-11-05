@@ -3,7 +3,6 @@ import urllib2
 import json
 import os.path
 import re
-from macpath import join
 
 class MapSync(object):
 	def __init__(self):
