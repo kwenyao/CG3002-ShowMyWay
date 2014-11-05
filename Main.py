@@ -7,7 +7,7 @@ import messages
 def main():	
 	currmap = MapSync()
 	voiceOutput = Voice()
-	initialise.arduinoHandshake()
+	initialise.arduinoHandshake() #add in the code whereby if handshake fails, try another few more times
 	initialise.calibrateStep()
 	
 	while True:

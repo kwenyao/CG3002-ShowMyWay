@@ -206,7 +206,7 @@ class Storage():
 			f.close()
 			return data
 		
-	def writeLineToFile(self, fileName, myList):
+	def writeListToFile(self, fileName, myList):
 		with open(fileName, 'w') as myFile:
 			myFile.write('\n'.join(str(line) for line in myList))
 		myFile.close()
