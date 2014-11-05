@@ -28,8 +28,9 @@ def calibrateStep():
 		#IR_stairs= ser.readline()
 		voiceOutput.say(messages.CALIBRATION_START)
 		serial.serialWrite('2')
+		# weijian to parse the string into individual constants
 		constants.STEP_LENGTH = serial.serialRead()
-		print "step size is " + constants.STEP_LENGTH + "cm"
+		print "step size is " + constants.STEP_LENGTH + "m"
 		voiceOutput.say(messages.CALIBRATION_END)
 		fileManager.writeToFile(data_path, str(constants.STEP_LENGTH))
 	else:

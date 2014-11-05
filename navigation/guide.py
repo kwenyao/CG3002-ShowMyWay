@@ -67,7 +67,7 @@ class Guide():
 			if (time.time() - self.lastInstructionTime) >= constants.INSTRUCTIONS_FREQUENCY:
 				distToNextNode = math.sqrt((nextCoor[0] - currCoor[0]) ** 2 +
 										   (nextCoor[1] - currCoor[1]) ** 2)
-				stepsToNextNode = int(distToNextNode / (constants.STEP_LENGTH))
+				stepsToNextNode = int(distToNextNode / (constants.STEP_LENGTH) * 100)
 				message = messages.WALK_FORWARD_TEMPLATE.format(stepsToNextNode)
 				print message
 				self.voiceOutput.say(message)
@@ -99,9 +99,9 @@ class Guide():
 		if (self.stepDetected == 1 and 
 			abs(self.bearingFaced - self.prevBearing) < 30 and 
 			self.isStairsDetected == False):
-			imu_new_x = (currCoor[0] + constants.STEP_LENGTH * 
+			imu_new_x = (currCoor[0] + constants.STEP_LENGTH * 100 *
 						 math.sin((self.bearingFaced - north) /180 * math.pi))
-			imu_new_y = (currCoor[1] + constants.STEP_LENGTH *
+			imu_new_y = (currCoor[1] + constants.STEP_LENGTH * 100 *
 						 math.cos((self.bearingFaced - north) / 180 * math.pi))
 			return [imu_new_x, imu_new_y]
 		else:

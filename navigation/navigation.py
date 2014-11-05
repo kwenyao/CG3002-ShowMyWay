@@ -41,8 +41,8 @@ class Navigation():
 		return self.routeNodes
 	
 	def beginNavigation(self, apNodes):
-		while(abs(self.currCoor[0] - self.destinationCoor[0]) > constants.PROXIMITY_RADIUS or 
-			  abs(self.currCoor[1] - self.destinationCoor[1]) > constants.PROXIMITY_RADIUS):
+		while(abs(self.currCoor[0] - self.destinationCoor[0]) > (constants.PROXIMITY_RADIUS * 100) or 
+			  abs(self.currCoor[1] - self.destinationCoor[1]) > (constants.PROXIMITY_RADIUS * 100)):
 			offset = self.calculateOffset()
 			bearingToFace = (self.mapNorth + offset) % 360
 			self.currCoor = self.guide.updateCoordinates(self.currCoor, self.mapNorth, apNodes)
@@ -101,8 +101,8 @@ class Navigation():
 				return 180
 			
 	def checkLocation(self, bearingToFace):
-		if (abs(self.currCoor[0] - self.nextCoor[0]) < constants.PROXIMITY_RADIUS and 
-			abs(self.currCoor[1] - self.nextCoor[1]) < constants.PROXIMITY_RADIUS):
+		if (abs(self.currCoor[0] - self.nextCoor[0]) < (constants.PROXIMITY_RADIUS * 100) and 
+			abs(self.currCoor[1] - self.nextCoor[1]) < (constants.PROXIMITY_RADIUS * 100)):
 			self.currNode = self.nextNode
 			if self.currNode == self.destinationNode: # why?!?!
 				return True
