@@ -3,6 +3,7 @@ import urllib2
 import json
 import os.path
 import re
+from macpath import join
 
 class MapSync(object):
 	def __init__(self):
@@ -166,10 +167,9 @@ class MapSync(object):
 	def extractConnectionInfo(self, name):
 		words = re.split(r'\W+', name)
 		if len(words) == 4 and words[0] == "TO":
-			connection = {	'building': words[1],
-							'level' : words[2],
-							'node' : words[3]	
-							}
+			connection = {'building': words[1],
+						  'level' : words[2],
+						  'node' : words[3]}
 			return connection
 		return None
 
@@ -187,11 +187,6 @@ class Storage():
 			os.mkdir(folderPath)
 		return folderPath
 		
-	def writeToFile(self, filename, content):
-		f = open(filename, 'w')
-		f.write(content)
-		f.close()
-		
 	def isFileExist(self, filename):
 		content = ""
 		if os.path.isfile(filename) and os.access(filename, os.R_OK):
@@ -200,6 +195,11 @@ class Storage():
 			self.writeToFile(filename, content)  # to recreate a new file
 			return False
 		
+	def writeToFile(self, filename, content):
+		f = open(filename, 'w')
+		f.write(content)
+		f.close()
+		
 	def readFromFile(self, filename):
 		if self.isFileExist(filename):
 			f = open(filename, 'r')
@@ -207,8 +207,19 @@ class Storage():
 			f.close()
 			return data
 		
+	def writeLineToFile(self, fileName, myList):
+		with open(fileName, 'w') as myFile:
+			myFile.write('\n'.join(str(line) for line in myList))
+		myFile.close()
+	
+	def readFileToList(self, fileName):
+		with open(fileName) as myFile:
+			myList = myFile.read().splitlines()
+		return myList
+		
 	def appendToFile(self, filename, content):
 		f = open(filename, 'a')
 		f.write(content)  # to append on the end of the file
 		f.close()
+
 		
