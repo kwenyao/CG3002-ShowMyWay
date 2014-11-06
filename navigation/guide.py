@@ -59,9 +59,15 @@ class Guide():
 		bearingOffset = int(abs(bearingToFace - self.bearingFaced))
 		if bearingOffset > constants.ORIENTATION_DEGREE_ERROR:
 			if bearingToFace < self.bearingFaced:
-				message = messages.TURN_TEMPLATE.format(direction = "left", angle = bearingOffset)
+				if bearingOffset > 180 : 
+					message = messages.TURN_TEMPLATE.format(direction = "right", angle = (360 - bearingOffset))
+				else :
+					message = messages.TURN_TEMPLATE.format(direction = "left", angle = bearingOffset)
 			else:
-				message = messages.TURN_TEMPLATE.format(direction = "right", angle = bearingOffset)
+				if bearingOffset > 180 : 
+					message = messages.TURN_TEMPLATE.format(direction = "left", angle = 360 - bearingOffset)
+				else :
+					message = messages.TURN_TEMPLATE.format(direction = "right", angle = bearingOffset)
 			print message
 			self.voiceOutput.say(message)
 			
