@@ -12,7 +12,7 @@ def main():
 	
 	while True:
 		# userInput = initialise.getInitialInput()
-		userInput = {'buildingstart': '1', 'levelstart': '2', 'start': '1', 'end': '2'}
+		userInput = {'buildingstart': '1', 'levelstart': '2', 'start': '1', 'end': '3'}
 		isLoadSuccess = currmap.loadLocation(userInput.get('buildingstart'), userInput.get('levelstart'))
 		if(isLoadSuccess):
 			break

@@ -136,7 +136,7 @@ class Voice():
 		
 	#output message given
 	def say(self, message, importanceLevel = 0):
-		print message
+		print "from voice output: " + message
 		if(importanceLevel > self.lastImportance):
 			os.killpg(self.lastProcess.pid, signal.SIGTERM)
 		elif self.lastProcess is None:

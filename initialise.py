@@ -24,27 +24,44 @@ def calibrateStep():
 	data_exist = fileManager.readFromFile(data_path)
 	if data_exist is None:
 		voiceOutput.say(messages.CALIBRATION_START)
+		serial.serialWrite('c') 
 		calibration_info= serial.serialRead()
+		print "from serial HAHAHAHAHAHHA ",
+		print calibration_info
 		calibration_info_splited = calibration_info.split(' ')
 		calibration_info_filtered = []
 		for i in range(len(calibration_info_splited)):
 			if calibration_info_splited[i] != "":
-				calibration_info_filtered.append(dataSplited[i])
+				calibration_info_filtered.append(calibration_info_splited[i])
 		constants.STEP_LENGTH = float(calibration_info_filtered[0])
-		constants.ORIENTATION_DEGREE_ERROR = float(calibration_info_filtered[1])
+		constants.WALKING_DEGREE_ERROR = float(calibration_info_filtered[1])
 		constants.IR_STAIRS_CONSTANT = float(calibration_info_filtered[2])
+		constants.PEAK_ACC_VALUE = float(calibration_info_filtered[3])
 
-		print "step size is " + constants.STEP_LENGTH + "m"
-		print "orientation degree error is " + constants.ORIENTATION_DEGREE_ERROR + " degrees"
-		print "IR stairs constant is " + constants.IR_STAIRS_CONSTANT + "m"
+
+		print "step size is " ,
+		print constants.STEP_LENGTH, 
+		print " m"
+		print "orientation degree error is " ,
+		print constants.ORIENTATION_DEGREE_ERROR ,
+		print " degrees"
+		print "IR stairs constant is ",
+		print constants.IR_STAIRS_CONSTANT, 
+		print " m"
+		print constants.PEAK_ACC_VALUE, 
+		print " m/s^2"
 		voiceOutput.say(messages.CALIBRATION_END)
 		fileManager.writeListToFile(data_path, calibration_info_filtered)
 	else:
 		#ser.write('2') #remove after inte with mega
 		#ser.readline() #remove after inte with mega
-		constants.STEP_LENGTH = (fileManager.readFileToList(data_path))[0]
-		constants.ORIENTATION_DEGREE_ERROR = (fileManager.readFileToList(data_path))[1]
-		constants.IR_STAIRS_CONSTANT = (fileManager.readFileToList(data_path))[2]
+		serial.serialWrite('n')
+		constants.STEP_LENGTH = float((fileManager.readFileToList(data_path))[0])
+		constants.WALKING_DEGREE_ERROR = float((fileManager.readFileToList(data_path))[1])
+		constants.IR_STAIRS_CONSTANT = float((fileManager.readFileToList(data_path))[2])
+		constants.PEAK_ACC_VALUE = float((fileManager.readFileToList(data_path))[3])
+		serial.serialWrite(str(constants.PEAK_ACC_VALUE))
+
 def getInitialInput():
 	voiceOutput = Voice()
 	keyInput = Keypad()

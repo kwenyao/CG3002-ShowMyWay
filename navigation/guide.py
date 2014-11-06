@@ -15,7 +15,7 @@ class Guide():
 		
 		### CLASS ATTRIBUTES ###
 		self.prevBearing = 0
-		self.prevStairSensor = 1
+		self.prevStairSensor = 0
 		self.stairSensor = 0
 		self.headSensor = 0
 		self.bearingFaced = 0
@@ -35,9 +35,11 @@ class Guide():
 	##########################################
 	# Functions called by Navigation
 	##########################################
-	def updateCoordinates(self, currCoor, north, apNodes):
+	def updateCoordinates(self, currCoor, north, apNodes, bearingToFace):
 		self.receiveDataFromArduino()
-		imuCoor = self.updateIMUCoor(currCoor, north)
+		imuCoor = self.updateIMUCoor(currCoor, north, bearingToFace)
+		print "                                    current coor is ",
+		print imuCoor
 		# wifiCoor = self.wifi.getUserCoordinates(apNodes)
 		# newCoor = self.estimateCurrentPosition(imuCoor, wifiCoor, north)
 		# return newCoor
@@ -54,7 +56,7 @@ class Guide():
 		self.voiceOutput.say(message)
 	
 	def checkBearing(self, bearingToFace, currCoor, nextCoor):
-		bearingOffset = abs(bearingToFace - self.bearingFaced)
+		bearingOffset = int(abs(bearingToFace - self.bearingFaced))
 		if bearingOffset > constants.ORIENTATION_DEGREE_ERROR:
 			if bearingToFace < self.bearingFaced:
 				message = messages.TURN_TEMPLATE.format(direction = "left", angle = bearingOffset)
@@ -67,8 +69,8 @@ class Guide():
 			if (time.time() - self.lastInstructionTime) >= constants.INSTRUCTIONS_FREQUENCY:
 				distToNextNode = math.sqrt((nextCoor[0] - currCoor[0]) ** 2 +
 										   (nextCoor[1] - currCoor[1]) ** 2)
-				stepsToNextNode = int(distToNextNode / (constants.STEP_LENGTH) * 100)
-				message = messages.WALK_FORWARD_TEMPLATE.format(stepsToNextNode)
+				stepsToNextNode = int((distToNextNode/100) / (constants.STEP_LENGTH)) #changed dist from cm to meters 
+				message = messages.WALK_FORWARD_TEMPLATE.format(steps = stepsToNextNode)
 				print message
 				self.voiceOutput.say(message)
 				self.lastInstructionTime = time.time()
@@ -95,17 +97,20 @@ class Guide():
 		self.bearingFaced = float(dataFiltered[2])
 		self.stepDetected = float(dataFiltered[3])
 	
-	def updateIMUCoor(self, currCoor, north):
+	def updateIMUCoor(self, currCoor, north, bearingToFace):
 		if (self.stepDetected == 1 and 
-			abs(self.bearingFaced - self.prevBearing) < 30 and 
+			abs(self.bearingFaced - self.prevBearing) < constants.WALKING_DEGREE_ERROR/2 and 
 			self.isStairsDetected == False):
-			imu_new_x = (currCoor[0] + constants.STEP_LENGTH * 100 *
-						 math.sin((self.bearingFaced - north) /180 * math.pi))
-			imu_new_y = (currCoor[1] + constants.STEP_LENGTH * 100 *
-						 math.cos((self.bearingFaced - north) / 180 * math.pi))
+			print "current bearing to faced is " + str(bearingToFace),
+			print "current north is " + str(north)
+			print "x increment is " + str(int(constants.STEP_LENGTH * 100 * math.sin((bearingToFace - north) /180.0 * math.pi)))
+			imu_new_x = int ((currCoor[0] + constants.STEP_LENGTH * 100 *
+						 math.sin((bearingToFace - north) /180.0 * math.pi)))
+			imu_new_y = int ((currCoor[1] + constants.STEP_LENGTH * 100 *
+						 math.cos((bearingToFace - north) / 180.0 * math.pi)))
 			return [imu_new_x, imu_new_y]
 		else:
-			if (self.stepDetected == 1 and abs(self.bearingFaced - self.prevBearing) >= 30):
+			if (self.stepDetected == 1 and abs(self.bearingFaced - self.prevBearing) >= constants.WALKING_DEGREE_ERROR/2):
 				print "steps detected but not taken due to turn being made"
 			if (self.stepDetected == 1 and self.isStairsDetected == True):
 				print "steps detected but not taken due to stairs detected."
@@ -115,9 +120,9 @@ class Guide():
 		currCoor = []
 		timeElapsed = time.time() - self.lastUpdatedTime
 		approx_x_travelled = (timeElapsed * constants.USER_SPEED * 
-							  math.sin((self.bearingFaced - north) / 180 * math.pi))
+							  math.sin((self.bearingFaced - north) / 180.0 * math.pi))
 		approx_y_travelled = (timeElapsed * constants.USER_SPEED * 
-							  math.cos((self.bearingFaced - north) / 180 * math.pi))
+							  math.cos((self.bearingFaced - north) / 180.0 * math.pi))
 	
 		if (approx_x_travelled+currCoor[0] <= wifiCoor[0] ):
 			if (approx_y_travelled+currCoor[1] <= wifiCoor[1]):
@@ -135,6 +140,7 @@ class Guide():
 			self.voiceOutput.say(message)
 	
 	def warnStairs(self):
+		
 		if self.stairSensor - self.prevStairSensor > constants.STAIR_LIMIT:
 			if self.isUpStairs:
 				self.isStairsDetected ^= True
@@ -145,6 +151,11 @@ class Guide():
 				self.isDownStairs ^= True
 			self.voiceOutput.say(messages.DOWN_STAIRS)
 		elif self.stairSensor - self.prevStairSensor < -constants.STAIR_LIMIT:
+			print self.stairSensor, 
+			print " lalalalalalalal ",
+			print self.prevStairSensor, 
+			print " ",
+			print constants.STAIR_LIMIT
 			if self.isDownStairs:
 				self.isStairsDetected ^= True
 				self.isDownStairs ^= True

@@ -43,9 +43,9 @@ class Navigation():
 	def beginNavigation(self, apNodes):
 		while(abs(self.currCoor[0] - self.destinationCoor[0]) > (constants.PROXIMITY_RADIUS * 100) or 
 			  abs(self.currCoor[1] - self.destinationCoor[1]) > (constants.PROXIMITY_RADIUS * 100)):
-			offset = self.calculateOffset()
+			offset = int(self.calculateOffset())
 			bearingToFace = (self.mapNorth + offset) % 360
-			self.currCoor = self.guide.updateCoordinates(self.currCoor, self.mapNorth, apNodes)
+			self.currCoor = self.guide.updateCoordinates(self.currCoor, self.mapNorth, apNodes, bearingToFace)
 			self.guide.warnUser()
 			if(self.checkLocation(bearingToFace)):
 				break
@@ -106,7 +106,7 @@ class Navigation():
 			self.currNode = self.nextNode
 			if self.currNode == self.destinationNode: # why?!?!
 				return True
-			self.nextNode = self.routeNodes.get((self.currNodee.get('linkTo'))[0])
+			self.nextNode = self.routeNodes.get((self.currNode.get('linkTo'))[0])
 			self.nextCoor = (int(self.nextNode.get('x')), int(self.nextNode.get('y')))
 			self.guide.userReachedNode(self.currNode)
 		self.guide.checkBearing(bearingToFace, self.currCoor, self.nextCoor)

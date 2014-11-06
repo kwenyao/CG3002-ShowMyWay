@@ -14,6 +14,7 @@ class Arduino():
 			#	isTimeOut = 1
 				print "nth receive at 1"
 			else:
+				print "from Serial" ,
 				print message
 				if message[0] == 'S':
 					handshake = 1
@@ -25,6 +26,7 @@ class Arduino():
 			#	isTimeOut = 1
 				print "nth receive at 2"
 			else:
+				print "from Serial" ,
 				print message
 				if message[0] == 'G':
 					handshake = 1
