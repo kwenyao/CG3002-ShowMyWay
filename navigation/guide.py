@@ -57,7 +57,7 @@ class Guide():
 	
 	def checkBearing(self, bearingToFace, currCoor, nextCoor):
 		bearingOffset = int(abs(bearingToFace - self.bearingFaced))
-		if bearingOffset > constants.ORIENTATION_DEGREE_ERROR:
+		if bearingOffset > constants.WALKING_DEGREE_ERROR+5:
 			if bearingToFace < self.bearingFaced:
 				if bearingOffset > 180 : 
 					message = messages.TURN_TEMPLATE.format(direction = "right", angle = (360 - bearingOffset))
@@ -105,7 +105,7 @@ class Guide():
 	
 	def updateIMUCoor(self, currCoor, north, bearingToFace):
 		if (self.stepDetected == 1 and 
-			abs(self.bearingFaced - self.prevBearing) < constants.WALKING_DEGREE_ERROR/2 and 
+			abs(self.bearingFaced - self.prevBearing) < constants.WALKING_DEGREE_ERROR and 
 			self.isStairsDetected == False):
 			print "current bearing to faced is " + str(bearingToFace),
 			print "current north is " + str(north)
@@ -116,7 +116,7 @@ class Guide():
 						 math.cos((bearingToFace - north) / 180.0 * math.pi)))
 			return [imu_new_x, imu_new_y]
 		else:
-			if (self.stepDetected == 1 and abs(self.bearingFaced - self.prevBearing) >= constants.WALKING_DEGREE_ERROR/2):
+			if (self.stepDetected == 1 and abs(self.bearingFaced - self.prevBearing) >= constants.WALKING_DEGREE_ERROR):
 				print "steps detected but not taken due to turn being made"
 			if (self.stepDetected == 1 and self.isStairsDetected == True):
 				print "steps detected but not taken due to stairs detected."
