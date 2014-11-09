@@ -22,6 +22,7 @@ class Guide():
 		self.stepDetected = 0
 		self.lastUpdatedTime = 0
 		self.lastInstructionTime = 0
+		self.warningMessage = ""
 		
 		### FLAGS ###
 		self.isStairsDetected = False
@@ -147,30 +148,41 @@ class Guide():
 	
 	def warnStairs(self):
 		
-		if self.stairSensor - self.prevStairSensor > constants.STAIR_LIMIT:
-			if self.isUpStairs:
-				self.isStairsDetected ^= True
-				self.isUpStairs ^= True
-				self.onPlatform = True #set to check if user is on platform
-			else:
-				self.isStairsDetected ^= True
-				self.isDownStairs ^= True
-			self.voiceOutput.say(messages.DOWN_STAIRS)
-		elif self.stairSensor - self.prevStairSensor < -constants.STAIR_LIMIT:
-			print self.stairSensor, 
-			print " lalalalalalalal ",
-			print self.prevStairSensor, 
-			print " ",
-			print constants.STAIR_LIMIT
-			if self.isDownStairs:
-				self.isStairsDetected ^= True
-				self.isDownStairs ^= True
-				self.onPlatform = True #set to check if user is on platform
-			else:
-				self.isStairsDetected ^= True
-				self.isUpStairs ^= True
-			self.voiceOutput.say(messages.UP_STAIRS)
-		self.prevStairSensor = self.stairSensor
+		if self.stairSensor - constants.IR_STAIRS_CONSTANT > constants.STAIR_LIMIT:				#downstairs
+			if self.isDownStairs is False:
+				self.isStairsDetected = True
+				self.isDownStairs = True
+				self.warningMessage = messages.DOWN_STAIRS
+			self.voiceOutput.say(self.warningMessage)
+		elif self.stairSensor - constants.IR_STAIRS_CONSTANT < -constants.STAIR_LIMIT:			#upstairs
+			if self.isUpStairs is False:
+				self.isStairsDetected = True
+				self.isUpStairs = True
+				self.warningMessage = messages.UP_STAIRS
+			self.voiceOutput.say(self.warningMessage)		
+		else:
+			self.isDownStairs = False
+			self.isUpStairs = False
+			self.isStairsDetected = False
+			self.warningMessage = ""
+			self.onPlatform = True
+			
+			
+# 			print self.stairSensor, 
+# 			print self.prevStairSensor, 
+# 			print " ",
+# 			print constants.STAIR_LIMIT
+# 			if self.isDownStairs:
+# 				self.isStairsDetected ^= True
+# 				self.isDownStairs ^= True
+# 				self.onPlatform = True #set to check if user is on platform
+# 				self.warningMessage = ""
+# 			elif self.isUpStairs is False:
+# 				self.isStairsDetected ^= True
+# 				self.isUpStairs ^= True
+# 				self.warningMessage = messages.UP_STAIRS
+# 			self.voiceOutput.say(messages.UP_STAIRS)
+# 		#self.prevStairSensor = self.stairSensor
 	
 	def guideAlongStairs(self):
 		if self.stepDetected == 0:
