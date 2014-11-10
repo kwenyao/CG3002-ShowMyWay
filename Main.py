@@ -23,7 +23,7 @@ def main():
 	# map north stored as anti clockwise
 	# previous calculation is based on rotating anti clockwise, 
 	# current input is based on clockwise, hence need to offset
-	map_north = abs(currmap.north-360)
+	map_north = abs(currmap.north-360)+10
 	mapNodes = currmap.mapNodes
 	navigate = Navigation(mapNodes, map_north)
 	navigate.getRoute(userInput.get('start'), userInput.get('end'))

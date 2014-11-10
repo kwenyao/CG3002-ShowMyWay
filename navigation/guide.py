@@ -29,7 +29,11 @@ class Guide():
 		self.isUpStairs = False
 		self.isDownStairs = False
 		self.onPlatform = False
-
+		
+		### TIMING ATTRIBUTES FOR STEPS ###
+		self.timeSinceLastStep = time.time() - 3 #to ensure that orientation checking will be triggered the first time
+		self.timeSinceNoStep = time.time()
+		
 		### COUNTERS ###
 		self.stepsOnPlatform = 0
 		
@@ -38,6 +42,10 @@ class Guide():
 	##########################################
 	def updateCoordinates(self, currCoor, north, apNodes, bearingToFace):
 		self.receiveDataFromArduino()
+		if self.stepDetected == 1 :
+			self.timeSinceLastStep = time.time()
+		else:
+			self.timeSinceNoStep = time.time()
 		imuCoor = self.updateIMUCoor(currCoor, north, bearingToFace)
 		print "                                    current coor is ",
 		print imuCoor
@@ -58,7 +66,8 @@ class Guide():
 	
 	def checkBearing(self, bearingToFace, currCoor, nextCoor):
 		bearingOffset = int(abs(bearingToFace - self.bearingFaced))
-		if bearingOffset > constants.WALKING_DEGREE_ERROR+5:
+		if ((bearingOffset > constants.ORIENTATION_DEGREE_ERROR) and
+			(abs(self.timeSinceLastStep-self.timeSinceNoStep) > constants.TIME_TO_CHECK_BEARING)):
 			if bearingToFace < self.bearingFaced:
 				if bearingOffset > 180 : 
 					message = messages.TURN_TEMPLATE.format(direction = "right", angle = (360 - bearingOffset))
