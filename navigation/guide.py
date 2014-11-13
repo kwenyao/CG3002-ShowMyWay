@@ -29,6 +29,7 @@ class Guide():
 		self.isUpStairs = False
 		self.isDownStairs = False
 		self.onPlatform = False
+		self.rightAfterBearingCheck = False # To allow the walking forward instruction to be triggered directly after bearing is check.
 		
 		### TIMING ATTRIBUTES FOR STEPS ###
 		self.timeSinceLastStep = time.time() - 3 #to ensure that orientation checking will be triggered the first time
@@ -81,9 +82,10 @@ class Guide():
 					message = messages.TURN_TEMPLATE.format(direction = "right", angle = bearingOffset)
 			print message
 			self.voiceOutput.say(message)
+			self.rightAfterBearingCheck = True
 			
 		else: #guide user to walk straight
-			if (time.time() - self.lastInstructionTime) >= constants.INSTRUCTIONS_FREQUENCY:
+			if (self.rightAfterBearingCheck == True) or (time.time() - self.lastInstructionTime) >= constants.INSTRUCTIONS_FREQUENCY:
 				distToNextNode = math.sqrt((nextCoor[0] - currCoor[0]) ** 2 +
 										   (nextCoor[1] - currCoor[1]) ** 2)
 				stepsToNextNode = int((distToNextNode/100) / (constants.STEP_LENGTH)) #changed dist from cm to meters 
@@ -91,6 +93,7 @@ class Guide():
 				print message
 				self.voiceOutput.say(message)
 				self.lastInstructionTime = time.time()
+				self.rightAfterBearingCheck = False
 		self.prevBearing = self.bearingFaced # Why?!?!
 	
 	def destinationReached(self):
