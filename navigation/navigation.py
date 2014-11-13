@@ -50,7 +50,7 @@ class Navigation():
 			if(self.checkLocation(bearingToFace)):
 				break
 			self.guide.checkBearing(bearingToFace, self.currCoor, self.nextCoor)
-		self.guide.destinationReached()
+		#self.guide.destinationReached()
 			
 	##########################################
 	# Helper Functions

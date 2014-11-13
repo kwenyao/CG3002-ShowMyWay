@@ -23,7 +23,7 @@ class Guide():
 		self.lastUpdatedTime = 0
 		self.lastInstructionTime = 0
 		self.warningMessage = ""
-		
+		self.prevStep = 0
 		### FLAGS ###
 		self.isStairsDetected = False
 		self.isUpStairs = False
@@ -55,14 +55,15 @@ class Guide():
 		return imuCoor
 		
 	def warnUser(self):
-		self.warnHeadObstacle()
-		self.warnStairs()
-		self.guideAlongStairs()
+		#self.warnHeadObstacle()
+		#self.warnStairs()
+		#self.guideAlongStairs()
+		pass
 		
 	def userReachedNode(self, node):
 		message = messages.NODE_REACHED_TEMPLATE.format(node = node['name'])
 		print message
-		self.voiceOutput.say(message)
+		self.voiceOutput.say(message,2)
 	
 	def checkBearing(self, bearingToFace, currCoor, nextCoor):
 		bearingOffset = int(abs(bearingToFace - self.bearingFaced))
@@ -95,7 +96,7 @@ class Guide():
 	def destinationReached(self):
 		message = messages.DESTINATION_REACHED
 		print message
-		self.voiceOutput.say(message)
+		self.voiceOutput.say(message,3)
 		
 	##########################################
 	# Helper Functions
@@ -114,16 +115,17 @@ class Guide():
 		self.stepDetected = float(dataFiltered[3])
 	
 	def updateIMUCoor(self, currCoor, north, bearingToFace):
-		if (self.stepDetected == 1 and 
+		if (self.stepDetected > self.prevStep and 
 			abs(self.bearingFaced - self.prevBearing) < constants.WALKING_DEGREE_ERROR and 
 			self.isStairsDetected == False):
 			print "current bearing to faced is " + str(bearingToFace),
 			print "current north is " + str(north)
 			print "x increment is " + str(int(constants.STEP_LENGTH * 100 * math.sin((bearingToFace - north) /180.0 * math.pi)))
-			imu_new_x = int ((currCoor[0] + constants.STEP_LENGTH * 100 *
+			imu_new_x = int ((currCoor[0] + constants.STEP_LENGTH * (self.stepDetected - self.prevStep) * 100 *
 						 math.sin((bearingToFace - north) /180.0 * math.pi)))
-			imu_new_y = int ((currCoor[1] + constants.STEP_LENGTH * 100 *
+			imu_new_y = int ((currCoor[1] + constants.STEP_LENGTH * (self.stepDetected - self.prevStep) * 100 *
 						 math.cos((bearingToFace - north) / 180.0 * math.pi)))
+			self.prevStep = self.stepDetected
 			return [imu_new_x, imu_new_y]
 		else:
 			if (self.stepDetected == 1 and abs(self.bearingFaced - self.prevBearing) >= constants.WALKING_DEGREE_ERROR):

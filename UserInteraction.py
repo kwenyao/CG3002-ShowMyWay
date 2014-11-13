@@ -108,7 +108,7 @@ class Voice():
 		self.variation = {'female1': ' -ven+f3', 'female2': ' -ven+f4',
 				'male1': ' -ven+m2', 'male2': ' -ven+m3'}
 		self.volume = str(100)
-		self.syntax_head = 'espeak -s150 -a'
+		self.syntax_head = 'espeak -s80 -a'
 		self.syntax_tail = " ' 2>/dev/null"
 
 	def setupVoice(self):
