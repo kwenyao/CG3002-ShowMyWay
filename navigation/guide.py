@@ -42,7 +42,7 @@ class Guide():
 	##########################################
 	def updateCoordinates(self, currCoor, north, apNodes, bearingToFace):
 		self.receiveDataFromArduino()
-		if self.stepDetected == 1 :
+		if self.stepDetected > self.prevStep :
 			self.timeSinceLastStep = time.time()
 		else:
 			self.timeSinceNoStep = time.time()
