@@ -4,7 +4,7 @@ import messages
 import subprocess
 import os
 from Queue import Queue
-
+import signal
 class VoiceHandler:
 	def __init__(self):
 		self.voiceLock = threading.Lock()
@@ -63,16 +63,20 @@ class VoiceHandler:
 			print "queue empty"
 			self.voiceQueue.put(message)
 			self.priority = msgPriority
+			self.prevMessage = message
 		elif (msgPriority == self.priority) and not (message == self.prevMessage):
 			self.voiceQueue.put(message)
+			self.prevMessage = message
 		elif (msgPriority > self.priority) and not (message == self.prevMessage):
 			self.voiceQueue.queue.clear()
 			self.voiceQueue.put(message)
 			self.priority = msgPriority
+			self.prevMessage = message
 		self.voiceLock.release()
 	
 	def sayMsg(self, message):
 		print "Voice Output: " + message
+		print "myself is " + str(self.voiceQueue.qsize())
 		voiceCmd = messages.VOICE_CMD_TEMPLATE.format(volume = 100, 
 													  voice = self.variation.get('female1'),
 													  msg = message)

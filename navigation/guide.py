@@ -185,7 +185,7 @@ class Guide():
 				self.isStairsDetected = True
 				self.isDownStairs = True
 				self.voiceOutput.addToQueue(messages.DOWN_STAIRS, constants.HIGH_PRIORITY)
-			else
+			else:
 				self.warningStairsCount += 1
 # 			self.voiceOutput.say(messages.DOWN_STAIRS)
 			self.voiceOutput.addToQueue(messages.DOWN_STAIRS, constants.HIGH_PRIORITY)
@@ -194,7 +194,7 @@ class Guide():
 				self.isStairsDetected = True
 				self.isUpStairs = True
 				self.voiceOutput.addToQueue(messages.UP_STAIRS, constants.HIGH_PRIORITY)
-			else
+			else:
 				self.warningStairsCount += 1
 # 			self.voiceOutput.say(messages.UP_STAIRS)		
 		else:
