@@ -29,7 +29,6 @@ class VoiceHandler:
 		
 	def voiceLoop(self):
 		while True:
-			print "in voice loop"
 			self.voiceLock.acquire()
 			if not self.voiceQueue.empty() and self.lastProcess is None:
 				message = self.voiceQueue.get()
@@ -64,7 +63,6 @@ class VoiceHandler:
 	####################################
 	def addToQueue(self, message, msgPriority):
 		if self.voiceQueue.empty():
-			print "queue empty"
 			self.voiceQueue.put(message)
 			self.priority = msgPriority
 		elif (msgPriority == self.priority) and not (message == self.prevMessage):

@@ -46,7 +46,7 @@ class Navigation():
 			offset = int(self.calculateOffset())
 			bearingToFace = (self.mapNorth + offset) % 360
 			self.currCoor = self.guide.updateCoordinates(self.currCoor, self.mapNorth, apNodes, bearingToFace)
-			self.guide.warnUser()
+			self.guide.warnUser(self.currCoor, self.mapNorth)
 			if(self.checkLocation(bearingToFace)):
 				break
 			self.guide.checkBearing(bearingToFace, self.currCoor, self.nextCoor)

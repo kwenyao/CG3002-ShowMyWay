@@ -15,6 +15,7 @@ def arduinoHandshake(voiceOutput):
 		message = "Handshake successful"
 	print message
 	voiceOutput.addToQueue(message, constants.LOW_PRIORITY)
+	print "voice out"
 
 def calibrateStep(voiceOutput):
 # 	voiceOutput = Voice()

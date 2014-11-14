@@ -5,6 +5,7 @@ import constants
 import math
 import messages
 import time
+from numpy import angle
 
 class Guide():
 	def __init__(self, voice):		
@@ -25,6 +26,9 @@ class Guide():
 		self.lastInstructionTime = 0
 		self.warningMessage = ""
 		self.prevStep = 0
+		self.prevAngleVoice = 0
+		self.warningStairsCount = 0
+		
 		### FLAGS ###
 		self.isStairsDetected = False
 		self.isUpStairs = False
@@ -56,11 +60,11 @@ class Guide():
 		# return newCoor
 		return imuCoor
 		
-	def warnUser(self):
+	def warnUser(self, currCoor, mapNorth):
 		self.warnHeadObstacle()
-		self.warnStairs()
-		self.guideAlongStairs()
-		pass
+		if mapNorth == 50 and (currCoor[0] <4350) and (currCoor[0] > 3700) and (currCoor[1] > 1800) and (currCoor[1] < 2750):   
+			self.warnStairs()
+			self.guideAlongStairs()
 		
 	def userReachedNode(self, node):
 		message = messages.NODE_REACHED_TEMPLATE.format(node = node['name'])
@@ -70,22 +74,30 @@ class Guide():
 	
 	def checkBearing(self, bearingToFace, currCoor, nextCoor):
 		bearingOffset = int(abs(bearingToFace - self.bearingFaced))
+		angleToTurn = 0
 		if ((bearingOffset > constants.ORIENTATION_DEGREE_ERROR) and
 			(abs(self.timeSinceLastStep-self.timeSinceNoStep) > constants.TIME_TO_CHECK_BEARING)):
 			if bearingToFace < self.bearingFaced:
 				if bearingOffset > 180 : 
 					message = messages.TURN_TEMPLATE.format(direction = "right", angle = (360 - bearingOffset))
+					angleToTurn = 360 - bearingOffset
 				else :
 					message = messages.TURN_TEMPLATE.format(direction = "left", angle = bearingOffset)
+					angleToTurn = bearingOffset
 			else:
 				if bearingOffset > 180 : 
 					message = messages.TURN_TEMPLATE.format(direction = "left", angle = 360 - bearingOffset)
+					angleToTurn = 360 - bearingOffset
 				else :
 					message = messages.TURN_TEMPLATE.format(direction = "right", angle = bearingOffset)
+					angleToTurn = bearingOffset
 			print message
 # 			self.voiceOutput.say(message)
-			self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
+			
+			if abs(self.prevAngleVoice - angleToTurn) != 1 : 
+				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
 			self.rightAfterBearingCheck = True
+			self.prevAngleVoice = angleToTurn
 			
 		else: #guide user to walk straight
 			if (self.rightAfterBearingCheck == True) or (time.time() - self.lastInstructionTime) >= constants.INSTRUCTIONS_FREQUENCY:
@@ -169,21 +181,27 @@ class Guide():
 	def warnStairs(self):
 		
 		if self.stairSensor - constants.IR_STAIRS_CONSTANT > constants.STAIR_LIMIT:				#downstairs
-			if self.isDownStairs is False:
+			if self.isDownStairs is False and self.warningStairsCount >= 5:
 				self.isStairsDetected = True
 				self.isDownStairs = True
+				self.voiceOutput.addToQueue(messages.DOWN_STAIRS, constants.HIGH_PRIORITY)
+			else
+				self.warningStairsCount += 1
 # 			self.voiceOutput.say(messages.DOWN_STAIRS)
 			self.voiceOutput.addToQueue(messages.DOWN_STAIRS, constants.HIGH_PRIORITY)
 		elif self.stairSensor - constants.IR_STAIRS_CONSTANT < -constants.STAIR_LIMIT:			#upstairs
-			if self.isUpStairs is False:
+			if self.isUpStairs is False and self.warningStairsCount >= 5:
 				self.isStairsDetected = True
 				self.isUpStairs = True
+				self.voiceOutput.addToQueue(messages.UP_STAIRS, constants.HIGH_PRIORITY)
+			else
+				self.warningStairsCount += 1
 # 			self.voiceOutput.say(messages.UP_STAIRS)		
-			self.voiceOutput.addToQueue(messages.UP_STAIRS, constants.HIGH_PRIORITY)
 		else:
 			self.isDownStairs = False
 			self.isUpStairs = False
 			self.isStairsDetected = False
+			self.warningStairsCount = 0
 			self.onPlatform = True
 			
 			
