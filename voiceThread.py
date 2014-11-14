@@ -2,6 +2,7 @@ import threading  # For Threads and Locks
 import time  # For time.sleep()
 import messages
 import subprocess
+import signal
 import os
 from Queue import Queue
 

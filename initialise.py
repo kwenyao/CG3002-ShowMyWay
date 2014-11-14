@@ -94,12 +94,15 @@ def getInitialInput(voiceOutput):
 	while confirmation != 1:
 # 		voiceOutput.say(messages.INPUT_END_BUILDING_NUMBER)
 		voiceOutput.addToQueue(messages.INPUT_END_BUILDING_NUMBER, constants.LOW_PRIORITY)
+		time.sleep(1)
 		userInput['buildingend'] = keyInput.getKeysInput()
 # 		voiceOutput.say(messages.INPUT_END_BUILDING_LEVEL)
 		voiceOutput.addToQueue(messages.INPUT_END_BUILDING_LEVEL, constants.LOW_PRIORITY)
+		time.sleep(1)
 		userInput['levelend'] = keyInput.getKeysInput()
 # 		voiceOutput.say(messages.INPUT_END_NODE)
 		voiceOutput.addToQueue(messages.INPUT_END_NODE, constants.LOW_PRIORITY)
+		time.sleep(1)
 		userInput['end'] = keyInput.getKeysInput()
 # 		voiceOutput.say(messages.INPUT_END_CONFIRMATION_TEMPLATE.format(building = userInput.get('buildingend'),
 # 																		  level = userInput.get('levelend'),
@@ -107,7 +110,9 @@ def getInitialInput(voiceOutput):
 		voiceOutput.addToQueue(messages.INPUT_END_CONFIRMATION_TEMPLATE.format(building = userInput.get('buildingend'),
 																		  level = userInput.get('levelend'),
 																		  end = userInput.get('end')), constants.LOW_PRIORITY)
+		time.sleep(1)
 		confirmation = int(keyInput.getKeysInput())
+		
 # 	voiceOutput.say(messages.INPUT_CONFIRMATION_SUCCESS)
 	voiceOutput.addToQueue(messages.INPUT_CONFIRMATION_SUCCESS, constants.LOW_PRIORITY)
 	return userInput
