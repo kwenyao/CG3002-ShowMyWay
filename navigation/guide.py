@@ -27,6 +27,7 @@ class Guide():
 		self.warningMessage = ""
 		self.prevStep = 0
 		self.prevAngleVoice = 0
+		self.warningStairsCount = 0
 		
 		### FLAGS ###
 		self.isStairsDetected = False
@@ -179,28 +180,28 @@ class Guide():
 	
 	def warnStairs(self):
 		
-		if self.stairSensor - constants.IR_STAIRS_CONSTANT > constants.STAIR_LIMIT:	
-			print constants.IR_STAIRS_CONSTANT
-			print self.stairSensor
-			print constants.STAIR_LIMIT			#downstairs
-			if self.isDownStairs is False:
+		if self.stairSensor - constants.IR_STAIRS_CONSTANT > constants.STAIR_LIMIT:				#downstairs
+			if self.isDownStairs is False and self.warningStairsCount >= 5:
 				self.isStairsDetected = True
 				self.isDownStairs = True
+				self.voiceOutput.addToQueue(messages.DOWN_STAIRS, constants.HIGH_PRIORITY)
+			else
+				self.warningStairsCount += 1
 # 			self.voiceOutput.say(messages.DOWN_STAIRS)
 			self.voiceOutput.addToQueue(messages.DOWN_STAIRS, constants.HIGH_PRIORITY)
 		elif self.stairSensor - constants.IR_STAIRS_CONSTANT < -constants.STAIR_LIMIT:			#upstairs
-			print constants.IR_STAIRS_CONSTANT
-			print self.stairSensor
-			print constants.STAIR_LIMIT
-			if self.isUpStairs is False:
+			if self.isUpStairs is False and self.warningStairsCount >= 5:
 				self.isStairsDetected = True
 				self.isUpStairs = True
+				self.voiceOutput.addToQueue(messages.UP_STAIRS, constants.HIGH_PRIORITY)
+			else
+				self.warningStairsCount += 1
 # 			self.voiceOutput.say(messages.UP_STAIRS)		
-			self.voiceOutput.addToQueue(messages.UP_STAIRS, constants.HIGH_PRIORITY)
 		else:
 			self.isDownStairs = False
 			self.isUpStairs = False
 			self.isStairsDetected = False
+			self.warningStairsCount = 0
 			self.onPlatform = True
 			
 			
