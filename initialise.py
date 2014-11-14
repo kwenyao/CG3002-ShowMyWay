@@ -8,7 +8,6 @@ import time
 def arduinoHandshake(voiceOutput):
 # 	voiceOutput = Voice()
 	arduino = Arduino()
-	arduino.resetArduino()
 	handshake = arduino.handshakeWithArduino()
 	if(handshake != "Done"):
 		message = messages.HANDSHAKE_FAIL_TEMPLATE.format(code = handshake)
@@ -40,7 +39,7 @@ def calibrateStep(voiceOutput):
 		constants.WALKING_DEGREE_ERROR = float(calibration_info_filtered[1])
 		constants.IR_STAIRS_CONSTANT = float(calibration_info_filtered[2])
 		constants.PEAK_ACC_VALUE = float(calibration_info_filtered[3])
-
+		#constants.COMPASS_OFFSET = float(calibration_info_filtered[3])
 
 		print "step size is " ,
 		print constants.STEP_LENGTH, 
@@ -64,6 +63,7 @@ def calibrateStep(voiceOutput):
 		constants.WALKING_DEGREE_ERROR = float((fileManager.readFileToList(data_path))[1])
 		constants.IR_STAIRS_CONSTANT = float((fileManager.readFileToList(data_path))[2])
 		constants.PEAK_ACC_VALUE = float((fileManager.readFileToList(data_path))[3])
+		#constants.COMPASS_OFFSET = float((fileManager.readFileToList(data_path))[3])
 		serial.serialWrite(str(constants.PEAK_ACC_VALUE))
 
 def getInitialInput(voiceOutput):

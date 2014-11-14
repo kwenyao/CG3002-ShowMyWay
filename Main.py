@@ -23,9 +23,7 @@ def main():
 
 	### VOICE THREAD ###
 	voiceOutput = VoiceHandler()
-	print "before"
 	voiceThread = threading.Thread(target = voiceOutput.voiceLoop)
-	print "after"
 	voiceThread.start()
 	
 	guiding = Guide(voiceOutput)
@@ -78,7 +76,7 @@ def main():
 		# map north stored as anti clockwise
 		# previous calculation is based on rotating anti clockwise, 
 		# current input is based on clockwise, hence need to offset
-		map_north = (abs(currmap.north-360)-5)%360
+		map_north = (abs(currmap.north-360))%360
 		mapNodes = currmap.mapNodes
 		navigate = Navigation(mapNodes, map_north, voiceOutput)
 		navigate.getRoute(interMapNodes[i*2], interMapNodes[i*2+1])

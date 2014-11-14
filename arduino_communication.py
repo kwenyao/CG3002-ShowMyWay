@@ -9,6 +9,7 @@ class Arduino():
 		isTimeOut = 0
 		print "enter handshake"
 		#handshake with GY87
+		self.resetArduino()
 		while(handshake == 0 and isTimeOut == 0):
 			message = serial.serialRead()
 			print "after serial read 1"
@@ -40,10 +41,10 @@ class Arduino():
 		
 	def resetArduino(self):
 		GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
-		GPIO.setup(22, GPIO.OUT) ## Setup GPIO Pin 22 to OUT
-		GPIO.output(22,False)
-		time.sleep(1)
-		GPIO.output(22,True) ## Turn on GPIO pin 22
+		GPIO.setup(15, GPIO.OUT) ## Setup GPIO Pin 22 to OUT
+		GPIO.output(15,False)
+		time.sleep(3)
+		GPIO.output(15,True) ## Turn on GPIO pin 22
 		
 class SerialCommunicator():
 	def __init__(self):

@@ -28,7 +28,7 @@ class Guide():
 		self.prevStep = 0
 		self.prevAngleVoice = 0
 		self.warningStairsCount = 0
-		
+		self.lastTurnTime = 0
 		### FLAGS ###
 		self.isStairsDetected = False
 		self.isUpStairs = False
@@ -94,8 +94,9 @@ class Guide():
 			print message
 # 			self.voiceOutput.say(message)
 			
-			if abs(self.prevAngleVoice - angleToTurn) != 1 : 
+			if abs(self.prevAngleVoice - angleToTurn) != 1  and (time.time() - self.lastTurnTime) >= constants.TURN_INSTRUCTION_FREQ: 
 				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
+				self.lastTurnTime = time.time()
 			self.rightAfterBearingCheck = True
 			self.prevAngleVoice = angleToTurn
 			
@@ -131,7 +132,7 @@ class Guide():
 				dataFiltered.append(dataSplited[i])
 		self.headSensor = float(dataFiltered[0])
 		self.stairSensor = float(dataFiltered[1])
-		self.bearingFaced = float(dataFiltered[2])
+		self.bearingFaced = (float(dataFiltered[2])+constants.COMPASS_OFFSET) % 360
 		self.stepDetected = float(dataFiltered[3])
 	
 	def updateIMUCoor(self, currCoor, north, bearingToFace):
