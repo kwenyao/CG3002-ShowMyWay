@@ -112,16 +112,16 @@ class Navigation():
 			self.guide.userReachedNode(self.currNode)
 			self.guide.userNextNode(self.nextNode)
 			
-			if int(self.currNode.get('id')) == 16 and int(self.nextNode.get('id') == 37) :
+			if (self.currNode.get('name')) == 'P16' and (self.nextNode.get('name') == 'P37') :
 				message = messages.STAIRS_AHEAD_TEMPLATE.format(steps = int(4.5/constants.STEP_LENGTH))
 				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
-			elif int(self.currNode.get('id')) == 37 and int(self.nextNode.get('id') == 16) :
+			elif (self.currNode.get('name')) == 'P37' and (self.nextNode.get('name') == 'P16') :
 				message = messages.STAIRS_AHEAD_TEMPLATE.format(steps = 2)
 				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
-			elif int(self.currNode.get('id')) == 11 and int(self.nextNode.get('id') == 13) :
+			elif (self.currNode.get('name')) == 'Student Area' and (self.nextNode.get('name') == 'P13') :
 				message = messages.STAIRS_AHEAD_TEMPLATE.format(steps = int(3.0/constants.STEP_LENGTH))
 				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
-			elif int(self.currNode.get('id')) == 13 and int(self.nextNode.get('id') == 11) :
+			elif (self.currNode.get('name')) == 'P13' and (self.nextNode.get('name') == 'Student Area') :
 				message = messages.STAIRS_AHEAD_TEMPLATE.format(steps = int(5.0/constants.STEP_LENGTH))
 				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
 		self.guide.checkBearing(bearingToFace, self.currCoor, self.nextCoor)
