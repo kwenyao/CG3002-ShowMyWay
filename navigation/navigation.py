@@ -4,7 +4,7 @@ from visualiseMap import visualiseMap
 import constants
 import math
 import time
-
+import messages
 class Navigation():
 	def __init__(self, mapNodes, north, voice):		
 		### OBJECTS ###
@@ -13,6 +13,7 @@ class Navigation():
 			self.visual.setMap(mapNodes,0)
 		self.path = Path(mapNodes)
 		self.guide = Guide(voice)
+		self.voiceOutput = voice
 		
 		### CLASS ATTRIBUTES ###
 		self.mapNodes = mapNodes
@@ -110,5 +111,18 @@ class Navigation():
 			self.nextCoor = (int(self.nextNode.get('x')), int(self.nextNode.get('y')))
 			self.guide.userReachedNode(self.currNode)
 			self.guide.userNextNode(self.nextNode)
+			
+			if int(self.currNode.get('id')) == 16 and int(self.nextNode.get('id') == 37) :
+				message = messages.STAIRS_AHEAD_TEMPLATE.format(steps = int(4.5/constants.STEP_LENGTH))
+				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
+			elif int(self.currNode.get('id')) == 37 and int(self.nextNode.get('id') == 16) :
+				message = messages.STAIRS_AHEAD_TEMPLATE.format(steps = 2)
+				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
+			elif int(self.currNode.get('id')) == 11 and int(self.nextNode.get('id') == 13) :
+				message = messages.STAIRS_AHEAD_TEMPLATE.format(steps = int(3.0/constants.STEP_LENGTH))
+				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
+			elif int(self.currNode.get('id')) == 13 and int(self.nextNode.get('id') == 11) :
+				message = messages.STAIRS_AHEAD_TEMPLATE.format(steps = int(5.0/constants.STEP_LENGTH))
+				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
 		self.guide.checkBearing(bearingToFace, self.currCoor, self.nextCoor)
 		return False
