@@ -137,7 +137,7 @@ class Guide():
 				dataFiltered.append(dataSplited[i])
 		self.headSensor = float(dataFiltered[0])
 		self.stairSensor = float(dataFiltered[1])
-		self.bearingFaced = (float(dataFiltered[2])+constants.COMPASS_OFFSET) % 360
+		self.bearingFaced = (float(dataFiltered[2])-constants.YPR_OFFSET + constants.COMPASS_OFFSET) % 360
 		self.stepDetected = float(dataFiltered[3])
 	
 	def updateIMUCoor(self, currCoor, north, bearingToFace):

@@ -32,7 +32,7 @@ def main():
 	initialise.calibrateStep(voiceOutput)
 	#userInput = initialise.getInitialInput(voiceOutput)
 
-	userInput = {'buildingstart': '2', 'levelstart': '2', 'start': '2', 'buildingend': '2', 'levelend': '3',  'end': '8'}
+	userInput = {'buildingstart': '1', 'levelstart': '2', 'start': '14', 'buildingend': '2', 'levelend': '2',  'end': '17'}
 	startKey = userInput.get('buildingstart') + userInput.get('levelstart')
 	endKey = userInput.get('buildingend') + userInput.get('levelend')
 	mapUsed.append(allMaps.get(startKey))

@@ -39,7 +39,6 @@ def calibrateStep(voiceOutput):
 		constants.WALKING_DEGREE_ERROR = float(calibration_info_filtered[1])
 		constants.IR_STAIRS_CONSTANT = float(calibration_info_filtered[2])
 		constants.PEAK_ACC_VALUE = float(calibration_info_filtered[3])
-		#constants.COMPASS_OFFSET = float(calibration_info_filtered[3])
 
 		print "step size is " ,
 		print constants.STEP_LENGTH, 
@@ -63,8 +62,15 @@ def calibrateStep(voiceOutput):
 		constants.WALKING_DEGREE_ERROR = float((fileManager.readFileToList(data_path))[1])
 		constants.IR_STAIRS_CONSTANT = float((fileManager.readFileToList(data_path))[2])
 		constants.PEAK_ACC_VALUE = float((fileManager.readFileToList(data_path))[3])
-		#constants.COMPASS_OFFSET = float((fileManager.readFileToList(data_path))[3])
 		serial.serialWrite(str(constants.PEAK_ACC_VALUE))
+	dataReceived = serial.serialRead()
+	dataSplited = dataReceived.split(' ')
+	dataFiltered = []
+	for i in range(len(dataSplited)):
+		if dataSplited[i] != "":
+			dataFiltered.append(dataSplited[i])
+	constants.COMPASS_OFFSET = float(dataFiltered[0])
+	constants.YPR_OFFSET = float(dataFiltered[1])
 
 def getInitialInput(voiceOutput):
 # 	voiceOutput = Voice()
