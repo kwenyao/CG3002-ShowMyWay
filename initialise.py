@@ -8,6 +8,7 @@ import time
 def arduinoHandshake(voiceOutput):
 # 	voiceOutput = Voice()
 	arduino = Arduino()
+	arduino.resetArduino()
 	handshake = arduino.handshakeWithArduino()
 	if(handshake != "Done"):
 		message = messages.HANDSHAKE_FAIL_TEMPLATE.format(code = handshake)

@@ -1,4 +1,6 @@
 import serial
+import RPi.GPIO as GPIO ## Import GPIO library
+import time
 
 class Arduino():		
 	def handshakeWithArduino(self):
@@ -35,6 +37,13 @@ class Arduino():
 			return str(isTimeOut)
 		else:
 			return "Done"
+		
+	def resetArduino(self):
+		GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
+		GPIO.setup(22, GPIO.OUT) ## Setup GPIO Pin 22 to OUT
+		GPIO.output(22,False)
+		time.sleep(1)
+		GPIO.output(22,True) ## Turn on GPIO pin 22
 		
 class SerialCommunicator():
 	def __init__(self):
