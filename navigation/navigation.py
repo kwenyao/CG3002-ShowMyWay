@@ -109,5 +109,6 @@ class Navigation():
 			self.nextNode = self.routeNodes.get((self.currNode.get('linkTo'))[0])
 			self.nextCoor = (int(self.nextNode.get('x')), int(self.nextNode.get('y')))
 			self.guide.userReachedNode(self.currNode)
+			self.guide.userNextNode(self.nextNode)
 		self.guide.checkBearing(bearingToFace, self.currCoor, self.nextCoor)
 		return False

@@ -71,6 +71,11 @@ class Guide():
 		print message
 # 		self.voiceOutput.say(message,2)
 		self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
+		
+	def userNextNode(self, nextNode):
+		message = messages.NEXT_NODE_TEMPLATE.format(node = nextNode['name'])
+		print message
+		self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
 	
 	def checkBearing(self, bearingToFace, currCoor, nextCoor):
 		bearingOffset = int(abs(bearingToFace - self.bearingFaced))
