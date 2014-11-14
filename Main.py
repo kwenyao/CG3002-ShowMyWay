@@ -32,9 +32,9 @@ def main():
 	
 	initialise.arduinoHandshake(voiceOutput) #add in the code whereby if handshake fails, try another few more times
 	initialise.calibrateStep(voiceOutput)
-	userInput = initialise.getInitialInput(voiceOutput)
+	#userInput = initialise.getInitialInput(voiceOutput)
 
-# 	userInput = {'buildingstart': '1', 'levelstart': '2', 'start': '26', 'buildingend': '2', 'levelend': '2',  'end': '2'}
+	userInput = {'buildingstart': '2', 'levelstart': '2', 'start': '2', 'buildingend': '2', 'levelend': '3',  'end': '8'}
 	startKey = userInput.get('buildingstart') + userInput.get('levelstart')
 	endKey = userInput.get('buildingend') + userInput.get('levelend')
 	mapUsed.append(allMaps.get(startKey))
