@@ -3,7 +3,10 @@ from ServerSync import MapSync
 from UserInteraction import Voice
 import initialise
 import messages
+import threading
 from navigation.guide import Guide
+from voiceThread import VoiceHandler
+import constants
 
 def main():	
 	mapUsed = [] 				#store the mapsync obj of the maps to be used later.
@@ -16,12 +19,18 @@ def main():
 	COM23.loadLocation('2', '3')
 	allMaps = {'12' : COM12, '22' : COM22 , '23': COM23}
 	
-	voiceOutput = Voice()
-	guiding = Guide()
-	initialise.arduinoHandshake() #add in the code whereby if handshake fails, try another few more times
-	initialise.calibrateStep()
-	# userInput = initialise.getInitialInput()
-	userInput = {'buildingstart': '1', 'levelstart': '2', 'start': '26', 'buildingend': '2', 'levelend': '2',  'end': '2'}
+# 	voiceOutput = Voice()
+
+	### VOICE THREAD ###
+	voiceOutput = VoiceHandler()
+	voiceThread = threading.Thread(target = voiceOutput)
+	voiceThread.start()
+	
+	guiding = Guide(voiceOutput)
+	initialise.arduinoHandshake(voiceOutput) #add in the code whereby if handshake fails, try another few more times
+	initialise.calibrateStep(voiceOutput)
+	userInput = initialise.getInitialInput(voiceOutput)
+# 	userInput = {'buildingstart': '1', 'levelstart': '2', 'start': '26', 'buildingend': '2', 'levelend': '2',  'end': '2'}
 	startKey = userInput.get('buildingstart') + userInput.get('levelstart')
 	endKey = userInput.get('buildingend') + userInput.get('levelend')
 	mapUsed.append(allMaps.get(startKey))
@@ -67,11 +76,12 @@ def main():
 		# current input is based on clockwise, hence need to offset
 		map_north = (abs(currmap.north-360)-5)%360
 		mapNodes = currmap.mapNodes
-		navigate = Navigation(mapNodes, map_north)
+		navigate = Navigation(mapNodes, map_north, voiceOutput)
 		navigate.getRoute(interMapNodes[i*2], interMapNodes[i*2+1])
 		navigate.beginNavigation(apNodes)
 		if i != len(mapUsed)-1:
-			voiceOutput.say('You have reach the end of a map, switching to a new map.',2)
+# 			voiceOutput.say('You have reach the end of a map, switching to a new map.',2)
+			voiceOutput.addToQueue('You have reach the end of a map, switching to a new map.', constants.HIGH_PRIORITY)
 	guiding.destinationReached()
 		
 if __name__ == "__main__":

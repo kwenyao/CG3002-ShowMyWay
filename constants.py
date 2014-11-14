@@ -13,3 +13,9 @@ IR_STAIRS_CONSTANT = 0
 PEAK_ACC_VALUE = 0 #the peak accelerometer measured by arduino during the calibration phase. to be stored in memory when calibration phase is not ran again. 
 WALKING_DEGREE_ERROR = 20
 TIME_TO_CHECK_BEARING = 2 #time delay since last step to check user bearing
+
+### CONSTANTS USED IN VOICE ###
+HIGHEST_PRIORITY = 3
+HIGH_PRIORITY = 2
+MED_PRIORITY = 1
+LOW_PRIORITY = 0

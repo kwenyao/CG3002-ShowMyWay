@@ -1,10 +1,6 @@
-'''
-Created on 5 Nov, 2014
+#!/usr/bin/env python
 
-@author: AdminNUS
-'''
 import subprocessVariables
-import messages
 import subprocess
 
 '''
@@ -26,15 +22,19 @@ high priority:
 #########################
 
 lastProcess = None
-
+print "test"
 while True:
-	if subprocessVariables.currPriority < subprocessVariables.priority:
+	
+	if not subprocessVariables.voiceQueue.empty() and lastProcess is None:
+		message = subprocessVariables.get()
+		lastProcess = subprocessVariables.sayMsg(message)
+	elif subprocessVariables.currPriority < subprocessVariables.priority:
 		killProcess(lastProcess)
 		message = subprocessVariables.get()
-		sayMsg(message)
-	elif isProcessDone(lastProcess):
+		lastProcess = subprocessVariables.sayMsg(message)
+	elif not lastProcess is None and subprocessVariables.isProcessDone(lastProcess):
 		message = subprocessVariables.get()
-		sayMsg(message)
+		lastProcess = subprocessVariables.sayMsg(message)
 	
 	
 # 	if isHighPriority:

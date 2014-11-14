@@ -7,11 +7,12 @@ import messages
 import time
 
 class Guide():
-	def __init__(self):		
+	def __init__(self, voice):		
 		### OBJECTS ###
 		self.wifi = Wifi()
-		self.voiceOutput = Voice()
+# 		self.voiceOutput = Voice()
 		self.serial = SerialCommunicator()
+		self.voiceOutput = voice
 		
 		### CLASS ATTRIBUTES ###
 		self.prevBearing = 0
@@ -56,15 +57,16 @@ class Guide():
 		return imuCoor
 		
 	def warnUser(self):
-		#self.warnHeadObstacle()
-		#self.warnStairs()
-		#self.guideAlongStairs()
+		self.warnHeadObstacle()
+		self.warnStairs()
+		self.guideAlongStairs()
 		pass
 		
 	def userReachedNode(self, node):
 		message = messages.NODE_REACHED_TEMPLATE.format(node = node['name'])
 		print message
-		self.voiceOutput.say(message,2)
+# 		self.voiceOutput.say(message,2)
+		self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
 	
 	def checkBearing(self, bearingToFace, currCoor, nextCoor):
 		bearingOffset = int(abs(bearingToFace - self.bearingFaced))
@@ -81,7 +83,8 @@ class Guide():
 				else :
 					message = messages.TURN_TEMPLATE.format(direction = "right", angle = bearingOffset)
 			print message
-			self.voiceOutput.say(message)
+# 			self.voiceOutput.say(message)
+			self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
 			self.rightAfterBearingCheck = True
 			
 		else: #guide user to walk straight
@@ -91,7 +94,8 @@ class Guide():
 				stepsToNextNode = int((distToNextNode/100) / (constants.STEP_LENGTH)) #changed dist from cm to meters 
 				message = messages.WALK_FORWARD_TEMPLATE.format(steps = stepsToNextNode)
 				print message
-				self.voiceOutput.say(message)
+# 				self.voiceOutput.say(message)
+				self.voiceOutput.addToQueue(message, constants.LOW_PRIORITY)
 				self.lastInstructionTime = time.time()
 				self.rightAfterBearingCheck = False
 		self.prevBearing = self.bearingFaced # Why?!?!
@@ -99,7 +103,8 @@ class Guide():
 	def destinationReached(self):
 		message = messages.DESTINATION_REACHED
 		print message
-		self.voiceOutput.say(message,3)
+# 		self.voiceOutput.say(message,3)
+		self.voiceOutput.addToQueue(message, constants.HIGHEST_PRIORITY)
 		
 	##########################################
 	# Helper Functions
@@ -158,7 +163,8 @@ class Guide():
 		if self.headSensor != 0:
 			message = messages.HEAD_OBSTACLE_TEMPLATE.format(distance = self.headSensor)
 			print message
-			self.voiceOutput.say(message)
+# 			self.voiceOutput.say(message)
+			self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
 	
 	def warnStairs(self):
 		
@@ -166,19 +172,18 @@ class Guide():
 			if self.isDownStairs is False:
 				self.isStairsDetected = True
 				self.isDownStairs = True
-				self.warningMessage = messages.DOWN_STAIRS
-			self.voiceOutput.say(self.warningMessage)
+# 			self.voiceOutput.say(messages.DOWN_STAIRS)
+			self.voiceOutput.addToQueue(messages.DOWN_STAIRS, constants.HIGH_PRIORITY)
 		elif self.stairSensor - constants.IR_STAIRS_CONSTANT < -constants.STAIR_LIMIT:			#upstairs
 			if self.isUpStairs is False:
 				self.isStairsDetected = True
 				self.isUpStairs = True
-				self.warningMessage = messages.UP_STAIRS
-			self.voiceOutput.say(self.warningMessage)		
+# 			self.voiceOutput.say(messages.UP_STAIRS)		
+			self.voiceOutput.addToQueue(messages.UP_STAIRS, constants.HIGH_PRIORITY)
 		else:
 			self.isDownStairs = False
 			self.isUpStairs = False
 			self.isStairsDetected = False
-			self.warningMessage = ""
 			self.onPlatform = True
 			
 			
@@ -206,11 +211,13 @@ class Guide():
 			elif (self.isStairsDetected is True) and self.isUpStairs:
 				message = messages.TAKE_ONE_STEP_TEMPLATE.format(direction = "up")
 				print "                                           take one step up carefully"
-				self.voiceOutput.say(message)
+# 				self.voiceOutput.say(message)
+				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
 			elif (self.isStairsDetected is True) and self.isDownStairs:
 				message = messages.TAKE_ONE_STEP_TEMPLATE.format(direction = "down")
 				print "                                           take one step down carefully"
-				self.voiceOutput.say(message)
+# 				self.voiceOutput.say(message)
+				self.voiceOutput.addToQueue(message, constants.HIGH_PRIORITY)
 			return
 		else:
 			#user taking a step

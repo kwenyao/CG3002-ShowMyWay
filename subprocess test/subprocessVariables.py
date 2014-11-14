@@ -18,6 +18,7 @@ currPriority = 0
 
 
 def addToQueue(message, msgPriority):
+	global priority
 	if voiceQueue.empty():
 		voiceQueue.put(message)
 		priority = msgPriority
@@ -29,11 +30,18 @@ def addToQueue(message, msgPriority):
 		priority = msgPriority
 		 
 def sayMsg(message):
+	global currPriority
 	print "Voice Output: " + message
 	voiceCmd = messages.VOICE_CMD_TEMPLATE.format(volume = 100, 
 												  voice = variation.get('female1'),
-												  msg = nextMessage)
+												  msg = message)
+	process = subprocess.Popen(voiceCmd, 
+									shell=True, 
+									stdout=subprocess.PIPE, 
+									preexec_fn=os.setsid)
 	currPriority = priority
+	print process
+	return process
 
 def killProcess(process):
 	os.killpg(process.pid, signal.SIGTERM)

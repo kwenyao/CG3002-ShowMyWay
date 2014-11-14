@@ -6,13 +6,13 @@ import math
 import time
 
 class Navigation():
-	def __init__(self, mapNodes, north):		
+	def __init__(self, mapNodes, north, voice):		
 		### OBJECTS ###
 		if constants.VISUALISATION:
 			self.visual = visualiseMap(1300,1300)
 			self.visual.setMap(mapNodes,0)
 		self.path = Path(mapNodes)
-		self.guide = Guide()
+		self.guide = Guide(voice)
 		
 		### CLASS ATTRIBUTES ###
 		self.mapNodes = mapNodes
