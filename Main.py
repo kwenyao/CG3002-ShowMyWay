@@ -23,13 +23,17 @@ def main():
 
 	### VOICE THREAD ###
 	voiceOutput = VoiceHandler()
-	voiceThread = threading.Thread(target = voiceOutput)
+	print "before"
+	voiceThread = threading.Thread(target = voiceOutput.voiceLoop)
+	print "after"
 	voiceThread.start()
 	
 	guiding = Guide(voiceOutput)
+	
 	initialise.arduinoHandshake(voiceOutput) #add in the code whereby if handshake fails, try another few more times
 	initialise.calibrateStep(voiceOutput)
 	userInput = initialise.getInitialInput(voiceOutput)
+
 # 	userInput = {'buildingstart': '1', 'levelstart': '2', 'start': '26', 'buildingend': '2', 'levelend': '2',  'end': '2'}
 	startKey = userInput.get('buildingstart') + userInput.get('levelstart')
 	endKey = userInput.get('buildingend') + userInput.get('levelend')

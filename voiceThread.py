@@ -24,9 +24,10 @@ class VoiceHandler:
 		
 	def voiceLoop(self):
 		while True:
-			print "in voice loop"
 			self.voiceLock.acquire()
-			if not self.voiceQueue.empty() and self.lastProcess is None:
+			if self.voiceQueue.empty():
+				pass
+			elif self.lastProcess is None:
 				message = self.voiceQueue.get()
 				self.sayMsg(message)
 			elif self.currPriority < self.priority:
@@ -37,7 +38,7 @@ class VoiceHandler:
 				message = self.voiceQueue.get()
 				self.sayMsg(message)
 			self.voiceLock.release()
-			time.sleep(0.5)
+			time.sleep(1)
 		
 # 	def mainLoop(self):
 # 		count = 0
@@ -71,7 +72,6 @@ class VoiceHandler:
 		self.voiceLock.release()
 	
 	def sayMsg(self, message):
-		global currPriority
 		print "Voice Output: " + message
 		voiceCmd = messages.VOICE_CMD_TEMPLATE.format(volume = 100, 
 													  voice = self.variation.get('female1'),
